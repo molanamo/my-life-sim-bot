@@ -1,4 +1,4 @@
-import express from "express";
+const express = require("express");
 
 const app = express();
 app.use(express.json());
@@ -8,49 +8,58 @@ const SECRET_PATH = process.env.SECRET_PATH || "secret";
 const PORT = process.env.PORT || 3000;
 
 if (!BOT_TOKEN) {
-  console.error("Missing BOT_TOKEN env var");
+  console.error("BOT_TOKEN not found");
   process.exit(1);
 }
 
-async function tg(method, payload) {
-  const r = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, {
+async function tg(method, data) {
+  const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
   });
-  return r.json();
+  return res.json();
 }
 
 async function sendMessage(chatId, text) {
-  return tg("sendMessage", { chat_id: chatId, text });
+  return tg("sendMessage", {
+    chat_id: chatId,
+    text: text
+  });
 }
 
-app.get("/", (req, res) => res.send("OK"));
+app.get("/", (req, res) => {
+  res.send("Bot is running");
+});
 
 app.post(`/webhook/${SECRET_PATH}`, async (req, res) => {
   try {
-    const msg = req.body?.message;
-    if (!msg) return res.sendStatus(200);
+    const message = req.body.message;
 
-    const chatId = msg.chat.id;
-    const text = (msg.text || "").trim();
+    if (!message) {
+      return res.sendStatus(200);
+    }
+
+    const chatId = message.chat.id;
+    const text = (message.text || "").trim();
 
     if (text === "/start") {
-      await sendMessage(chatId, "سلام! ربات فعاله ✅\nدستورها:\n/ping");
+      await sendMessage(chatId, "سلام ✅\nربات فعاله");
     } else if (text === "/ping") {
       await sendMessage(chatId, "pong ✅");
     } else {
-      await sendMessage(chatId, "دستور نامعتبر. /ping رو بزن.");
+      await sendMessage(chatId, "دستور نامعتبره");
     }
 
-    return res.sendStatus(200);
-  } catch (e) {
-    console.error("Webhook error:", e);
-    return res.sendStatus(200);
+    res.sendStatus(200);
+  } catch (error) {
+    console.error("Error:", error);
+    res.sendStatus(200);
   }
 });
 
 app.listen(PORT, () => {
-  console.log("Listening on", PORT);
-  console.log("Webhook path:", `/webhook/${SECRET_PATH}`);
+  console.log(`Server started on port ${PORT}`);
 });
