@@ -1,20 +1,18 @@
 // index.js
-// شبیه‌ساز زندگی — ربات تلگرام (Polling)
-// مهم: توکن را فقط در Railway Variables با نام BOT_TOKEN بگذارید.
+// Life Simulator — Telegram Bot (Polling) | Professional Persian UI
+// IMPORTANT: Set BOT_TOKEN in Railway Variables (never hardcode)
 
 const TelegramBot = require("node-telegram-bot-api");
-
 const token = process.env.BOT_TOKEN;
 if (!token) throw new Error("BOT_TOKEN تنظیم نشده است");
 
 const bot = new TelegramBot(token, { polling: true });
 
-/** ---------------- ذخیره‌سازی موقت (بعداً دیتابیس) ---------------- */
+/** ---------------- In-memory storage (later: DB) ---------------- */
 const users = new Map();   // userId -> { profile, stats, createdAt }
 const states = new Map();  // userId -> { section, temp }
 
-/** ---------------- داده‌ها ---------------- */
-// ۳۱ استان + حداقل ۱۰ شهرستان/شهر برای هرکدام
+/** ---------------- Data ---------------- */
 const IRAN = {
   "آذربایجان شرقی": ["تبریز","مراغه","مرند","میانه","اهر","سراب","بناب","شبستر","جلفا","هریس"],
   "آذربایجان غربی": ["ارومیه","خوی","مهاباد","بوکان","میاندوآب","سلماس","نقده","پیرانشهر","شاهین‌دژ","تکاب"],
@@ -50,75 +48,78 @@ const IRAN = {
 };
 
 const GENDERS = [
-  { id: "male", label: "👨 مرد" },
-  { id: "female", label: "👩 زن" }
+  { id: "male", label: "مرد" },
+  { id: "female", label: "زن" }
 ];
 
 const AGES = [18, 20, 22, 24, 26, 28, 30, 33, 36, 40];
 
 const SKIN_TONES = [
-  { id: "very_fair", label: "🤍 خیلی روشن" },
-  { id: "fair", label: "🩶 روشن" },
-  { id: "wheatish", label: "🟤 گندمی" },
-  { id: "tan", label: "🤎 سبزه" },
-  { id: "dark", label: "🖤 تیره" }
+  { id: "very_fair", label: "خیلی روشن" },
+  { id: "fair", label: "روشن" },
+  { id: "wheatish", label: "گندمی" },
+  { id: "tan", label: "سبزه" },
+  { id: "dark", label: "تیره" }
 ];
 
 const DIFFICULTIES = [
-  { id: "easy", label: "🟢 آسان" },
-  { id: "normal", label: "🟡 معمولی" },
-  { id: "hard", label: "🟠 سخت" },
-  { id: "brutal", label: "🔴 بی‌رحم" }
+  { id: "easy", label: "آسان" },
+  { id: "normal", label: "معمولی" },
+  { id: "hard", label: "سخت" },
+  { id: "brutal", label: "بی‌رحم" }
 ];
 
 const BACKGROUNDS = [
-  { id: "student", label: "🎓 دانش‌آموز/دانشجو" },
-  { id: "intern", label: "🧑‍🔧 کارآموز" },
-  { id: "unemployed", label: "💼 بیکار" },
-  { id: "mid_family", label: "🏠 خانواده متوسط" },
-  { id: "poor_family", label: "🏚 خانواده ضعیف" },
-  { id: "rich_family", label: "👑 خانواده مرفه" }
+  { id: "student", label: "دانش‌آموز/دانشجو" },
+  { id: "intern", label: "کارآموز" },
+  { id: "unemployed", label: "بیکار" },
+  { id: "mid_family", label: "خانواده متوسط" },
+  { id: "poor_family", label: "خانواده ضعیف" },
+  { id: "rich_family", label: "خانواده مرفه" }
 ];
 
 const HEALTHS = [
-  { id: "excellent", label: "💪 عالی" },
-  { id: "good", label: "🙂 خوب" },
-  { id: "normal", label: "😐 معمولی" },
-  { id: "weak", label: "🤒 ضعیف" }
+  { id: "excellent", label: "عالی" },
+  { id: "good", label: "خوب" },
+  { id: "normal", label: "معمولی" },
+  { id: "weak", label: "ضعیف" }
 ];
 
-/** ---------------- UI ---------------- */
+/** ---------------- UI (Professional) ---------------- */
+const BTN = {
+  HOME: "منوی اصلی",
+  PROFILE: "پروفایل",
+  CREATE: "ساخت شخصیت",
+  HELP: "راهنما"
+};
+
 function replyMenu() {
   return {
     reply_markup: {
       keyboard: [
-        ["🏠 منوی اصلی", "🪪 پروفایل"],
-        ["🧬 ساخت شخصیت", "ℹ️ راهنما"]
+        [BTN.HOME, BTN.PROFILE],
+        [BTN.CREATE, BTN.HELP]
       ],
       resize_keyboard: true
     }
   };
 }
 
-function inlineMainMenu() {
-  return {
-    reply_markup: {
-      inline_keyboard: [
-        [{ text: "🧬 ساخت شخصیت", callback_data: "create:start" }],
-        [{ text: "🪪 مشاهده پروفایل", callback_data: "profile:show" }]
-      ]
-    }
-  };
-}
-
-function sendMainMenu(chatId) {
-  bot.sendMessage(chatId, "🏠 منوی اصلی", replyMenu());
-  return bot.sendMessage(chatId, "یکی از گزینه‌های زیر را انتخاب کن:", inlineMainMenu());
+function sendHome(chatId) {
+  bot.sendMessage(
+    chatId,
+    "به «شبیه‌ساز زندگی» خوش آمدید.\n\nاز منوی زیر گزینه موردنظر را انتخاب کنید:",
+    replyMenu()
+  );
 }
 
 /** ---------------- Helpers ---------------- */
 function pickLabel(list, id) {
   return list.find(x => x.id === id)?.label || id;
+}
+
+function clamp(n, min, max) {
+  return Math.max(min, Math.min(max, n));
 }
 
 function buildInitialStats(profile) {
@@ -130,7 +131,7 @@ function buildInitialStats(profile) {
     luck: 50
   };
 
-  // اثر سختی
+  // Difficulty effects
   switch (profile.difficulty) {
     case "easy":
       base.money = 3000; base.health = 110; base.luck = 70;
@@ -146,7 +147,7 @@ function buildInitialStats(profile) {
       break;
   }
 
-  // اثر پیش‌زمینه
+  // Background effects
   switch (profile.background) {
     case "rich_family": base.money += 2000; break;
     case "poor_family": base.money -= 300; base.happiness -= 5; break;
@@ -154,61 +155,108 @@ function buildInitialStats(profile) {
     case "unemployed": base.happiness -= 8; break;
   }
 
-  // اثر سلامت اولیه
+  // Health init effects
   switch (profile.healthInit) {
     case "excellent": base.health += 10; break;
     case "good": base.health += 5; break;
     case "weak": base.health -= 10; break;
   }
 
-  // محدودسازی
   base.money = Math.max(0, base.money);
-  base.energy = Math.min(120, Math.max(0, base.energy));
-  base.health = Math.min(120, Math.max(0, base.health));
-  base.happiness = Math.min(120, Math.max(0, base.happiness));
-  base.luck = Math.min(100, Math.max(0, base.luck));
+  base.energy = clamp(base.energy, 0, 120);
+  base.health = clamp(base.health, 0, 120);
+  base.happiness = clamp(base.happiness, 0, 120);
+  base.luck = clamp(base.luck, 0, 100);
 
   return base;
 }
 
-function profileText(profile, stats) {
+function formatProfile(profile, stats) {
   return [
-    "🪪 پروفایل شخصیت",
+    "پروفایل شخصیت",
+    "—",
+    `نام: ${profile.name}`,
+    `جنسیت: ${pickLabel(GENDERS, profile.gender)}`,
+    `سن: ${profile.age}`,
+    `استان: ${profile.province}`,
+    `شهر/شهرستان: ${profile.city}`,
+    `رنگ پوست: ${pickLabel(SKIN_TONES, profile.skin)}`,
+    `سختی: ${pickLabel(DIFFICULTIES, profile.difficulty)}`,
+    `پیش‌زمینه: ${pickLabel(BACKGROUNDS, profile.background)}`,
+    `سلامت اولیه: ${pickLabel(HEALTHS, profile.healthInit)}`,
     "",
-    `👤 نام: ${profile.name}`,
-    `🧬 جنسیت: ${pickLabel(GENDERS, profile.gender)}`,
-    `🎂 سن: ${profile.age}`,
-    `🗺 استان: ${profile.province}`,
-    `🏙 شهرستان/شهر: ${profile.city}`,
-    `🎨 رنگ پوست: ${pickLabel(SKIN_TONES, profile.skin)}`,
-    `🧠 سختی زندگی: ${pickLabel(DIFFICULTIES, profile.difficulty)}`,
-    `💼 پیش‌زمینه: ${pickLabel(BACKGROUNDS, profile.background)}`,
-    `❤️ سلامت اولیه: ${pickLabel(HEALTHS, profile.healthInit)}`,
-    "",
-    "📊 وضعیت اولیه",
-    `💰 پول: ${stats.money}`,
-    `⚡ انرژی: ${stats.energy}`,
-    `❤️ سلامتی: ${stats.health}`,
-    `🙂 شادی: ${stats.happiness}`,
-    `🍀 شانس: ${stats.luck}`
+    "وضعیت اولیه",
+    "—",
+    `پول: ${stats.money}`,
+    `انرژی: ${stats.energy}`,
+    `سلامتی: ${stats.health}`,
+    `شادی: ${stats.happiness}`,
+    `شانس: ${stats.luck}`
   ].join("\n");
 }
 
-/** ---------------- ویزارد ساخت شخصیت ---------------- */
-function startCreation(userId, chatId) {
+function ensureState(userId) {
+  if (!states.has(userId)) states.set(userId, { section: "name", temp: {} });
+  return states.get(userId);
+}
+
+function cancelCreation(userId) {
+  states.delete(userId);
+}
+
+/** ---------------- Pagination for provinces ---------------- */
+const PROVINCE_PAGE_SIZE = 8; // professional: not too long
+function getProvincePages() {
+  const provinces = Object.keys(IRAN).sort((a, b) => a.localeCompare(b, "fa"));
+  const pages = [];
+  for (let i = 0; i < provinces.length; i += PROVINCE_PAGE_SIZE) {
+    pages.push(provinces.slice(i, i + PROVINCE_PAGE_SIZE));
+  }
+  return pages;
+}
+
+function provinceKeyboard(pageIndex = 0) {
+  const pages = getProvincePages();
+  const page = pages[clamp(pageIndex, 0, pages.length - 1)];
+
+  const rows = page.map(p => ([{ text: p, callback_data: `create:province:${p}` }]));
+
+  const navRow = [];
+  if (pageIndex > 0) navRow.push({ text: "قبلی", callback_data: `create:provincePage:${pageIndex - 1}` });
+  navRow.push({ text: `صفحه ${pageIndex + 1}/${pages.length}`, callback_data: "noop" });
+  if (pageIndex < pages.length - 1) navRow.push({ text: "بعدی", callback_data: `create:provincePage:${pageIndex + 1}` });
+
+  rows.push(navRow);
+  rows.push([
+    { text: "بازگشت", callback_data: "create:back:age" },
+    { text: "انصراف", callback_data: "create:cancel" }
+  ]);
+
+  return { inline_keyboard: rows };
+}
+
+/** ---------------- Wizard prompts ---------------- */
+function startCreation(chatId, userId) {
   states.set(userId, { section: "name", temp: {} });
-  return bot.sendMessage(chatId, "🧬 ساخت شخصیت شروع شد.\n\n👤 اسم شخصیتت رو بفرست:", replyMenu());
+  return bot.sendMessage(
+    chatId,
+    "ساخت شخصیت آغاز شد.\n\nلطفاً نام شخصیت را ارسال کنید:",
+    replyMenu()
+  );
 }
 
 function askGender(chatId) {
-  return bot.sendMessage(chatId, "🧬 جنسیت را انتخاب کن:", {
+  return bot.sendMessage(chatId, "جنسیت را انتخاب کنید:", {
     reply_markup: {
       inline_keyboard: [
         [
-          { text: "👨 مرد", callback_data: "create:gender:male" },
-          { text: "👩 زن", callback_data: "create:gender:female" }
+          { text: "مرد", callback_data: "create:gender:male" },
+          { text: "زن", callback_data: "create:gender:female" }
         ],
-        [{ text: "⬅️ بازگشت", callback_data: "create:back:name" }]
+        [
+          { text: "بازگشت", callback_data: "create:back:name" },
+          { text: "انصراف", callback_data: "create:cancel" }
+        ]
       ]
     }
   });
@@ -217,123 +265,120 @@ function askGender(chatId) {
 function askAge(chatId) {
   const rows = [];
   for (let i = 0; i < AGES.length; i += 5) {
-    rows.push(
-      AGES.slice(i, i + 5).map(a => ({ text: `🎂 ${a}`, callback_data: `create:age:${a}` }))
-    );
+    rows.push(AGES.slice(i, i + 5).map(a => ({ text: String(a), callback_data: `create:age:${a}` })));
   }
-  rows.push([{ text: "⬅️ بازگشت", callback_data: "create:back:gender" }]);
+  rows.push([
+    { text: "بازگشت", callback_data: "create:back:gender" },
+    { text: "انصراف", callback_data: "create:cancel" }
+  ]);
 
-  return bot.sendMessage(chatId, "🎂 سن را انتخاب کن:", {
+  return bot.sendMessage(chatId, "سن را انتخاب کنید:", {
     reply_markup: { inline_keyboard: rows }
   });
 }
 
-function askProvince(chatId) {
-  const provinces = Object.keys(IRAN).sort((a, b) => a.localeCompare(b, "fa"));
-  const rows = provinces.map(p => ([{ text: `🗺 ${p}`, callback_data: `create:province:${p}` }]));
-  rows.push([{ text: "⬅️ بازگشت", callback_data: "create:back:age" }]);
-
-  return bot.sendMessage(chatId, "🗺 استان را انتخاب کن:", {
-    reply_markup: { inline_keyboard: rows }
+function askProvince(chatId, pageIndex = 0) {
+  return bot.sendMessage(chatId, "استان محل سکونت را انتخاب کنید:", {
+    reply_markup: provinceKeyboard(pageIndex)
   });
 }
 
 function askCity(chatId, province) {
   const cities = (IRAN[province] || []).slice(0, 10);
-  const rows = cities.map(c => ([{ text: `🏙 ${c}`, callback_data: `create:city:${c}` }]));
-  rows.push([{ text: "⬅️ بازگشت", callback_data: "create:back:province" }]);
+  const rows = cities.map(c => ([{ text: c, callback_data: `create:city:${c}` }]));
+  rows.push([
+    { text: "بازگشت", callback_data: "create:back:province" },
+    { text: "انصراف", callback_data: "create:cancel" }
+  ]);
 
-  return bot.sendMessage(chatId, `🏙 از استان «${province}» یک شهر/شهرستان انتخاب کن:`, {
+  return bot.sendMessage(chatId, `از استان «${province}» یک شهر/شهرستان انتخاب کنید:`, {
     reply_markup: { inline_keyboard: rows }
   });
 }
 
 function askSkin(chatId) {
-  const rows = [
-    SKIN_TONES.map(s => ({ text: s.label, callback_data: `create:skin:${s.id}` })),
-    [{ text: "⬅️ بازگشت", callback_data: "create:back:city" }]
-  ];
+  const rows = SKIN_TONES.map(s => ([{ text: s.label, callback_data: `create:skin:${s.id}` }]));
+  rows.push([
+    { text: "بازگشت", callback_data: "create:back:city" },
+    { text: "انصراف", callback_data: "create:cancel" }
+  ]);
 
-  return bot.sendMessage(chatId, "🎨 رنگ پوست را انتخاب کن:", {
+  return bot.sendMessage(chatId, "رنگ پوست را انتخاب کنید:", {
     reply_markup: { inline_keyboard: rows }
   });
 }
 
 function askDifficulty(chatId) {
-  const rows = [
-    DIFFICULTIES.map(d => ({ text: d.label, callback_data: `create:difficulty:${d.id}` })),
-    [{ text: "⬅️ بازگشت", callback_data: "create:back:skin" }]
-  ];
+  const rows = DIFFICULTIES.map(d => ([{ text: d.label, callback_data: `create:difficulty:${d.id}` }]));
+  rows.push([
+    { text: "بازگشت", callback_data: "create:back:skin" },
+    { text: "انصراف", callback_data: "create:cancel" }
+  ]);
 
-  return bot.sendMessage(chatId, "🧠 سختی زندگی را انتخاب کن:", {
+  return bot.sendMessage(chatId, "سطح سختی را انتخاب کنید:", {
     reply_markup: { inline_keyboard: rows }
   });
 }
 
 function askBackground(chatId) {
-  const rows = [
-    BACKGROUNDS.map(b => ({ text: b.label, callback_data: `create:background:${b.id}` })),
-    [{ text: "⬅️ بازگشت", callback_data: "create:back:difficulty" }]
-  ];
+  const rows = BACKGROUNDS.map(b => ([{ text: b.label, callback_data: `create:background:${b.id}` }]));
+  rows.push([
+    { text: "بازگشت", callback_data: "create:back:difficulty" },
+    { text: "انصراف", callback_data: "create:cancel" }
+  ]);
 
-  return bot.sendMessage(chatId, "💼 پیش‌زمینه شروع را انتخاب کن:", {
+  return bot.sendMessage(chatId, "پیش‌زمینه شروع را انتخاب کنید:", {
     reply_markup: { inline_keyboard: rows }
   });
 }
 
 function askHealth(chatId) {
-  const rows = [
-    HEALTHS.map(h => ({ text: h.label, callback_data: `create:health:${h.id}` })),
-    [{ text: "⬅️ بازگشت", callback_data: "create:back:background" }]
-  ];
+  const rows = HEALTHS.map(h => ([{ text: h.label, callback_data: `create:health:${h.id}` }]));
+  rows.push([
+    { text: "بازگشت", callback_data: "create:back:background" },
+    { text: "انصراف", callback_data: "create:cancel" }
+  ]);
 
-  return bot.sendMessage(chatId, "❤️ وضعیت سلامت اولیه را انتخاب کن:", {
+  return bot.sendMessage(chatId, "وضعیت سلامت اولیه را انتخاب کنید:", {
     reply_markup: { inline_keyboard: rows }
   });
 }
 
 function askConfirm(chatId, userId) {
-  const st = states.get(userId);
-  const profile = st?.temp;
-  if (!profile) return;
-
+  const st = ensureState(userId);
+  const profile = st.temp;
   const stats = buildInitialStats(profile);
 
-  return bot.sendMessage(chatId, "✅ بررسی نهایی:\n\n" + profileText(profile, stats), {
+  return bot.sendMessage(chatId, "لطفاً اطلاعات زیر را بررسی کنید:", {
     reply_markup: {
       inline_keyboard: [
         [
-          { text: "✅ تأیید و شروع بازی", callback_data: "create:confirm" },
-          { text: "✏️ ویرایش", callback_data: "create:edit" }
+          { text: "تأیید", callback_data: "create:confirm" },
+          { text: "ویرایش", callback_data: "create:edit" }
         ],
-        [{ text: "⬅️ بازگشت", callback_data: "create:back:health" }]
+        [
+          { text: "بازگشت", callback_data: "create:back:health" },
+          { text: "انصراف", callback_data: "create:cancel" }
+        ]
       ]
     }
-  });
+  }).then(() => bot.sendMessage(chatId, formatProfile(profile, stats), replyMenu()));
 }
 
 /** ---------------- Commands ---------------- */
 bot.onText(/\/start/, (msg) => {
-  const chatId = msg.chat.id;
-  sendMainMenu(chatId);
-
-  const userId = msg.from.id;
-  if (!users.has(userId)) {
-    bot.sendMessage(chatId, "هنوز شخصیتی نساختی. از اینجا شروع کن:", {
-      reply_markup: { inline_keyboard: [[{ text: "🧬 ساخت شخصیت", callback_data: "create:start" }]] }
-    });
-  }
+  sendHome(msg.chat.id);
 });
 
 bot.onText(/\/me/, (msg) => {
   const userId = msg.from.id;
   const chatId = msg.chat.id;
   const data = users.get(userId);
-  if (!data) return bot.sendMessage(chatId, "هنوز پروفایلی ثبت نشده. اول شخصیت بساز.", replyMenu());
-  return bot.sendMessage(chatId, profileText(data.profile, data.stats), replyMenu());
+  if (!data) return bot.sendMessage(chatId, "پروفایلی ثبت نشده است. ابتدا شخصیت بسازید.", replyMenu());
+  return bot.sendMessage(chatId, formatProfile(data.profile, data.stats), replyMenu());
 });
 
-/** ---------------- Message handler (name input) ---------------- */
+/** ---------------- Text messages (Reply keyboard) ---------------- */
 bot.on("message", (msg) => {
   const chatId = msg.chat.id;
   const userId = msg.from.id;
@@ -342,21 +387,20 @@ bot.on("message", (msg) => {
   if (!text) return;
   if (text.startsWith("/")) return;
 
-  // Reply keyboard actions
-  if (text === "🏠 منوی اصلی") return sendMainMenu(chatId);
+  if (text === BTN.HOME) return sendHome(chatId);
 
-  if (text === "🪪 پروفایل") {
+  if (text === BTN.PROFILE) {
     const data = users.get(userId);
-    if (!data) return bot.sendMessage(chatId, "هنوز شخصیتی نساختی. روی «🧬 ساخت شخصیت» بزن.", replyMenu());
-    return bot.sendMessage(chatId, profileText(data.profile, data.stats), replyMenu());
+    if (!data) return bot.sendMessage(chatId, "پروفایلی ثبت نشده است. ابتدا شخصیت بسازید.", replyMenu());
+    return bot.sendMessage(chatId, formatProfile(data.profile, data.stats), replyMenu());
   }
 
-  if (text === "🧬 ساخت شخصیت") return startCreation(userId, chatId);
+  if (text === BTN.CREATE) return startCreation(chatId, userId);
 
-  if (text === "ℹ️ راهنما") {
+  if (text === BTN.HELP) {
     return bot.sendMessage(
       chatId,
-      "ℹ️ راهنما\n\n- برای شروع «🧬 ساخت شخصیت» را بزن.\n- برای دیدن وضعیت «🪪 پروفایل» را بزن.\n- هرجا خواستی می‌تونی با «⬅️ بازگشت» مرحله قبل رو تغییر بدی.",
+      "راهنما\n—\n- از «ساخت شخصیت» برای شروع استفاده کنید.\n- در هر بخش می‌توانید «بازگشت» یا «انصراف» را انتخاب کنید.\n- برای مشاهده اطلاعات ذخیره‌شده، «پروفایل» را بزنید.",
       replyMenu()
     );
   }
@@ -364,9 +408,9 @@ bot.on("message", (msg) => {
   // Name input
   const st = states.get(userId);
   if (st?.section === "name") {
-    const name = text.trim();
-    if (name.length < 2 || name.length > 20) {
-      return bot.sendMessage(chatId, "⚠️ اسم باید بین ۲ تا ۲۰ کاراکتر باشد.\n\n👤 دوباره اسم را بفرست:", replyMenu());
+    const name = text.trim().replace(/\s+/g, " ");
+    if (name.length < 2 || name.length > 24) {
+      return bot.sendMessage(chatId, "نام معتبر نیست. نام باید بین ۲ تا ۲۴ کاراکتر باشد.\n\nلطفاً دوباره ارسال کنید:", replyMenu());
     }
     st.temp.name = name;
     st.section = "gender";
@@ -375,23 +419,23 @@ bot.on("message", (msg) => {
   }
 });
 
-/** ---------------- Callback handler ---------------- */
+/** ---------------- Callback queries (Inline keyboard) ---------------- */
 bot.on("callback_query", (q) => {
   const data = q.data;
   const userId = q.from.id;
   const chatId = q.message.chat.id;
 
   bot.answerCallbackQuery(q.id).catch(() => {});
+  if (data === "noop") return;
 
-  if (data === "create:start") return startCreation(userId, chatId);
-
-  if (data === "profile:show") {
-    const u = users.get(userId);
-    if (!u) return bot.sendMessage(chatId, "هنوز شخصیتی نساختی. از «🧬 ساخت شخصیت» شروع کن.", replyMenu());
-    return bot.sendMessage(chatId, profileText(u.profile, u.stats), replyMenu());
+  // Cancel creation
+  if (data === "create:cancel") {
+    cancelCreation(userId);
+    bot.sendMessage(chatId, "فرآیند ساخت شخصیت لغو شد.", replyMenu());
+    return sendHome(chatId);
   }
 
-  const st = states.get(userId) || { section: "name", temp: {} };
+  const st = ensureState(userId);
 
   // Back navigation
   if (data.startsWith("create:back:")) {
@@ -399,15 +443,24 @@ bot.on("callback_query", (q) => {
     st.section = target;
     states.set(userId, st);
 
-    if (target === "name") return bot.sendMessage(chatId, "👤 اسم شخصیتت رو بفرست:", replyMenu());
+    if (target === "name") return bot.sendMessage(chatId, "لطفاً نام شخصیت را ارسال کنید:", replyMenu());
     if (target === "gender") return askGender(chatId);
     if (target === "age") return askAge(chatId);
-    if (target === "province") return askProvince(chatId);
+    if (target === "province") return askProvince(chatId, st.temp.provincePage || 0);
     if (target === "city") return askCity(chatId, st.temp.province);
     if (target === "skin") return askSkin(chatId);
     if (target === "difficulty") return askDifficulty(chatId);
     if (target === "background") return askBackground(chatId);
     if (target === "health") return askHealth(chatId);
+  }
+
+  // Province pagination
+  if (data.startsWith("create:provincePage:")) {
+    const pageIndex = Number(data.replace("create:provincePage:", ""));
+    st.temp.provincePage = pageIndex;
+    st.section = "province";
+    states.set(userId, st);
+    return askProvince(chatId, pageIndex);
   }
 
   // Gender
@@ -423,7 +476,7 @@ bot.on("callback_query", (q) => {
     st.temp.age = Number(data.replace("create:age:", ""));
     st.section = "province";
     states.set(userId, st);
-    return askProvince(chatId);
+    return askProvince(chatId, st.temp.provincePage || 0);
   }
 
   // Province
@@ -478,37 +531,36 @@ bot.on("callback_query", (q) => {
   // Confirm
   if (data === "create:confirm") {
     const profile = st.temp;
-
     const required = ["name","gender","age","province","city","skin","difficulty","background","healthInit"];
     const ok = required.every(k => profile && profile[k] !== undefined && profile[k] !== "");
     if (!ok) {
       states.set(userId, { section: "name", temp: {} });
-      return bot.sendMessage(chatId, "⚠️ اطلاعات ناقص بود. دوباره تلاش کن.\n\n👤 اسم شخصیتت رو بفرست:", replyMenu());
+      return bot.sendMessage(chatId, "اطلاعات ناقص است. لطفاً مجدداً تلاش کنید.\n\nنام شخصیت را ارسال کنید:", replyMenu());
     }
 
     const stats = buildInitialStats(profile);
-
     users.set(userId, { profile, stats, createdAt: Date.now() });
     states.delete(userId);
 
-    bot.sendMessage(chatId, "✅ شخصیتت ساخته شد!", replyMenu());
-    return bot.sendMessage(chatId, profileText(profile, stats), replyMenu());
+    bot.sendMessage(chatId, "شخصیت با موفقیت ایجاد شد.", replyMenu());
+    return bot.sendMessage(chatId, formatProfile(profile, stats), replyMenu());
   }
 
-  // Edit menu
+  // Edit jump menu
   if (data === "create:edit") {
-    return bot.sendMessage(chatId, "✏️ کدوم بخش رو می‌خوای تغییر بدی؟", {
+    return bot.sendMessage(chatId, "برای ویرایش، بخش موردنظر را انتخاب کنید:", {
       reply_markup: {
         inline_keyboard: [
-          [{ text: "👤 نام", callback_data: "create:back:name" }],
-          [{ text: "🧬 جنسیت", callback_data: "create:back:gender" }],
-          [{ text: "🎂 سن", callback_data: "create:back:age" }],
-          [{ text: "🗺 استان", callback_data: "create:back:province" }],
-          [{ text: "🏙 شهر/شهرستان", callback_data: "create:back:city" }],
-          [{ text: "🎨 رنگ پوست", callback_data: "create:back:skin" }],
-          [{ text: "🧠 سختی", callback_data: "create:back:difficulty" }],
-          [{ text: "💼 پیش‌زمینه", callback_data: "create:back:background" }],
-          [{ text: "❤️ سلامت اولیه", callback_data: "create:back:health" }]
+          [{ text: "نام", callback_data: "create:back:name" }],
+          [{ text: "جنسیت", callback_data: "create:back:gender" }],
+          [{ text: "سن", callback_data: "create:back:age" }],
+          [{ text: "استان", callback_data: "create:back:province" }],
+          [{ text: "شهر/شهرستان", callback_data: "create:back:city" }],
+          [{ text: "رنگ پوست", callback_data: "create:back:skin" }],
+          [{ text: "سختی", callback_data: "create:back:difficulty" }],
+          [{ text: "پیش‌زمینه", callback_data: "create:back:background" }],
+          [{ text: "سلامت اولیه", callback_data: "create:back:health" }],
+          [{ text: "انصراف", callback_data: "create:cancel" }]
         ]
       }
     });
