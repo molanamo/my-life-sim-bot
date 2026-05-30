@@ -46,16 +46,16 @@ app.post(`/webhook/${SECRET_PATH}`, async (req, res) => {
     const text = (message.text || "").trim();
 
     if (text === "/start") {
-      await sendMessage(chatId, "سلام ✅\nربات فعاله");
+      await sendMessage(chatId, "ربات روشنه ✅");
     } else if (text === "/ping") {
       await sendMessage(chatId, "pong ✅");
     } else {
-      await sendMessage(chatId, "دستور نامعتبره");
+      await sendMessage(chatId, "پیام دریافت شد");
     }
 
     res.sendStatus(200);
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Webhook error:", error);
     res.sendStatus(200);
   }
 });
