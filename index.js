@@ -687,7 +687,7 @@ bot.command('درمانگاه', (ctx) => {
 
 bot.command('heal', (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  if (u.homeLevel < 2) return ctx.reply('درمانگاه هنوز قفل است', backMenu());
+  if (u.homeLevel < 0) return ctx.reply('درمانگاه هنوز قفل است', backMenu());
   const args = parseArgs(ctx.message.text);
   const mode = args[1];
 
@@ -727,39 +727,50 @@ bot.command('use', (ctx) => {
 });
 
 bot.hears('درمان', (ctx) => {
-  const u = ensureUser(ctx.from.id);
-  tickNeeds(u);
+  try {
+    const u = ensureUser(ctx.from.id);
 
-  if (u.hp >= u.maxHp) {
-    return ctx.reply(`❤️ سلامتی‌ات کامل است: ${u.hp}/${u.maxHp}`);
+    if (u.hp == null) u.hp = 100;
+    if (u.maxHp == null) u.maxHp = 100;
+    if (u.money == null) u.money = 0;
+
+    if (u.hp >= u.maxHp) {
+      return ctx.reply(`❤️ سلامتی‌ات کامل است: ${u.hp}/${u.maxHp}`);
+    }
+
+    const cost = Math.max(20, (u.maxHp - u.hp) * 2);
+
+    if (u.money < cost) {
+      return ctx.reply(`🏥 درمانگاه\n❤️ HP: ${u.hp}/${u.maxHp}\n💰 هزینه درمان: ${cost} سکه\nسکه کافی نداری.`);
+    }
+
+    u.money -= cost;
+    u.hp = u.maxHp;
+
+    if (typeof saveDB === 'function') saveDB();
+
+    return ctx.reply(`🏥 درمان شدی!\n❤️ HP: ${u.hp}/${u.maxHp}\n💰 هزینه: ${cost} سکه`);
+  } catch (e) {
+    console.log('heal error:', e);
+    return ctx.reply('❌ خطا در بخش درمان');
   }
-
-  const cost = Math.max(20, (u.maxHp - u.hp) * 2);
-
-  if (u.money < cost) {
-    return ctx.reply(
-      `🏥 درمانگاه\n❤️ HP: ${u.hp}/${u.maxHp}\n💰 هزینه درمان: ${cost} سکه\nسکه کافی نداری.`
-    );
-  }
-
-  u.money -= cost;
-  u.hp = u.maxHp;
-  saveDB();
-
-  return ctx.reply(
-    `🏥 درمان شدی!\n❤️ HP: ${u.hp}/${u.maxHp}\n💰 هزینه: ${cost} سکه`
-  );
 });
 
 bot.hears('درمانگاه', (ctx) => {
-  const u = ensureUser(ctx.from.id);
-  tickNeeds(u);
+  try {
+    const u = ensureUser(ctx.from.id);
 
-  const cost = Math.max(20, (u.maxHp - u.hp) * 2);
+    if (u.hp == null) u.hp = 100;
+    if (u.maxHp == null) u.maxHp = 100;
+    if (u.money == null) u.money = 0;
 
-  return ctx.reply(
-    `🏥 درمانگاه باز است\n❤️ HP: ${u.hp}/${u.maxHp}\n💰 هزینه درمان کامل: ${cost} سکه`
-  );
+    const cost = Math.max(20, (u.maxHp - u.hp) * 2);
+
+    return ctx.reply(`🏥 درمانگاه باز است\n❤️ HP: ${u.hp}/${u.maxHp}\n💰 هزینه درمان کامل: ${cost} سکه`);
+  } catch (e) {
+    console.log('hospital error:', e);
+    return ctx.reply('❌ خطا در بخش درمانگاه');
+  }
 });
 
 
