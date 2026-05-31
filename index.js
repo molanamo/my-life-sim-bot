@@ -1,43 +1,61 @@
-const express = require('express');
+const express = require("express");
 const app = express();
-
-// این خط برای خواندن پیام‌های تلگرام ضروری است
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 const BOT_TOKEN = process.env.BOT_TOKEN;
-const SECRET_PATH = process.env.SECRET_PATH;
+const PUBLIC_URL = process.env.PUBLIC_URL;      // مثل https://...railway.app
+const SECRET_PATH = process.env.SECRET_PATH;    // رشته‌ی مخفی
 
-// آدرس وبهوک شما می‌شود: /webhook/SECRET_PATH
+function must(name, val) {
+  if (!val) throw new Error(`Missing env var: ${name}`);
+}
+
+async function setWebhook() {
+  must("BOT_TOKEN", BOT_TOKEN);
+  must("PUBLIC_URL", PUBLIC_URL);
+  must("SECRET_PATH", SECRET_PATH);
+
+  const webhookUrl = `${PUBLIC_URL}/webhook/${SECRET_PATH}`;
+
+  const resp = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/setWebhook`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      url: webhookUrl,
+      drop_pending_updates: true,
+    }),
+  });
+
+  const data = await resp.json();
+  console.log("setWebhook =>", data);
+  if (!data.ok) throw new Error(`setWebhook failed: ${data.description || "unknown error"}`);
+  console.log("Webhook URL:", webhookUrl);
+}
+
+// روت وبهوک
 app.post(`/webhook/${SECRET_PATH}`, async (req, res) => {
-    const update = req.body;
-    
-    // ۱. سریع به تلگرام پاسخ 200 بده که پیام رسید
-    res.sendStatus(200);
+  res.sendStatus(200);
 
-    // ۲. اگر پیام متنی بود، جواب بده
-    if (update.message && update.message.text) {
-        const chatId = update.message.chat.id;
-        
-        try {
-            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    chat_id: chatId,
-                    text: '✅ ربات آنلاین است! پیام شما دریافت شد.'
-                })
-            });
-        } catch (err) {
-            console.error('خطا در ارسال پاسخ:', err);
-        }
-    }
+  const msg = req.body?.message?.text;
+  const chatId = req.body?.message?.chat?.id;
+
+  if (msg && chatId) {
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId, text: "✅ وصل شد (تستی)" }),
+    });
+  }
 });
 
-// برای اینکه بفهمیم سرور کلاً بالاست
-app.get('/', (req, res) => res.send('Bot is running!'));
+app.get("/", (req, res) => res.send("OK"));
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-    console.log(`Webhook expected at: /webhook/${SECRET_PATH}`);
+app.listen(PORT, async () => {
+  console.log("Listening on", PORT);
+  try {
+    await setWebhook();
+  } catch (e) {
+    console.error(e);
+  }
 });
