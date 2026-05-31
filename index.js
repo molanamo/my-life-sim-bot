@@ -1,16 +1,18 @@
-// Import the Telegram Bot API library
-const TelegramBot = require('node-telegram-bot-api');
+const { Telegraf } = require('telegraf');
+const path = require('path');
 
-// Replace 'YOUR_TELEGRAM_BOT_TOKEN' with your actual bot token
-const token = 'YOUR_TELEGRAM_BOT_TOKEN';
+// Token ربات تلگرام شما
+const bot = new Telegraf('YOUR_BOT_TOKEN');
 
-// Create a bot that uses 'polling' to fetch new updates
-const bot = new TelegramBot(token, {polling: true});
+bot.start((ctx) => {
+  // مسیر فایل آیکون
+  const iconPath = path.join(__dirname, 'assets', 'menu_icon.jpg');
 
-// Listen for the '/start' command
-bot.onText(/\/start/, (msg) => {
-  const chatId = msg.chat.id;
-  bot.sendMessage(chatId, 'به ربات بازی خوش آمدید! برای شروع، /start را بزنید.');
+  ctx.replyWithPhoto({ source: iconPath }, {
+    caption: 'سلام! این آیکون منو ربات شماست.'
+  });
 });
 
-console.log('Bot started...');
+bot.launch();
+
+console.log('ربات با موفقیت اجرا شد!');
