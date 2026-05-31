@@ -8,15 +8,12 @@ const BOT_TOKEN = process.env.BOT_TOKEN;
 const SECRET_PATH = process.env.SECRET_PATH;
 const PORT = process.env.PORT || 3000;
 
-// لینک عکسی که اوکی شده بود
-const PHOTO_URL = "https://i.ibb.co/wNrCttFV/cac6a722-c71d-40b6-81fd-f9a4721ec845.png";
-
-let lastUpdate = null;
-
+// مسیر پایه برای تست سلامت سرور
 app.get('/', (req, res) => {
     res.send('Bot is ALIVE!');
 });
 
+// تنظیم وب‌هوک
 app.get('/setwebhook', async (req, res) => {
     try {
         const baseUrl = `https://${req.get('host')}`;
@@ -28,41 +25,43 @@ app.get('/setwebhook', async (req, res) => {
     }
 });
 
+// دریافت پیام‌ها (وب‌هوک)
 app.post(`/webhook/${SECRET_PATH}`, async (req, res) => {
-    res.sendStatus(200);
+    res.sendStatus(200); // به تلگرام می‌گیم پیام رو گرفتیم
+    
     const update = req.body;
-    lastUpdate = update;
+    if (!update.message || !update.message.text) return;
 
-    const message = update.message;
-    if (!message || !message.text) return;
+    const chatId = update.message.chat.id;
+    const text = update.message.text;
 
-    const chatId = message.chat.id;
-    const text = message.text;
-
-    if (text === '/start') {
-        try {
-            await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-                chat_id: chatId,
-                photo: PHOTO_URL,
-                caption: "✨ *به شبیه‌ساز زندگی خوش اومدی*\n\nبرای شروع ماجراجویی، یکی از گزینه‌های زیر رو انتخاب کن:",
-                parse_mode: "Markdown",
-                reply_markup: {
-                    inline_keyboard: [
-                        [
-                            { text: "▶️ شروع بازی", callback_data: "start_game" },
-                            { text: "▦ منو", callback_data: "main_menu" }
-                        ]
-                    ]
-                }
-            });
-        } catch (err) {
-            console.error('sendPhoto error:', err.response?.data || err.message);
-            // Fallback در صورت خطا
+    // منطق اصلی ربات
+    try {
+        if (text === '/start') {
             await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                 chat_id: chatId,
-                text: 'سلام! به شبیه‌ساز زندگی خوش اومدی. (پنل لود نشد، ولی ربات وصله!)'
+                text: "✨ *به شبیه‌ساز زندگی خوش اومدی*\n\nاز منوی پایین برای مدیریت پایگاه استفاده کن:",
+                parse_mode: "Markdown",
+                reply_markup: {
+                    keyboard: [
+                        [{ text: "⛺ کمپ نیابتی" }, { text: "🕌 قرارگاه مرکزی" }, { text: "✈️ فرودگاه" }],
+                        [{ text: "🏴‍☠️ زرادخانه سیاه" }, { text: "🛒 فروشگاه" }, { text: "🧰 زرادخانه" }],
+                        [{ text: "🏦 تبادل" }, { text: "💎 کیف یاقوت" }, { text: "🏭 جمع‌کننده‌ها" }],
+                        [{ text: "🔄 جابجایی" }, { text: "🗑 حذف گروه" }, { text: "📢 چت سراسری" }]
+                    ],
+                    resize_keyboard: true,
+                    one_time_keyboard: false
+                }
+            });
+        } else {
+            // پاسخ به دکمه‌های منو
+            await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                chat_id: chatId,
+                text: `شما گزینه "${text}" را انتخاب کردید.`
             });
         }
+    } catch (err) {
+        console.error('Telegram API Error:', err.response?.data || err.message);
     }
 });
 
