@@ -1,189 +1,148 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const TelegramBot = require("node-telegram-bot-api");
+// Import necessary modules
+const express = require('express');
+const bodyParser = require('body-parser');
+const axios = require('axios'); // To interact with Telegram API
 
-// --- پیکربندی ---
-const TOKEN = "6901021308:AAHWvE9yI_3-K35zEaI1c9nB6hM2n6q_YhA"; // !!! مهم: این توکن را با توکن جدید خودتان جایگزین کنید !!!
-const SECRET_PATH = "6901021308:AAHWvE9yI_3-K35zEaI1c9nB6hM2n6q_YhA"; // !!! این را هم با توکن جدید جایگزین کنید !!!
-const WEBHOOK_URL = `https://my-life-sim-bot-production.up.railway.app/webhook/${SECRET_PATH}`; // آدرس Webhook شما در Railway
-
-const bot = new TelegramBot(TOKEN, { polling: false }); // polling را غیرفعال می‌کنیم چون از Webhook استفاده می‌کنیم
 const app = express();
+const PORT = process.env.PORT || 3000; // Use environment variable for port
 
-// استفاده از body-parser برای خواندن درخواست‌های POST
+// Ensure you have your Telegram Bot Token and your secret path
+// It's highly recommended to use environment variables for sensitive information
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const SECRET_PATH = process.env.SECRET_PATH || "webhook"; // Example secret path
+
+// Middleware to parse JSON request bodies
 app.use(bodyParser.json());
 
-// تابعی برای ارسال پیام از طریق API تلگرام
-async function tg(method, params) {
+// Helper function to send messages to Telegram
+async function tg(method, data) {
   try {
-    const response = await fetch(`https://api.telegram.org/bot${TOKEN}/${method}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(params),
-    });
-    return await response.json();
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/${method}`;
+    const response = await axios.post(url, data);
+    return response.data;
   } catch (error) {
-    console.error(`Error sending Telegram API request (${method}):`, error);
-    return { ok: false, error_message: error.message };
+    console.error(`Error sending to Telegram API (${method}):`, error.response ? error.response.data : error.message);
+    throw error; // Re-throw the error to handle it upstream
   }
 }
 
-// تنظیم Webhook هنگام استقرار یا ری‌استارت ربات
+// Function to set the webhook (call this once on startup or when needed)
 async function setWebhook() {
-  console.log("Setting webhook...");
-  const result = await tg("setWebhook", { url: WEBHOOK_URL });
-  if (result.ok) {
-    console.log("Webhook set successfully:", result.description);
-  } else {
-    console.error("Failed to set webhook:", result.description);
+  try {
+    const webhookUrl = `https://my-life-sim-bot-production.up.railway.app/webhook/${SECRET_PATH}`; // Replace with your actual Railway URL
+    await tg('setWebhook', { url: webhookUrl });
+    console.log(`Webhook set successfully to: ${webhookUrl}`);
+  } catch (error) {
+    console.error('Failed to set webhook:', error);
   }
 }
 
-// --- پردازش درخواست‌های Webhook ---
+// Handle incoming Telegram updates
 app.post(`/webhook/${SECRET_PATH}`, async (req, res) => {
-  res.sendStatus(200); // پاسخ سریع برای تلگرام
+  res.sendStatus(200); // Respond to Telegram immediately
 
   const update = req.body;
-  console.log("Received update:", JSON.stringify(update, null, 2)); // لاگ کردن آپدیت دریافتی
 
-  // --- پردازش دستور /start ---
+  // Handle /start command
   if (update.message && update.message.text === "/start") {
     const chatId = update.message.chat.id;
 
-    // پیام خوش‌آمدگویی مرموز با دکمه شروع و منو
     await tg("sendMessage", {
       chat_id: chatId,
       text: `        🌌⛓️💀   وارد زندگی شو...   👁️‍🗨️⏳`,
       parse_mode: "Markdown",
       reply_markup: {
-        keyboard: [ // کیبورد معمولی (نه inline)
-          [
-            { text: "⚫ شروع بازی" }, // دکمه اصلی شروع بازی (به عنوان پیام متنی ارسال می‌شود)
-            { text: "☰ منو" }       // دکمه جدید برای باز کردن منو (به عنوان پیام متنی ارسال می‌شود)
-          ]
+        keyboard: [
+          [{ text: "⚫ شروع بازی" }, { text: "☰ منو" }]
         ],
-        resize_keyboard: true // اندازه کیبورد تنظیم شود
+        resize_keyboard: true
       }
     });
     return;
   }
 
-  // --- پردازش پیام "⚫ شروع بازی" ---
+  // Handle "⚫ شروع بازی" button press
   if (update.message && update.message.text === "⚫ شروع بازی") {
     const chatId = update.message.chat.id;
-
-    // فعلاً فقط یک پیام تایید ارسال می‌کنیم. بعداً منطق بازی را اینجا اضافه می‌کنیم.
+    // Placeholder for game start logic
     await tg("sendMessage", {
       chat_id: chatId,
       text: "بازی شروع شد! به زودی مراحل بعدی را خواهید دید.",
-      // اگر بخواهیم دکمه‌های inline را هم در این مرحله نمایش دهیم:
-      // reply_markup: {
-      //   inline_keyboard: [
-      //     [{ text: "👤 پروفایل من", callback_data: "profile" }],
-      //     [{ text: "ℹ️ اطلاعات بیشتر", callback_data: "info" }]
-      //   ]
-      // }
+      // You can add inline keyboards here if needed for the game itself
     });
     return;
   }
 
-  // --- پردازش پیام "☰ منو" ---
+  // Handle "☰ منو" button press to open the inline menu
   if (update.message && update.message.text === "☰ منو") {
     const chatId = update.message.chat.id;
-
-    // نمایش منوی بازشونده (Inline Keyboard)
     await tg("sendMessage", {
       chat_id: chatId,
       text: "اینجا منوی اصلی است. لطفاً یکی از گزینه‌ها را انتخاب کنید:",
       reply_markup: {
         inline_keyboard: [
-          // گزینه‌های منو را اینجا اضافه می‌کنیم
           [{ text: "👤 پروفایل من", callback_data: "profile" }],
           [{ text: "⚙️ تنظیمات", callback_data: "settings" }],
           [{ text: "ℹ️ راهنما", callback_data: "help" }],
-          [{ text: "🔙 بازگشت به بازی", callback_data: "back_to_game" }] // مثالی برای بازگشت به پیام /start
+          [{ text: "🔙 بازگشت به بازی", callback_data: "back_to_game" }]
         ]
       }
     });
     return;
   }
 
-  // --- پردازش کلیک روی دکمه‌های Inline (callback_query) ---
+  // Handle inline keyboard button presses (callback queries)
   if (update.callback_query) {
     const chatId = update.callback_query.message.chat.id;
     const messageId = update.callback_query.message.message_id;
     const callbackData = update.callback_query.data;
 
-    // پاسخ به callbackQuery برای اینکه تلگرام متوجه شود پردازش شده است
+    // Acknowledge the callback query
     await tg("answerCallbackQuery", {
       callback_query_id: update.callback_query.id
     });
 
-    // پردازش گزینه‌های منو
+    // Process menu options
     if (callbackData === "profile") {
-      // نمایش جزئیات پروفایل کاربر
       await tg("editMessageText", {
         chat_id: chatId,
         message_id: messageId,
-        text: "👤 **پروفایل شما:**\n\n" +
-              "اینجا اطلاعات پروفایل شما نمایش داده می‌شود.\n" +
-              "(در آینده جزئیات بیشتری اضافه خواهد شد)",
-        parse_mode: "Markdown",
+        text: "اینجا اطلاعات پروفایل شما نمایش داده می‌شود.",
         reply_markup: {
-          inline_keyboard: [
-            [{ text: "🔙 بازگشت به منو", callback_data: "back_to_menu" }] // دکمه بازگشت به منوی قبلی
-          ]
+          inline_keyboard: [[{ text: "🔙 بازگشت", callback_data: "back_to_menu" }]]
         }
       });
     } else if (callbackData === "settings") {
-      // نمایش تنظیمات
       await tg("editMessageText", {
         chat_id: chatId,
         message_id: messageId,
-        text: "⚙️ **تنظیمات:**\n\n" +
-              "اینجا می‌توانید تنظیمات ربات را تغییر دهید.\n" +
-              "(در حال حاضر تنظیمات خاصی موجود نیست)",
-        parse_mode: "Markdown",
+        text: "اینجا تنظیمات ربات است.",
         reply_markup: {
-          inline_keyboard: [
-            [{ text: "🔙 بازگشت به منو", callback_data: "back_to_menu" }]
-          ]
+          inline_keyboard: [[{ text: "🔙 بازگشت", callback_data: "back_to_menu" }]]
         }
       });
     } else if (callbackData === "help") {
-      // نمایش راهنما
       await tg("editMessageText", {
         chat_id: chatId,
         message_id: messageId,
-        text: "ℹ️ **راهنما:**\n\n" +
-              "به ربات زندگی خوش آمدید!\n" +
-              "برای شروع بازی، دکمه 'شروع بازی' را بزنید.\n" +
-              "برای دسترسی به منو، دکمه 'منو' را انتخاب کنید.\n\n" +
-              "اگر سوال دیگری دارید، بپرسید.",
-        parse_mode: "Markdown",
+        text: "اینجا بخش راهنمای ربات است.",
         reply_markup: {
-          inline_keyboard: [
-            [{ text: "🔙 بازگشت به منو", callback_data: "back_to_menu" }]
-          ]
+          inline_keyboard: [[{ text: "🔙 بازگشت", callback_data: "back_to_menu" }]]
         }
       });
     } else if (callbackData === "back_to_game") {
-      // بازگشت به پیام اصلی /start
+      // Edit the message to show the initial welcome message and game start button
       await tg("editMessageText", {
         chat_id: chatId,
         message_id: messageId,
         text: `        🌌⛓️💀   وارد زندگی شو...   👁️‍🗨️⏳`,
         parse_mode: "Markdown",
         reply_markup: {
-          inline_keyboard: [
-            [{ text: "⚫ شروع", callback_data: "start_game" }] // دکمه شروع بازی (inline)
-          ]
+          inline_keyboard: [[{ text: "⚫ شروع", callback_data: "start_game" }]]
         }
       });
     } else if (callbackData === "back_to_menu") {
-      // بازگشت به منوی اصلی پس از دیدن جزئیات (پروفایل، تنظیمات و...)
+      // Edit the message to show the main menu again
       await tg("editMessageText", {
         chat_id: chatId,
         message_id: messageId,
@@ -197,34 +156,32 @@ app.post(`/webhook/${SECRET_PATH}`, async (req, res) => {
           ]
         }
       });
-    }
-    // برای اضافه کردن منطق دکمه "شروع بازی" در پیام inline:
-    else if (callbackData === "start_game") {
-         await tg("editMessageText", {
-            chat_id: chatId,
-            message_id: messageId,
-            text: "بازی شروع شد! به زودی مراحل بعدی را خواهید دید.",
-            reply_markup: {
-              inline_keyboard: [
-                [{ text: "👤 پروفایل من", callback_data: "profile" }], // یا هر دکمه دیگری که لازم است
-              ]
-            }
-         });
+    } else if (callbackData === "start_game") {
+      // Handle the "start_game" callback (e.g., from the initial welcome message)
+      await tg("editMessageText", {
+        chat_id: chatId,
+        message_id: messageId,
+        text: "بازی شروع شد! به زودی مراحل بعدی را خواهید دید.",
+      });
     }
   }
 });
 
-// --- اجرای اولیه و راه‌اندازی سرور ---
 
-// تنظیم Webhook هنگام استقرار اولیه یا ری‌استارت سرور
-setWebhook();
-
-// مسیر برای دریافت به‌روزرسانی‌ها از تلگرام
-app.get("/", (req, res) => {
-  res.send("Bot is running!");
+// Route to set the webhook when the server starts (or when you navigate to a specific URL)
+// For Railway, it's better to call setWebhook on startup or have a dedicated deploy script
+app.get('/setwebhook', async (req, res) => {
+  await setWebhook();
+  res.send('Webhook setting initiated. Check logs for status.');
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+// Start the server
+app.listen(PORT, async () => {
+  console.log(`Server is running on port ${PORT}`);
+  // Call setWebhook when the server starts
+  // In a Railway deployment, this might need to be handled differently,
+  // possibly by running a setup script or ensuring it's called correctly
+  // after the service is ready.
+  // For local testing, you can manually visit /setwebhook or call it here.
+  await setWebhook(); // Attempt to set webhook on server start
 });
