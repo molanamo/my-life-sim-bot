@@ -763,6 +763,76 @@ bot.command('fight', (ctx) => {
   const result = rollCombat(u, 'animal');
   saveDB(db);
   ctx.reply(result.text, backMenu());
+bot.command('fight', (ctx) => {
+  const u = ensureUser(ctx.from.id);
+  tickNeeds(u);
+
+  if (u.hp <= 0) return ctx.reply('تو بیهوشی! /hospital');
+
+  // قدرت کاربر
+  const gear = u.inventory.knife ? 5 : 0;
+  const basePower = u.level * 3 + gear + rnd(0, 6);
+
+  // محافظت کاربر تازه‌کار
+  let power = basePower;
+  let winBonus = 0;
+  let damageMul = 1;
+
+  if (u.level <= 3) {
+    winBonus = 25;     // شانس برد بیشتر
+    damageMul = 0.5;   // دمیج کمتر
+  }
+
+  // دشمن متناسب‌تر
+  const enemy = {
+    hp: 20 + u.level * 4 + rnd(0, 10),
+    power: 4 + u.level * 1.5 + rnd(0, 3),
+    name: ['گرگ','دزد','زامبی','خرس','سگ وحشی'][rnd(0,4)]
+  };
+
+  // شانس برد تقریبی
+  let winChance = 50 + (u.level * 4) + gear + winBonus;
+  if (winChance > 90) winChance = 90;
+
+  const roll = rnd(1, 100);
+  const forcedWin = (u._fightWins || 0) < 3; // 3 برد اول تضمینی
+  const win = forcedWin || roll <= winChance;
+
+  // دمیج نرم
+  let damage = Math.floor((enemy.power + rnd(0, 4)) * damageMul);
+  if (damage < 1) damage = 1;
+
+  // باخت کامل حذف نشده، نرم شده
+  if (win) {
+    u._fightWins = (u._fightWins || 0) + 1;
+    const money = rnd(40, 90) + u.level * 5;
+    u.money += money;
+    addRes(u, 'wood', rnd(0, 2));
+    addRes(u, 'iron', rnd(0, 1));
+    giveXP(u, 35);
+    if (rnd(1, 10) === 1) u.spirit += 1;
+
+    u.hp = clamp(u.hp - damage, 1, u.maxHp);
+
+    saveDB();
+    return ctx.reply(
+      `⚔️ دشمن: ${enemy.name}\n✅ بردی!\n💰 +${money} سکه\n❤️ -${damage} HP\nHP الان: ${u.hp}/${u.maxHp}`,
+      mainMenu(ctx.from.id === ADMIN_ID)
+    );
+  } else {
+    u.hp = clamp(u.hp - damage, 1, u.maxHp);
+
+    // جایزه کوچک برای باخت
+    u.money += rnd(5, 15);
+    addRes(u, 'wood', rnd(0, 1));
+
+    saveDB();
+    return ctx.reply(
+      `⚔️ دشمن: ${enemy.name}\n❌ باختی!\n❤️ -${damage} HP\n🎁 ولی کمی جایزه گرفتی\nHP الان: ${u.hp}/${u.maxHp}\nبرو /hospital`,
+      mainMenu(ctx.from.id === ADMIN_ID)
+    );
+  }
+});
 });
 
 bot.command('demon', (ctx) => {
