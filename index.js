@@ -7,346 +7,291 @@ app.use(express.json());
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const SECRET_PATH = process.env.SECRET_PATH;
 const PORT = process.env.PORT || 3000;
-const API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
-const userStates = new Map();
-const userData = new Map();
+// عکس خوش‌آمدگویی (همون لینک مستقیم i.ibb.co که قبلاً اوکی بود)
+const PHOTO_URL =
+  process.env.PHOTO_URL ||
+  "https://i.ibb.co/wNrCttFV/cac6a722-c71d-40b6-81fd-f9a4721ec845.png";
 
-const WELCOME_IMAGE = "https://i.ibb.co/your-welcome-image.jpg";
+if (!BOT_TOKEN) throw new Error("Missing env BOT_TOKEN");
+if (!SECRET_PATH) throw new Error("Missing env SECRET_PATH");
 
-const MENU_IMAGES = {
-  file: "https://ibb.co/Kck5rLqj",
-  market: "https://ibb.co/yFw2LSS1",
-  survival: "https://ibb.co/zVwDvfLM",
-  arms: "https://ibb.co/PvK0nHjd",
-  map: "https://i.ibb.co/your-map-image.jpg",
-  network: "https://i.ibb.co/your-network-image.jpg",
-  safehouse: "https://i.ibb.co/your-safehouse-image.jpg"
-};
-
-const provinces = {
-  "آذربایجان شرقی": ["تبریز", "مراغه", "مرند", "اهر", "میانه"],
-  "آذربایجان غربی": ["ارومیه", "خوی", "مهاباد", "بوکان", "میاندوآب"],
-  "اردبیل": ["اردبیل", "مشگین‌شهر", "خلخال", "پارس‌آباد", "گرمی"],
+// ---------- 31 استان + 5 شهرستان ----------
+const IRAN_MAP = {
+  "آذربایجان شرقی": ["تبریز", "مراغه", "مرند", "میانه", "اهر"],
+  "آذربایجان غربی": ["ارومیه", "خوی", "میاندوآب", "بوکان", "مهاباد"],
+  "اردبیل": ["اردبیل", "مشگین‌شهر", "پارس‌آباد", "خلخال", "گرمی"],
   "اصفهان": ["اصفهان", "کاشان", "نجف‌آباد", "خمینی‌شهر", "شاهین‌شهر"],
-  "البرز": ["کرج", "نظرآباد", "هشتگرد", "طالقان", "اشتهارد"],
-  "ایلام": ["ایلام", "دهلران", "مهران", "آبدانان", "ایوان"],
-  "بوشهر": ["بوشهر", "برازجان", "گناوه", "دشتستان", "دیر"],
-  "تهران": ["تهران", "ری", "اسلامشهر", "شهریار", "دماوند"],
-  "چهارمحال و بختیاری": ["شهرکرد", "بروجن", "فارسان", "لردگان", "سامان"],
-  "خراسان جنوبی": ["بیرجند", "قائن", "فردوس", "طبس", "نهبندان"],
-  "خراسان رضوی": ["مشهد", "نیشابور", "سبزوار", "تربت‌حیدریه", "کاشمر"],
+  "البرز": ["کرج", "فردیس", "ساوجبلاغ", "نظرآباد", "طالقان"],
+  "ایلام": ["ایلام", "دهلران", "آبدانان", "ایوان", "مهران"],
+  "بوشهر": ["بوشهر", "برازجان", "گناوه", "کنگان", "دیر"],
+  "تهران": ["تهران", "شهریار", "ورامین", "دماوند", "پاکدشت"],
+  "چهارمحال و بختیاری": ["شهرکرد", "بروجن", "فارسان", "لردگان", "کیار"],
+  "خراسان جنوبی": ["بیرجند", "قائن", "طبس", "فردوس", "نهبندان"],
+  "خراسان رضوی": ["مشهد", "نیشابور", "سبزوار", "تربت‌حیدریه", "قوچان"],
   "خراسان شمالی": ["بجنورد", "شیروان", "اسفراین", "جاجرم", "فاروج"],
   "خوزستان": ["اهواز", "آبادان", "خرمشهر", "دزفول", "ماهشهر"],
-  "زنجان": ["زنجان", "ابهر", "خدابنده", "طارم", "خرمدره"],
-  "سمنان": ["سمنان", "شاهرود", "دامغان", "گرمسار", "مهدیشهر"],
-  "سیستان و بلوچستان": ["زاهدان", "چابهار", "ایرانشهر", "زابل", "خاش"],
-  "فارس": ["شیراز", "مرودشت", "جهرم", "کازرون", "فسا"],
-  "قزوین": ["قزوین", "الوند", "تاکستان", "آبیک", "بوئین‌زهرا"],
-  "قم": ["قم", "جعفریه", "کهک", "دستجرد", "قنوات"],
+  "زنجان": ["زنجان", "ابهر", "خرمدره", "قیدار", "ماه‌نشان"],
+  "سمنان": ["سمنان", "شاهرود", "دامغان", "گرمسار", "مهدی‌شهر"],
+  "سیستان و بلوچستان": ["زاهدان", "ایرانشهر", "چابهار", "زابل", "خاش"],
+  "فارس": ["شیراز", "مرودشت", "کازرون", "جهرم", "لار"],
+  "قزوین": ["قزوین", "البرز", "آبیک", "بوئین‌زهرا", "تاکستان"],
+  "قم": ["قم", "جعفریه", "کهک", "سلفچگان", "دستجرد"],
   "کردستان": ["سنندج", "سقز", "مریوان", "بانه", "قروه"],
-  "کرمان": ["کرمان", "رفسنجان", "جیرفت", "سیرجان", "بم"],
-  "کرمانشاه": ["کرمانشاه", "اسلام‌آباد غرب", "سنقر", "قصر شیرین", "هرسین"],
-  "کهگیلویه و بویراحمد": ["یاسوج", "دوگنبدان", "دهدشت", "لیکک", "سی‌سخت"],
-  "گلستان": ["گرگان", "گنبدکاووس", "علی‌آباد", "آزادشهر", "مینودشت"],
-  "گیلان": ["رشت", "انزلی", "لاهیجان", "لنگرود", "آستارا"],
-  "لرستان": ["خرم‌آباد", "بروجرد", "دورود", "کوهدشت", "الیگودرز"],
+  "کرمان": ["کرمان", "سیرجان", "رفسنجان", "جیرفت", "بم"],
+  "کرمانشاه": ["کرمانشاه", "اسلام‌آباد غرب", "جوانرود", "سرپل‌ذهاب", "کنگاور"],
+  "کهگیلویه و بویراحمد": ["یاسوج", "دوگنبدان", "دهدشت", "لیکک", "چرام"],
+  "گلستان": ["گرگان", "گنبدکاووس", "علی‌آباد کتول", "آق‌قلا", "بندرترکمن"],
+  "گیلان": ["رشت", "انزلی", "لاهیجان", "لنگرود", "رودسر"],
+  "لرستان": ["خرم‌آباد", "بروجرد", "دورود", "الیگودرز", "کوهدشت"],
   "مازندران": ["ساری", "بابل", "آمل", "قائم‌شهر", "نوشهر"],
   "مرکزی": ["اراک", "ساوه", "خمین", "محلات", "دلیجان"],
   "هرمزگان": ["بندرعباس", "قشم", "کیش", "میناب", "بندرلنگه"],
-  "همدان": ["همدان", "ملایر", "نهاوند", "تویسرکان", "اسدآباد"],
-  "یزد": ["یزد", "میبد", "اردکان", "بافق", "تفت"]
+  "همدان": ["همدان", "ملایر", "نهاوند", "تویسرکان", "کبودرآهنگ"],
+  "یزد": ["یزد", "میبد", "اردکان", "بافق", "تفت"],
 };
 
+const PROVINCES = Object.keys(IRAN_MAP);
+
+// ---------- session ----------
+const STATES = {
+  ASK_NAME: "ASK_NAME",
+  ASK_GENDER: "ASK_GENDER",
+  ASK_PROVINCE: "ASK_PROVINCE",
+  ASK_CITY: "ASK_CITY",
+  FINISHED: "FINISHED",
+};
+
+const userStates = new Map(); // chatId -> state
+const userData = new Map();   // chatId -> profile
+
+// ---------- helpers ----------
 async function tg(method, payload) {
-  try {
-    return await axios.post(`${API}/${method}`, payload);
-  } catch (e) {
-    console.log("Telegram error:", e.response?.data || e.message);
-  }
+  return axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, payload);
 }
 
-function mainMenuKeyboard() {
-  return {
-    keyboard: [
-      ["📂 پرونده", "🏴‍☠️ بازار سیاه"],
-      ["⚔️ زرادخانه", "🔥 تلاش برای بقا"],
-      ["🗺 نقشه شهر", "🕸 شبکه نفوذ"],
-      ["🏠 پناهگاه"]
-    ],
-    resize_keyboard: true
-  };
+function chunk(arr, size) {
+  const out = [];
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  return out;
+}
+
+function provinceKeyboard() {
+  const rows = chunk(PROVINCES, 3).map((row) =>
+    row.map((p) => ({ text: p, callback_data: `prov:${p}` }))
+  );
+  rows.push([{ text: "❌ لغو ثبت‌نام", callback_data: "cancel" }]);
+  return { inline_keyboard: rows };
+}
+
+function cityKeyboard(province) {
+  const cities = IRAN_MAP[province] || [];
+  const rows = chunk(cities, 2).map((row) =>
+    row.map((c) => ({ text: c, callback_data: `city:${c}` }))
+  );
+  rows.push([
+    { text: "⬅️ تغییر استان", callback_data: "back:province" },
+    { text: "❌ لغو", callback_data: "cancel" },
+  ]);
+  return { inline_keyboard: rows };
 }
 
 function genderKeyboard() {
   return {
     inline_keyboard: [
-      [{ text: "مرد", callback_data: "gender:male" }],
-      [{ text: "زن", callback_data: "gender:female" }]
-    ]
+      [
+        { text: "👨 مرد", callback_data: "gender:مرد" },
+        { text: "👩 زن", callback_data: "gender:زن" },
+      ],
+      [{ text: "❌ لغو ثبت‌نام", callback_data: "cancel" }],
+    ],
   };
 }
 
-function provincesKeyboard(page = 0) {
-  const provinceNames = Object.keys(provinces);
-  const perPage = 9;
-  const start = page * perPage;
-  const current = provinceNames.slice(start, start + perPage);
+// ---------- routes ----------
+app.get("/", (req, res) => res.send("Bot is ALIVE!"));
 
-  const rows = [];
-  for (let i = 0; i < current.length; i += 3) {
-    rows.push(
-      current.slice(i, i + 3).map(name => ({
-        text: name,
-        callback_data: `province:${name}:${page}`
-      }))
-    );
+app.get("/setwebhook", async (req, res) => {
+  try {
+    const baseUrl = `https://${req.get("host")}`;
+    const webhookUrl = `${baseUrl}/webhook/${SECRET_PATH}`;
+    const r = await tg("setWebhook", { url: webhookUrl });
+    res.json({ ok: true, webhookUrl, telegram: r.data });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.response?.data || e.message });
   }
-
-  const nav = [];
-  if (page > 0) nav.push({ text: "⬅️ قبلی", callback_data: `province_page:${page - 1}` });
-  if (start + perPage < provinceNames.length) nav.push({ text: "➡️ بعدی", callback_data: `province_page:${page + 1}` });
-  if (nav.length) rows.push(nav);
-
-  return { inline_keyboard: rows };
-}
-
-function citiesKeyboard(provinceName) {
-  const cities = provinces[provinceName] || [];
-  const rows = [];
-  for (let i = 0; i < cities.length; i += 2) {
-    rows.push(
-      cities.slice(i, i + 2).map(city => ({
-        text: city,
-        callback_data: `city:${provinceName}:${city}`
-      }))
-    );
-  }
-  rows.push([{ text: "🔙 بازگشت به استان‌ها", callback_data: "province_page:0" }]);
-  return { inline_keyboard: rows };
-}
-
-async function sendWelcome(chatId, firstName = "") {
-  await tg("sendPhoto", {
-    chat_id: chatId,
-    photo: WELCOME_IMAGE,
-    caption:
-      `خوش اومدی ${firstName}\n\n` +
-      `به شبیه‌ساز زندگی خوش اومدی.\n` +
-      `برای شروع باید ثبت‌نام کنی.`,
-    reply_markup: {
-      inline_keyboard: [[{ text: "🚀 شروع ثبت‌نام", callback_data: "start_register" }]]
-    }
-  });
-}
-
-async function sendMainMenu(chatId) {
-  await tg("sendMessage", {
-    chat_id: chatId,
-    text: "منوی اصلی:",
-    reply_markup: mainMenuKeyboard()
-  });
-}
-
-async function sendMenuImage(chatId, key, title) {
-  const img = MENU_IMAGES[key];
-  await tg("sendPhoto", {
-    chat_id: chatId,
-    photo: img,
-    caption: title,
-    reply_markup: {
-      inline_keyboard: [[{ text: "🔙 بازگشت به منوی اصلی", callback_data: "back_main" }]]
-    }
-  });
-}
-
-app.get("/", (req, res) => {
-  res.send("Bot is running");
 });
 
 app.post(`/webhook/${SECRET_PATH}`, async (req, res) => {
   res.sendStatus(200);
   const update = req.body;
 
-  if (update.message) {
-    const msg = update.message;
-    const chatId = msg.chat.id;
-    const userId = msg.from.id;
-    const text = msg.text;
+  try {
+    // ----- callback buttons -----
+    if (update.callback_query) {
+      const q = update.callback_query;
+      const chatId = q.message.chat.id;
+      const data = q.data || "";
 
-    if (text === "/start") {
-      if (!userData.has(userId)) {
-        userStates.set(userId, { step: "idle" });
-        await sendWelcome(chatId, msg.from.first_name || "");
-      } else {
-        await sendMainMenu(chatId);
+      await tg("answerCallbackQuery", { callback_query_id: q.id });
+
+      if (!userData.has(chatId))
+        userData.set(chatId, { name: "", gender: "", province: "", city: "" });
+      if (!userStates.has(chatId)) userStates.set(chatId, STATES.ASK_NAME);
+
+      const state = userStates.get(chatId);
+      const profile = userData.get(chatId);
+
+      if (data === "cancel") {
+        userStates.delete(chatId);
+        userData.delete(chatId);
+        await tg("sendMessage", {
+          chat_id: chatId,
+          text: "ثبت‌نام لغو شد. برای شروع دوباره /start را ارسال کنید.",
+        });
+        return;
       }
-      return;
-    }
 
-    const state = userStates.get(userId);
+      if (data === "back:province") {
+        userStates.set(chatId, STATES.ASK_PROVINCE);
+        profile.province = "";
+        profile.city = "";
+        await tg("sendMessage", {
+          chat_id: chatId,
+          text: "📍 استان محل سکونت خود را انتخاب کنید:",
+          reply_markup: provinceKeyboard(),
+        });
+        return;
+      }
 
-    if (state?.step === "awaiting_name") {
-      userData.set(userId, {
-        id: userId,
-        telegramName: msg.from.first_name || "",
-        name: text
-      });
+      if (data.startsWith("gender:") && state === STATES.ASK_GENDER) {
+        profile.gender = data.replace("gender:", "");
+        userStates.set(chatId, STATES.ASK_PROVINCE);
 
-      userStates.set(userId, { step: "awaiting_gender" });
+        await tg("sendMessage", {
+          chat_id: chatId,
+          text: "📍 استان محل سکونت خود را انتخاب کنید:",
+          reply_markup: provinceKeyboard(),
+        });
+        return;
+      }
+
+      if (data.startsWith("prov:") && state === STATES.ASK_PROVINCE) {
+        const province = data.replace("prov:", "");
+        profile.province = province;
+        profile.city = "";
+        userStates.set(chatId, STATES.ASK_CITY);
+
+        await tg("sendMessage", {
+          chat_id: chatId,
+          text: `🏙 یکی از شهرستان‌های استان «${province}» را انتخاب کنید:`,
+          reply_markup: cityKeyboard(province),
+        });
+        return;
+      }
+
+      if (data.startsWith("city:") && state === STATES.ASK_CITY) {
+        const city = data.replace("city:", "");
+        profile.city = city;
+        userStates.set(chatId, STATES.FINISHED);
+
+        await tg("sendMessage", {
+          chat_id: chatId,
+          text:
+            "✅ ثبت مشخصات تکمیل شد:\n\n" +
+            `👤 نام: ${profile.name}\n` +
+            `⚧ جنسیت: ${profile.gender}\n` +
+            `📍 محل سکونت: ${profile.province} - ${profile.city}\n\n` +
+            "برای ادامه: /menu",
+        });
+        return;
+      }
 
       await tg("sendMessage", {
         chat_id: chatId,
-        text: "جنسیتت رو انتخاب کن:",
-        reply_markup: genderKeyboard()
+        text: "این گزینه در مرحله فعلی معتبر نیست. /start",
       });
       return;
     }
 
-    if (userData.has(userId)) {
-      if (text === "📂 پرونده") {
-        const data = userData.get(userId);
-        await sendMenuImage(
-          chatId,
-          "file",
-          `📂 پرونده\n\nاسم: ${data.name}\nجنسیت: ${data.gender}\nاستان: ${data.province}\nشهرستان: ${data.city}`
-        );
+    // ----- text messages -----
+    if (update.message && update.message.text) {
+      const chatId = update.message.chat.id;
+      const text = update.message.text.trim();
+
+      if (text === "/start") {
+        userStates.set(chatId, STATES.ASK_NAME);
+        userData.set(chatId, { name: "", gender: "", province: "", city: "" });
+
+        // اینجا عکس + دکمه شیشه‌ای میاد
+        try {
+          await tg("sendPhoto", {
+            chat_id: chatId,
+            photo: PHOTO_URL,
+            caption:
+              "✨ *به شبیه‌ساز زندگی خوش آمدید*\n\n" +
+              "لطفاً «نام نمایشی» خود را ارسال کنید:",
+            parse_mode: "Markdown",
+            reply_markup: {
+              inline_keyboard: [[{ text: "❌ لغو ثبت‌نام", callback_data: "cancel" }]],
+            },
+          });
+        } catch (err) {
+          // اگر عکس به هر دلیل Fail شد
+          await tg("sendMessage", {
+            chat_id: chatId,
+            text:
+              "✨ به شبیه‌ساز زندگی خوش آمدید.\n\n" +
+              "لطفاً «نام نمایشی» خود را ارسال کنید:",
+            reply_markup: {
+              inline_keyboard: [[{ text: "❌ لغو ثبت‌نام", callback_data: "cancel" }]],
+            },
+          });
+        }
         return;
       }
 
-      if (text === "🏴‍☠️ بازار سیاه") {
-        await sendMenuImage(chatId, "market", "🏴‍☠️ بازار سیاه");
+      if (text === "/menu") {
+        await tg("sendMessage", {
+          chat_id: chatId,
+          text: "منو هنوز کامل نشده. (بعدش منطق بازی رو می‌چسبونیم)\nبرای ثبت‌نام: /start",
+        });
         return;
       }
 
-      if (text === "⚔️ زرادخانه") {
-        await sendMenuImage(chatId, "arms", "⚔️ زرادخانه");
+      const state = userStates.get(chatId);
+
+      if (state === STATES.ASK_NAME) {
+        const name = text.slice(0, 32);
+        const profile = userData.get(chatId) || { name: "", gender: "", province: "", city: "" };
+        profile.name = name;
+        userData.set(chatId, profile);
+
+        userStates.set(chatId, STATES.ASK_GENDER);
+        await tg("sendMessage", {
+          chat_id: chatId,
+          text: "⚧ جنسیت را انتخاب کنید:",
+          reply_markup: genderKeyboard(),
+        });
         return;
       }
 
-      if (text === "🔥 تلاش برای بقا") {
-        await sendMenuImage(chatId, "survival", "🔥 تلاش برای بقا");
+      if (state === STATES.ASK_GENDER || state === STATES.ASK_PROVINCE || state === STATES.ASK_CITY) {
+        await tg("sendMessage", {
+          chat_id: chatId,
+          text: "لطفاً از دکمه‌های شیشه‌ای استفاده کنید. /start",
+        });
         return;
       }
 
-      if (text === "🗺 نقشه شهر") {
-        await sendMenuImage(chatId, "map", "🗺 نقشه شهر");
-        return;
-      }
-
-      if (text === "🕸 شبکه نفوذ") {
-        await sendMenuImage(chatId, "network", "🕸 شبکه نفوذ");
-        return;
-      }
-
-      if (text === "🏠 پناهگاه") {
-        await sendMenuImage(chatId, "safehouse", "🏠 پناهگاه");
-        return;
-      }
-    }
-  }
-
-  if (update.callback_query) {
-    const q = update.callback_query;
-    const data = q.data;
-    const chatId = q.message.chat.id;
-    const userId = q.from.id;
-    const messageId = q.message.message_id;
-
-    await tg("answerCallbackQuery", {
-      callback_query_id: q.id
-    });
-
-    if (data === "start_register") {
-      userStates.set(userId, { step: "awaiting_name" });
       await tg("sendMessage", {
         chat_id: chatId,
-        text: "اسمت رو بفرست:"
+        text: "برای شروع: /start",
       });
-      return;
     }
-
-    if (data.startsWith("gender:")) {
-      const gender = data.split(":")[1];
-      const current = userData.get(userId) || {};
-      current.gender = gender === "male" ? "مرد" : "زن";
-      userData.set(userId, current);
-
-      userStates.set(userId, { step: "awaiting_province" });
-
-      await tg("editMessageText", {
-        chat_id: chatId,
-        message_id: messageId,
-        text: "استانت رو انتخاب کن:",
-        reply_markup: provincesKeyboard(0)
-      });
-      return;
-    }
-
-    if (data.startsWith("province_page:")) {
-      const page = Number(data.split(":")[1]);
-      await tg("editMessageText", {
-        chat_id: chatId,
-        message_id: messageId,
-        text: "استانت رو انتخاب کن:",
-        reply_markup: provincesKeyboard(page)
-      });
-      return;
-    }
-
-    if (data.startsWith("province:")) {
-      const parts = data.split(":");
-      const provinceName = parts[1];
-
-      const current = userData.get(userId) || {};
-      current.province = provinceName;
-      userData.set(userId, current);
-
-      userStates.set(userId, { step: "awaiting_city" });
-
-      await tg("editMessageText", {
-        chat_id: chatId,
-        message_id: messageId,
-        text: `شهرستانت در ${provinceName} رو انتخاب کن:`,
-        reply_markup: citiesKeyboard(provinceName)
-      });
-      return;
-    }
-
-    if (data.startsWith("city:")) {
-      const parts = data.split(":");
-      const provinceName = parts[1];
-      const cityName = parts[2];
-
-      const current = userData.get(userId) || {};
-      current.province = provinceName;
-      current.city = cityName;
-      userData.set(userId, current);
-
-      userStates.set(userId, { step: "registered" });
-
-      await tg("editMessageText", {
-        chat_id: chatId,
-        message_id: messageId,
-        text:
-          `✅ ثبت‌نام کامل شد\n\n` +
-          `اسم: ${current.name}\n` +
-          `جنسیت: ${current.gender}\n` +
-          `استان: ${current.province}\n` +
-          `شهرستان: ${current.city}`
-      });
-
-      await sendMainMenu(chatId);
-      return;
-    }
-
-    if (data === "back_main") {
-      await sendMainMenu(chatId);
-      return;
-    }
+  } catch (err) {
+    console.error("Bot error:", err.response?.data || err.message);
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
