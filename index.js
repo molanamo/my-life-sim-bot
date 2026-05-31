@@ -43,7 +43,7 @@ app.post(`/webhook/${SECRET_PATH}`, async (req, res) => {
 
   const update = req.body;
 
-  // Handle /start command
+  // Handle /start command - This will show the welcome message and the "☰ Menu" button
   if (update.message && update.message.text === "/start") {
     const chatId = update.message.chat.id;
 
@@ -53,8 +53,8 @@ app.post(`/webhook/${SECRET_PATH}`, async (req, res) => {
       parse_mode: "Markdown",
       reply_markup: {
         keyboard: [
-          // This is the main keyboard with two buttons
-          [{ text: "⚫ شروع بازی" }, { text: "☰ منو" }]
+          // Only the "☰ Menu" button is relevant for now. "⚫ Start Game" is omitted.
+          [{ text: "☰ منو" }]
         ],
         resize_keyboard: true // Makes the keyboard fit the screen nicely
       }
@@ -72,11 +72,13 @@ app.post(`/webhook/${SECRET_PATH}`, async (req, res) => {
       reply_markup: {
         // This is the inline keyboard that appears above the message text
         inline_keyboard: [
-          // Example menu items
+          // Only showing the menu items as requested, no "start game" or "back to game" here for now.
           [{ text: "👤 پروفایل من", callback_data: "profile" }],
           [{ text: "⚙️ تنظیمات", callback_data: "settings" }],
           [{ text: "ℹ️ راهنما", callback_data: "help" }],
-          [{ text: "🔙 بازگشت به بازی", callback_data: "back_to_game" }]
+          // The "back_to_game" button is removed as per the request to simplify.
+          // If you need a way back to the main menu after interacting with a sub-menu,
+          // you can add a "back_to_menu" button within those sub-menu responses.
         ]
       }
     });
@@ -94,15 +96,14 @@ app.post(`/webhook/${SECRET_PATH}`, async (req, res) => {
       callback_query_id: update.callback_query.id
     });
 
-    // Here you would process each callback_data to show different messages or actions
-    // For now, we'll just provide basic responses and a way to go back to the menu
+    // Basic responses for menu items, with a "back to menu" option.
     if (callbackData === "profile") {
       await tg("editMessageText", {
         chat_id: chatId,
         message_id: messageId,
         text: "نمایش اطلاعات پروفایل...",
         reply_markup: {
-          inline_keyboard: [[{ text: "🔙 بازگشت", callback_data: "back_to_menu" }]]
+          inline_keyboard: [[{ text: "🔙 بازگشت به منو", callback_data: "back_to_menu" }]] // Added back button
         }
       });
     } else if (callbackData === "settings") {
@@ -111,7 +112,7 @@ app.post(`/webhook/${SECRET_PATH}`, async (req, res) => {
         message_id: messageId,
         text: "تنظیمات ربات...",
         reply_markup: {
-          inline_keyboard: [[{ text: "🔙 بازگشت", callback_data: "back_to_menu" }]]
+          inline_keyboard: [[{ text: "🔙 بازگشت به منو", callback_data: "back_to_menu" }]] // Added back button
         }
       });
     } else if (callbackData === "help") {
@@ -120,18 +121,7 @@ app.post(`/webhook/${SECRET_PATH}`, async (req, res) => {
         message_id: messageId,
         text: "راهنمای ربات...",
         reply_markup: {
-          inline_keyboard: [[{ text: "🔙 بازگشت", callback_data: "back_to_menu" }]]
-        }
-      });
-    } else if (callbackData === "back_to_game") {
-      // Go back to the initial welcome message
-      await tg("editMessageText", {
-        chat_id: chatId,
-        message_id: messageId,
-        text: `        🌌⛓️💀   وارد زندگی شو...   👁️‍🗨️⏳`,
-        parse_mode: "Markdown",
-        reply_markup: {
-          inline_keyboard: [[{ text: "⚫ شروع", callback_data: "start_game" }]] // Example back button
+          inline_keyboard: [[{ text: "🔙 بازگشت به منو", callback_data: "back_to_menu" }]] // Added back button
         }
       });
     } else if (callbackData === "back_to_menu") {
@@ -144,24 +134,17 @@ app.post(`/webhook/${SECRET_PATH}`, async (req, res) => {
           inline_keyboard: [
             [{ text: "👤 پروفایل من", callback_data: "profile" }],
             [{ text: "⚙️ تنظیمات", callback_data: "settings" }],
-            [{ text: "ℹ️ راهنما", callback_data: "help" }],
-            [{ text: "🔙 بازگشت به بازی", callback_data: "back_to_game" }]
+            [{ text: "ℹ️ راهنما", callback_data: "help" }]
+            // No "back_to_game" button here in this simplified version
           ]
         }
       });
-    } else if (callbackData === "start_game") {
-      // If the user clicks the start button from the welcome message
-      await tg("editMessageText", {
-        chat_id: chatId,
-        message_id: messageId,
-        text: "بازی شروع شد! منتظر مراحل بعدی باشید.",
-      });
     }
+    // No other callback data will be processed, effectively disabling other interactions.
   }
 });
 
 // A route to manually set the webhook (useful for testing or initial setup)
-// In Railway, it's better to have this run on server start or as part of deployment
 app.get('/setwebhook', async (req, res) => {
   await setWebhook();
   res.send('Webhook setting initiated. Check server logs for confirmation.');
@@ -171,7 +154,5 @@ app.get('/setwebhook', async (req, res) => {
 app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
   // Attempt to set the webhook when the server starts
-  // Make sure your Railway service is configured to handle this or
-  // that the TELEGRAM_BOT_TOKEN and SECRET_PATH are correctly set as environment variables.
   await setWebhook();
 });
