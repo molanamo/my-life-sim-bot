@@ -681,6 +681,23 @@ setInterval(() => {
 }, 30 * 1000);
 
 loadDB();
+// ۱. این همون کیبورد اصلیته که دکمه‌ها توش تعریف میشن
+const mainReplyKeyboard = Markup.keyboard([
+    ['📊 وضعیت', '🛒 فروشگاه'],
+    ['📜 ماموریت', '🏥 بیمارستان']
+]).resize();
+
+// ۲. این هم تنظیماتِ دکمه چهارخانه (منو)
+bot.telegram.setMyCommands([
+    { command: 'start', description: 'شروع بازی' },
+    { command: 'menu', description: 'بازگشت به منوی اصلی' }
+]);
+
+// ۳. این هم دستوری که وقتی دکمه چهارخانه رو زد، منو رو نشون میده
+bot.command('menu', (ctx) => {
+    ctx.reply('منوی اصلی:', mainReplyKeyboard);
+});
+
 bot.launch();
 console.log('Survival Bot PRO is running...');
 process.on('SIGINT', () => bot.stop('SIGINT'));
