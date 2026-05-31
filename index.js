@@ -726,6 +726,43 @@ bot.command('use', (ctx) => {
   ctx.reply(`✅ از ${item.name} استفاده شد\n+${item.heal} HP\nHP: ${u.hp}/${u.maxHp}`, backMenu());
 });
 
+bot.hears('درمان', (ctx) => {
+  const u = ensureUser(ctx.from.id);
+  tickNeeds(u);
+
+  if (u.hp >= u.maxHp) {
+    return ctx.reply(`❤️ سلامتی‌ات کامل است: ${u.hp}/${u.maxHp}`);
+  }
+
+  const cost = Math.max(20, (u.maxHp - u.hp) * 2);
+
+  if (u.money < cost) {
+    return ctx.reply(
+      `🏥 درمانگاه\n❤️ HP: ${u.hp}/${u.maxHp}\n💰 هزینه درمان: ${cost} سکه\nسکه کافی نداری.`
+    );
+  }
+
+  u.money -= cost;
+  u.hp = u.maxHp;
+  saveDB();
+
+  return ctx.reply(
+    `🏥 درمان شدی!\n❤️ HP: ${u.hp}/${u.maxHp}\n💰 هزینه: ${cost} سکه`
+  );
+});
+
+bot.hears('درمانگاه', (ctx) => {
+  const u = ensureUser(ctx.from.id);
+  tickNeeds(u);
+
+  const cost = Math.max(20, (u.maxHp - u.hp) * 2);
+
+  return ctx.reply(
+    `🏥 درمانگاه باز است\n❤️ HP: ${u.hp}/${u.maxHp}\n💰 هزینه درمان کامل: ${cost} سکه`
+  );
+});
+
+
 bot.command('اسلحه_خانه', (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
   if (u.homeLevel < 2) return ctx.reply('اسلحه‌خانه بعد از خانه لول 2 باز می‌شود', backMenu());
