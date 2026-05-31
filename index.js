@@ -540,7 +540,18 @@ bot.start((ctx) => {
   return ctx.reply(
     `سلام ${u.name || ''}\nبه بازی بقا خوش اومدی`,
     mainMenu()
-  );
+ 
+ );
+});
+// دستور آرامگاه
+bot.command('aramgah', (ctx) => {
+    ctx.reply('🕌 به آرامگاه خوش آمدید. برای آرامش روح خود یکی را انتخاب کنید:', {
+        reply_markup: {
+            inline_keyboard: [
+                [{ text: 'دعا', callback_data: 'pray_dua' }, { text: 'نماز', callback_data: 'pray_namaz' }, { text: 'روضه', callback_data: 'pray_rozeh' }]
+            ]
+        }
+    });
 });
 
 bot.command('وضعیت', (ctx) => {
