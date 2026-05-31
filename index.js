@@ -19,9 +19,6 @@ const MENU_IMAGES = {
   market: "https://ibb.co/yFw2LSS1",
   survival: "https://ibb.co/zVwDvfLM",
   arms: "https://ibb.co/PvK0nHjd",
-  map: "لینک_مستقیم_عکس_نقشه",
-  network: "لینک_مستقیم_عکس_شبکه",
-  safehouse: "لینک_مستقیم_عکس_پناهگاه"
 };
 
 const provinces = {
@@ -71,8 +68,8 @@ async function tg(method, payload) {
 function mainMenuKeyboard() {
   return {
     keyboard: [
-      ["📂 پرونده", "🏴‍☠️ بازار سیاه"],
-      ["⚔️ زرادخانه", "🔥 تلاش برای بقا"],
+      ["📂 پرونده", "🏴‍☠️ خلاف بازار"],
+      ["⚔️ اسلحه خانه", "🔥 زنده ماندن"],
       ["🗺 نقشه شهر", "🕸 شبکه نفوذ"],
       ["🏠 پناهگاه"]
     ],
