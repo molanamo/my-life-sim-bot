@@ -1,11 +1,20 @@
-{
-  "name": "tg-bot",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
-  "dependencies": {
-    "express": "^4.19.2"
-  }
-}
+        {
+          "name": "my-life-sim-bot",
+          "version": "1.0.0",
+          "description": "",
+          "main": "index.js",
+          "scripts": {
+            "start": "node index.js"
+            // ... سایر اسکریپت‌ها
+          },
+          "dependencies": {
+            "express": "^4.17.1",
+            "body-parser": "^1.19.0",
+            "axios": "^1.6.0", // یا هر نسخه دیگری که استفاده می‌کنید
+            "node-telegram-bot-api": "^0.60.0" // یا نسخه مورد نظر شما
+            // ... سایر وابستگی‌ها
+          },
+          "devDependencies": {
+            // ...
+          }
+        }
