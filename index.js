@@ -1,77 +1,43 @@
-"use strict";
-
 const express = require("express");
 const axios = require("axios");
-
 const app = express();
-app.use(express.json({ limit: "2mb" }));
+app.use(express.json());
 
-const PORT = Number(process.env.PORT || 3000);
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const SECRET_PATH = process.env.SECRET_PATH || "mojaz0762";
-
-if (!BOT_TOKEN) console.log("ERROR: BOT_TOKEN is missing.");
+const WELCOME_PHOTO = process.env.WELCOME_PHOTO_URL;
+const WELCOME_TEXT = process.env.WELCOME_TEXT || "سلام! شروع کنیم؟";
 
 async function tg(method, payload) {
-  const url = `https://api.telegram.org/bot${BOT_TOKEN}/${method}`;
   try {
-    const res = await axios.post(url, payload, { timeout: 15000 });
-    return res.data;
-  } catch (e) {
-    console.log("TG_ERROR", method, e?.response?.data || e.message);
-    return null;
-  }
+    return await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, payload);
+  } catch (e) { console.log("TG_ERROR:", e.message); }
 }
-
-const WELCOME_TEXT =
-  "🥃 این زندگی ارزشِ تجربه‌کردن رو داره…\n" +
-  "🤍 روی «🧬شروع🧬» بزن تا باهم شروعش کنیم 💙";
-
-const mainMenu = () => ({
-  inline_keyboard: [[{ text: "🧬شروع🧬", callback_data: "menu_start" }]],
-});
-
-app.get("/", (req, res) => res.status(200).send("ok"));
-
-app.get("/setwebhook", async (req, res) => {
-  const webhookUrl = `${req.protocol}://${req.get("host")}/webhook/${SECRET_PATH}`;
-  const result = await tg("setWebhook", { url: webhookUrl });
-  res.json({ ok: true, webhookUrl, result });
-});
 
 app.post(`/webhook/${SECRET_PATH}`, async (req, res) => {
   res.sendStatus(200);
   const u = req.body;
 
-  // /start -> ولکام + منوی شروع
-  if ((u?.message?.text || "").trim() === "/start") {
-    await tg("sendMessage", {
+  if (u.message?.text === "/start") {
+    const payload = {
       chat_id: u.message.chat.id,
-      text: WELCOME_TEXT,
-      reply_markup: mainMenu(),
-    });
-    return;
+      reply_markup: { inline_keyboard: [[{ text: "🧬شروع🧬", callback_data: "menu_start" }]] }
+    };
+
+    if (WELCOME_PHOTO) {
+      payload.photo = WELCOME_PHOTO;
+      payload.caption = WELCOME_TEXT;
+      await tg("sendPhoto", payload);
+    } else {
+      payload.text = WELCOME_TEXT;
+      await tg("sendMessage", payload);
+    }
   }
 
-  // کلیک روی دکمه شروع
-  if (u?.callback_query) {
-    const q = u.callback_query;
-    const chatId = q.message.chat.id;
-    const msgId = q.message.message_id;
-
-    await tg("answerCallbackQuery", { callback_query_id: q.id });
-
-    if (q.data === "menu_start") {
-      // فعلاً فقط همون پیام رو عوض می‌کنیم که بفهمیم وارد شد
-      await tg("editMessageText", {
-        chat_id: chatId,
-        message_id: msgId,
-        text: "شروع شد. بگو توی منوی شروع چه گزینه‌هایی بذارم؟",
-        reply_markup: { inline_keyboard: [] },
-      });
-      return;
-    }
+  if (u.callback_query?.data === "menu_start") {
+    await tg("answerCallbackQuery", { callback_query_id: u.callback_query.id });
+    await tg("sendMessage", { chat_id: u.callback_query.message.chat.id, text: "وارد منوی اصلی شدی!" });
   }
 });
 
-app.listen(PORT, () => console.log("listening on", PORT));
+app.listen(process.env.PORT || 3000);
