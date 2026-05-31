@@ -1,16 +1,17 @@
-    {
-      "name": "my-life-sim-bot",
-      "version": "1.0.0",
-      "description": "",
-      "main": "index.js", // یا هر فایلی که ربات شما را اجرا می‌کند
-      "scripts": {
-        "start": "node index.js", // یا دستور اجرای ربات شما
-        "test": "echo \"Error: no test specified\" && exit 1"
-      },
-      "keywords": [],
-      "author": "",
-      "license": "ISC",
-      "dependencies": {
-        "telegraf": "^4.17.1" // نسخه ممکن است متفاوت باشد
-      }
-    }
+{
+  "name": "my-telegram-bot",
+  "version": "1.0.0",
+  "description": "Telegram bot using Node.js and Express with webhook",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "body-parser": "^1.20.0",
+    "express": "^4.18.0"
+  },
+  "author": "",
+  "license": "ISC"
+}
