@@ -964,6 +964,28 @@ bot.action('gather', (ctx) => {
   saveDB(db);
   ctx.editMessageText(`🪓 جستجو انجام شد\n🎁 ${rewardText(found)}`, backMenu());
 });
+// مدیریت کلیک دکمه‌های آرامگاه
+bot.action(/pray_(.+)/, (ctx) => {
+    const u = ensureUser(ctx.from.id);
+    const type = ctx.match[1];
+    
+    // تنظیم XP: اگر لول ۳ یا کمتر است ۵۰، وگرنه ۱۰
+    const xpGain = (u.playerLevel <= 3) ? 50 : 10;
+    u.playerXP = (u.playerXP || 0) + xpGain;
+
+    // منطق لول‌آپ (بررسی برای لول‌های احتمالی چندگانه)
+    let leveledUp = false;
+    while (u.playerXP >= 30) {
+        u.playerLevel += 1;
+        u.playerXP -= 30;
+        leveledUp = true;
+    }
+
+    if (typeof saveDB === 'function') saveDB();
+
+    ctx.answerCbQuery(`شما ${type} خواندید و ${xpGain} XP گرفتید`);
+    ctx.reply(`✅ عمل ${type} انجام شد.\n➕ ${xpGain} XP دریافت کردید.\n📊 وضعیت جدید: لول ${u.playerLevel} | XP ${u.playerXP}${leveledUp ? '\n🎉 تبریک! لول شما افزایش یافت.' : ''}`);
+});
 
 bot.action('missions', (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
