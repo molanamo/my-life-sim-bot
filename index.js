@@ -999,20 +999,25 @@ bot.action(/pray_(.+)/, (ctx) => {
     ctx.reply(`✅ عمل ${type} انجام شد.\n➕ ${xpGain} XP دریافت کردید.\n📊 وضعیت جدید: لول ${u.playerLevel} | XP ${u.playerXP}${leveledUp ? '\n🎉 تبریک! لول شما افزایش یافت.' : ''}`);
 });
 // --- بخش آرامگاه (آرامگاه و زیرمجموعه‌ها) ---
-bot.action('aramgah', (ctx) => {
-  ctx.answerCbQuery();
-  ctx.reply('به آرامگاه خوش آمدی، مسافر. چه می‌کنی؟', {
-    reply_markup: {
-      inline_keyboard: [
-        [Markup.button.callback('🤲 دعا', 'pray')],
-        [Markup.button.callback('🧎 نماز', 'namaz')],
-        [Markup.button.callback('📖 روضه', 'rowzeh')],
-        [Markup.button.callback('🔙 بازگشت', 'menu')]
-      ]
-    }
-  });
+// اکشن برای باز کردن منوی آرامگاه
+bot.action('aramgah', async (ctx) => {
+  try {
+    await ctx.answerCbQuery();
+    await ctx.reply('به آرامگاه خوش آمدی، مسافر. برای آرامش روح یکی را انتخاب کنید:', {
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '🤲 دعا', callback_data: 'pray_dua' }],
+          [{ text: '🧎 نماز', callback_data: 'pray_namaz' }],
+          [{ text: '📖 روضه', callback_data: 'pray_rozeh' }]
+        ]
+      }
+    });
+  } catch (err) {
+    console.error('Error showing buttons:', err);
+  }
 });
 
+// اکشن برای دریافت XP بعد از کلیک روی دکمه‌ها
 bot.action(['pray_dua', 'pray_namaz', 'pray_rozeh'], async (ctx) => {
   const user = ctx.session.user;
   const userLvl = user.level || 0;
@@ -1020,10 +1025,8 @@ bot.action(['pray_dua', 'pray_namaz', 'pray_rozeh'], async (ctx) => {
 
   user.xp = (user.xp || 0) + xpReward;
 
-  ctx.answerCbQuery(`مبارک باشه! ${xpReward} XP گرفتی.`);
-  ctx.reply(`خدا قبول کند! ${xpReward} امتیاز XP به تجربه‌ات اضافه شد.`);
-});
-
+  await ctx.answerCbQuery(`مبارک باشه! ${xpReward} XP گرفتی.`);
+  await ctx.reply(`خدا قبول کند! ${xpReward} امتیاز XP به تجربه‌ات اضافه شد.`);
 });
 
 bot.action('missions', (ctx) => {
