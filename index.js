@@ -50,7 +50,7 @@ const WEAPONS = {
   knife: { name: 'چاقو', power: 5, price: 80, sell: 40 },
   pistol: { name: 'تپانچه', power: 10, price: 220, sell: 110 },
   rifle: { name: 'تفنگ', power: 18, price: 500, sell: 250 },
-  axe: { name: 'تبر جنگی', power: 14, price: 350, sell: 175 }
+  axe: { name: 'تیر غیب', power: 14, price: 350, sell: 175 }
 };
 
 const HEAL_ITEMS = {
@@ -81,7 +81,7 @@ const SHOP_BUY = {
   knife: { type: 'weapon', key: 'knife', name: 'چاقو', price: 80 },
   pistol: { type: 'weapon', key: 'pistol', name: 'تپانچه', price: 220 },
   rifle: { type: 'weapon', key: 'rifle', name: 'تفنگ', price: 500 },
-  axe: { type: 'weapon', key: 'axe', name: 'تبر جنگی', price: 350 },
+  axe: { type: 'weapon', key: 'axe', name: 'تیر غیب', price: 350 },
 
   gem: { type: 'special', key: 'gem', name: 'سنگ قیمتی', price: 120 },
   map: { type: 'special', key: 'map', name: 'نقشه کهنه', price: 90 },
@@ -140,19 +140,19 @@ function ensureUser(id, name = '') {
       playerLevel: 1,
       playerXP: 0,
       hp: 100,
-      maxHp: 100,
+      maxHp: 300,
       homeLevel: 1,
       clinicBuilt: false,
       shopBuilt: false,
       armoryBuilt: false,
       weapon: 'none',
       resources: {
-        wood: 0,
-        stone: 0,
-        metal: 0,
-        iron: 0,
+        wood: 20,
+        stone: 20,
+        metal: 20,
+        iron: 20,
         gold: 30,
-        toman: 0
+        toman: 20
       },
       items: {
         bandage: 1,
@@ -196,7 +196,7 @@ function normalizeUser(u) {
   u.playerLevel ??= 1;
   u.playerXP ??= 0;
   u.hp ??= 100;
-  u.maxHp ??= 100;
+  u.maxHp ??= 300;
   u.homeLevel ??= 1;
   u.clinicBuilt ??= false;
   u.shopBuilt ??= false;
@@ -1026,7 +1026,7 @@ bot.action('aramgah', async (ctx) => {
 bot.action(['pray_dua', 'pray_namaz', 'pray_rozeh'], async (ctx) => {
   try {
     const u = ctx.session.user;
-    const xpGain = (u.playerLevel <= 3) ? 20 : 10;
+    const xpGain = (u.playerLevel <= 3) ? 13 : 10;
 
     u.playerXP = (u.playerXP || 0) + xpGain;
 
