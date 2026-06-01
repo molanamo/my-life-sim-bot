@@ -910,23 +910,26 @@ bot.command('admin_give', (ctx) => {
   if (!targetId || !type || !key || !amount) {
     return ctx.reply('استفاده:\n/admin_give userId resource wood 10\n/admin_give userId item bandage 2\n/admin_give userId weapon rifle 1');
   }
+
 bot.command('aramgah', async (ctx) => {
-    try {
-        await ctx.reply('🕌 به آرامگاه خوش آمدید. برای آرامش روح خود یکی را انتخاب کنید:', {
-            reply_markup: {
-                inline_keyboard: [
-                    [
-                        { text: 'دعا', callback_data: 'pray_dua' },
-                        { text: 'نماز', callback_data: 'pray_namaz' },
-                        { text: 'روضه', callback_data: 'pray_rozeh' }
-                    ]
-                ]
-            }
-        });
-    } catch (err) {
-        console.error('Error showing buttons:', err);
-    }
+    const keyboard = Markup.inlineKeyboard([
+        [Markup.button.callback('دعا 🙏', 'pray_dua')],
+        [Markup.button.callback('نماز 🤲', 'pray_namaz')],
+        [Markup.button.callback('روضه 🖤', 'pray_rozeh')]
+    ]);
+    return ctx.reply('به آرامگاه خوش آمدید:', keyboard);
 });
+
+bot.action(['pray_dua', 'pray_namaz', 'pray_rozeh'], async (ctx) => {
+    const u = await getUser(ctx.from.id);
+    const xpGain = (u.playerLevel <= 3) ? 20 : 5;
+    
+    u.playerXP += xpGain;
+    await saveDB();
+    
+    return ctx.reply(`✅ خدا قبول کنه حاج مهدی!\nتعداد ${xpGain} XP به حسابت اضافه شد.`);
+});
+
 
   const u = ensureUser(targetId, '');
   if (type === 'resource') {
