@@ -406,52 +406,63 @@ function bumpAction(u, actionKey, amount = 1) {
   }
 } 
 
-bot.command('فروشگاه', (ctx) => {
-  try {
-    const buttons = [];
-    for (const [key, item] of Object.entries(SHOP_BUY)) {
-      buttons.push([Markup.button.callback(`${item.name} (${item.price} طلا)`, `shop_item:${key}`)]);
-    }
-    ctx.reply('🛒 فروشگاه بقا\nکالای مورد نظر رو انتخاب کن:', Markup.inlineKeyboard(buttons));
-  } catch (err) {
-    ctx.reply('❌ خطا در فروشگاه: ' + err.message);
-  }
+// --- فروشگاه جدید و ایزوله ---
+const SHOP_ITEMS = {
+    'iron': { name: 'آهن', price: 10, desc: 'فلز پایه' },
+    'wood': { name: 'چوب', price: 5, desc: 'ماده اولیه' },
+    'food': { name: 'غذا', price: 2, desc: 'خوراکی' }
+};
+
+bot.command(['shop', 'فروشگاه'], async (ctx) => {
+    try {
+        const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
+        if (u.homeLevel < 2) return ctx.reply('⚠️ فروشگاه بعد از خانه لول ۲ باز می‌شود.');
+
+        const buttons = Object.keys(SHOP_ITEMS).map(key => 
+            [Markup.button.callback(`🛒 ${SHOP_ITEMS[key].name} (${SHOP_ITEMS[key].price} طلا)`, `shop_item_${key}`)]
+        );
+        ctx.reply('🛍 فروشگاه بقا، چه چیزی نیاز داری؟', Markup.inlineKeyboard(buttons));
+    } catch (e) { console.error('Error /shop:', e); }
 });
 
-bot.action(/^shop_item:(.+)/, (ctx) => {
-  try {
-    const key = ctx.match[1];
-    const item = SHOP_BUY[key];
-    ctx.editMessageText(`خرید ${item.name} (${item.price} طلا)\nچند تا می‌خوای؟`, 
-      Markup.inlineKeyboard([
-        [Markup.button.callback('1', `buy_confirm:${key}:1`), Markup.button.callback('5', `buy_confirm:${key}:5`)],
-        [Markup.button.callback('10', `buy_confirm:${key}:10`), Markup.button.callback('50', `buy_confirm:${key}:50`)]
-      ])
+bot.action(/shop_item_(.+)/, async (ctx) => {
+    const itemKey = ctx.match[1];
+    const item = SHOP_ITEMS[itemKey];
+    if (!item) return ctx.answerCbQuery('❌ آیتم یافت نشد');
+
+    const amounts = [1, 5, 10, 50];
+    const buttons = amounts.map(amt => Markup.button.callback(`${amt} عدد`, `buy_confirm_${itemKey}_${amt}`));
+    
+    await ctx.answerCbQuery();
+    await ctx.editMessageText(`⚖️ انتخاب تعداد برای: ${item.name}\nقیمت هر واحد: ${item.price} طلا`, 
+        Markup.inlineKeyboard([buttons, [Markup.button.callback('🔙 بازگشت', 'shop_back')]])
     );
-  } catch (err) {
-    ctx.answerCbQuery('❌ خطا: ' + err.message);
-  }
 });
 
-bot.action(/^buy_confirm:(.+):(\d+)/, (ctx) => {
-  try {
-    const key = ctx.match[1];
+bot.action(/buy_confirm_(.+)_(.+)/, async (ctx) => {
+    const itemKey = ctx.match[1];
     const amount = parseInt(ctx.match[2]);
-    const item = SHOP_BUY[key];
-    const u = ensureUser(ctx.from.id);
+    const item = SHOP_ITEMS[itemKey];
+    const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
 
-    if (u.resources.gold < item.price * amount) {
-      return ctx.answerCbQuery('⚠️ طلای کافی نداری!');
-    }
+    if (u.resources.gold < (item.price * amount)) return ctx.answerCbQuery('❌ طلای کافی نداری!');
 
-    addResource(u, 'gold', -(item.price * amount));
-    addResource(u, key, amount); 
-    saveDB(db);
-    ctx.editMessageText(`✅ ${item.name} × ${amount} خریداری شد.`);
-  } catch (err) {
-    ctx.answerCbQuery('❌ خطا: ' + err.message);
-  }
+    u.resources.gold -= (item.price * amount);
+    if (!u.inventory[itemKey]) u.inventory[itemKey] = 0;
+    u.inventory[itemKey] += amount;
+    saveDB();
+
+    await ctx.answerCbQuery(`✅ ${amount} عدد ${item.name} خریدی!`);
+    await ctx.editMessageText(`✅ خرید موفق!\n📦 ${amount} عدد ${item.name} اضافه شد.\n💰 طلا: ${u.resources.gold}`);
 });
+
+bot.action('shop_back', (ctx) => {
+    const buttons = Object.keys(SHOP_ITEMS).map(key => 
+        [Markup.button.callback(`🛒 ${SHOP_ITEMS[key].name}`, `shop_item_${key}`)]
+    );
+    ctx.editMessageText('🛍 فروشگاه بقا، چه چیزی نیاز داری؟', Markup.inlineKeyboard(buttons));
+});
+
 
 function homeText(u) {
   const next = HOME_UPGRADES[u.homeLevel + 1];
