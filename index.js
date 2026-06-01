@@ -998,6 +998,32 @@ bot.action(/pray_(.+)/, (ctx) => {
     ctx.answerCbQuery(`شما ${type} خواندید و ${xpGain} XP گرفتید`);
     ctx.reply(`✅ عمل ${type} انجام شد.\n➕ ${xpGain} XP دریافت کردید.\n📊 وضعیت جدید: لول ${u.playerLevel} | XP ${u.playerXP}${leveledUp ? '\n🎉 تبریک! لول شما افزایش یافت.' : ''}`);
 });
+// --- بخش آرامگاه (آرامگاه و زیرمجموعه‌ها) ---
+bot.action('aramgah', (ctx) => {
+  ctx.answerCbQuery();
+  ctx.reply('به آرامگاه خوش آمدی، مسافر. چه می‌کنی؟', {
+    reply_markup: {
+      inline_keyboard: [
+        [Markup.button.callback('🤲 دعا', 'pray')],
+        [Markup.button.callback('🧎 نماز', 'namaz')],
+        [Markup.button.callback('📖 روضه', 'rowzeh')],
+        [Markup.button.callback('🔙 بازگشت', 'menu')]
+      ]
+    }
+  });
+});
+
+bot.action(['pray', 'namaz', 'rowzeh'], async (ctx) => {
+  // محاسبه پاداش: لول ۳ یا کمتر ۵۰ تا، بقیه ۱۰ تا
+  const userLvl = ctx.session.user.level || 0;
+  const xpReward = (userLvl <= 3) ? 50 : 10;
+
+  // آپدیت XP کاربر
+  ctx.session.user.xp = (ctx.session.user.xp || 0) + xpReward;
+
+  ctx.answerCbQuery(`مبارک باشه! ${xpReward} XP گرفتی.`);
+  ctx.reply(`قبول باشه! ${xpReward} امتیاز XP به تجربیاتت اضافه شد.`);
+});
 
 bot.action('missions', (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
