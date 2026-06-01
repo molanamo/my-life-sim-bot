@@ -998,8 +998,7 @@ bot.action(/pray_(.+)/, (ctx) => {
     ctx.answerCbQuery(`شما ${type} خواندید و ${xpGain} XP گرفتید`);
     ctx.reply(`✅ عمل ${type} انجام شد.\n➕ ${xpGain} XP دریافت کردید.\n📊 وضعیت جدید: لول ${u.playerLevel} | XP ${u.playerXP}${leveledUp ? '\n🎉 تبریک! لول شما افزایش یافت.' : ''}`);
 });
-// --- بخش آرامگاه (آرامگاه و زیرمجموعه‌ها) ---
-// اکشن برای باز کردن منوی آرامگاه
+
 bot.action('aramgah', async (ctx) => {
   try {
     await ctx.answerCbQuery();
