@@ -81,19 +81,19 @@ const RES_EMOJI = {
 };
 
 const WEAPONS = {
-  none: { name: 'بدون سلاح', power: 0, price: 0, sell: 0 },
-  stick: { name: '🪵 چوب', power: 2, price: 20, sell: 10 },
+  none: { name: '❌ بدون سلاح', power: 0, price: 0, sell: 0 },
+  stick: { name: '🪵 چوب دستی', power: 2, price: 20, sell: 10 },
   knife: { name: '🔪 چاقو', power: 5, price: 80, sell: 40 },
   pistol: { name: '🔫 تپانچه', power: 10, price: 220, sell: 110 },
-  rifle: { name: '🔫 تفنگ', power: 18, price: 500, sell: 250 },
-  axe: { name: '🪓 تیر غیب', power: 14, price: 350, sell: 175 }
+  rifle: { name: '🔫 تفنگ شکاری', power: 18, price: 500, sell: 250 },
+  axe: { name: '🪓 تبر جنگی', power: 14, price: 350, sell: 175 }
 };
 
 const HEAL_ITEMS = {
-  bandage: { name: '🩹 باند', heal: 15, price: 25, sell: 12 },
-  medkit: { name: '💊 جعبه کمک', heal: 40, price: 80, sell: 40 },
+  bandage: { name: '🩹 باند زخم', heal: 15, price: 25, sell: 12 },
+  medkit: { name: '💊 جعبه کمک‌های اولیه', heal: 40, price: 80, sell: 40 },
   soup: { name: '🍲 سوپ گرم', heal: 10, price: 18, sell: 9 },
-  herb: { name: '🌿 گیاه درمانی', heal: 20, price: 35, sell: 17 }
+  herb: { name: '🌿 گیاه دارویی', heal: 20, price: 35, sell: 17 }
 };
 
 const SPECIAL_ITEMS = {
@@ -111,11 +111,11 @@ const SHOP_BUY = {
   medkit: { type: 'item', key: 'medkit', name: 'جعبه کمک', price: 80 },
   soup: { type: 'item', key: 'soup', name: 'سوپ گرم', price: 18 },
   herb: { type: 'item', key: 'herb', name: 'گیاه درمانی', price: 35 },
-  stick: { type: 'weapon', key: 'stick', name: 'چوب', price: 20 },
+  stick: { type: 'weapon', key: 'stick', name: 'چوب دستی', price: 20 },
   knife: { type: 'weapon', key: 'knife', name: 'چاقو', price: 80 },
   pistol: { type: 'weapon', key: 'pistol', name: 'تپانچه', price: 220 },
   rifle: { type: 'weapon', key: 'rifle', name: 'تفنگ', price: 500 },
-  axe: { type: 'weapon', key: 'axe', name: 'تیر غیب', price: 350 },
+  axe: { type: 'weapon', key: 'axe', name: 'تبر جنگی', price: 350 },
   gem: { type: 'special', key: 'gem', name: 'سنگ قیمتی', price: 120 },
   map: { type: 'special', key: 'map', name: 'نقشه کهنه', price: 90 },
   fuel: { type: 'special', key: 'fuel', name: 'سوخت', price: 75 }
@@ -159,23 +159,23 @@ const MISSIONS = [
 
 // ==================== دشمنان ====================
 const ANIMALS = [
-  { name: '🐺 گرگ', power: 8, hpLoss: [8, 16], rewards: { gold: 10, wood: 1 } },
-  { name: '🐗 گراز', power: 10, hpLoss: [9, 18], rewards: { gold: 12, stone: 1 } },
-  { name: '🦊 کفتار', power: 12, hpLoss: [10, 20], rewards: { gold: 15, metal: 1 } },
-  { name: '🐻 خرس', power: 16, hpLoss: [14, 28], rewards: { gold: 20, iron: 1 } }
+  { name: '🐺 گرگ خاکستری', power: 8, hpLoss: [8, 16], rewards: { gold: 10, wood: 1 } },
+  { name: '🐗 گراز وحشی', power: 10, hpLoss: [9, 18], rewards: { gold: 12, stone: 1 } },
+  { name: '🦊 کفتار گرسنه', power: 12, hpLoss: [10, 20], rewards: { gold: 15, metal: 1 } },
+  { name: '🐻 خرس قهوه‌ای', power: 16, hpLoss: [14, 28], rewards: { gold: 20, iron: 1 } }
 ];
 
 const DEMONS = [
   { name: '👹 دیو سرخ', power: 16, hpLoss: [18, 35], rewards: { gold: 28, iron: 2, metal: 2 } },
   { name: '👺 دیو سنگی', power: 22, hpLoss: [22, 40], rewards: { gold: 40, iron: 3, toman: 1 } },
-  { name: '👾 دیو بزرگ', power: 28, hpLoss: [25, 48], rewards: { gold: 55, iron: 4, toman: 1, gem: 1 } }
+  { name: '👾 دیو بزرگ تاریکی', power: 28, hpLoss: [25, 48], rewards: { gold: 55, iron: 4, toman: 1, gem: 1 } }
 ];
 
 const PREYS = [
-  { name: '🦌 آهو', power: 3, hpLoss: [2, 5], rewards: { gold: 5, wood: 1 } },
+  { name: '🦌 آهوی زیبا', power: 3, hpLoss: [2, 5], rewards: { gold: 5, wood: 1 } },
   { name: '🐑 گوسفند وحشی', power: 4, hpLoss: [3, 7], rewards: { gold: 6, stone: 1 } },
-  { name: '🦃 بوقلمون', power: 2, hpLoss: [1, 3], rewards: { gold: 4, wood: 1 } },
-  { name: '🐇 خرگوش', power: 1, hpLoss: [0, 2], rewards: { gold: 3, wood: 1 } }
+  { name: '🦃 بوقلمون چاق', power: 2, hpLoss: [1, 3], rewards: { gold: 4, wood: 1 } },
+  { name: '🐇 خرگوش سریع', power: 1, hpLoss: [0, 2], rewards: { gold: 3, wood: 1 } }
 ];
 
 // ==================== مدیریت کاربر ====================
@@ -535,15 +535,14 @@ function clinicText(u) {
 }
 
 // ==================== منوها ====================
-function mainMenu(isAdmin = false) {
-  const buttons = [
+function mainMenu() {
+  return Markup.inlineKeyboard([
     [Markup.button.callback('📊 وضعیت', 'status'), Markup.button.callback('🪓 جستجو', 'gather')],
     [Markup.button.callback('📦 ماموریت‌ها', 'missions'), Markup.button.callback('✅ تحویل ماموریت', 'claim_missions')],
     [Markup.button.callback('⚔️ مبارزه', 'fight_menu'), Markup.button.callback('🏠 خانه', 'home')],
     [Markup.button.callback('🏥 درمانگاه', 'clinic'), Markup.button.callback('🛒 فروشگاه', 'shop')],
     [Markup.button.callback('🛠️ اسلحه خانه', 'armory'), Markup.button.callback('🕯️ آرامگاه', 'aramgah')]
-  ];
-  return Markup.inlineKeyboard(buttons);
+  ]);
 }
 
 function backMenu() {
@@ -652,6 +651,48 @@ function shopSellKeyboard(u) {
   return Markup.inlineKeyboard(buttons);
 }
 
+// ==================== اسلحه‌خانه با دکمه‌های شیشه‌ای ====================
+function armoryMainKeyboard(u) {
+  const buttons = [];
+  
+  // دکمه‌های ساخت
+  for (const [k, c] of Object.entries(ARMORY_RECIPES)) {
+    const weapon = WEAPONS[k];
+    if (!weapon) continue;
+    const owned = u.weaponsOwned[k];
+    buttons.push([Markup.button.callback(
+      `${owned ? '✅' : '🔨'} ساخت ${weapon.name} - ${formatCost(c)}`, 
+      `armory_craft_${k}`
+    )]);
+  }
+
+  // دکمه‌های تجهیز
+  const equipButtons = [];
+  for (const k of Object.keys(u.weaponsOwned)) {
+    if (k === 'none') continue;
+    if (u.weaponsOwned[k]) {
+      const weapon = WEAPONS[k];
+      if (weapon) {
+        equipButtons.push(Markup.button.callback(
+          `${u.weapon === k ? '⚔️' : '🔸'} ${weapon.name}${u.weapon === k ? ' (فعال)' : ''}`, 
+          `armory_equip_${k}`
+        ));
+      }
+    }
+  }
+  
+  if (equipButtons.length > 0) {
+    buttons.push([Markup.button.callback('⚔️ تجهیز سلاح:', 'armory_nothing')]);
+    // تقسیم به ردیف‌های 2 تایی
+    for (let i = 0; i < equipButtons.length; i += 2) {
+      buttons.push(equipButtons.slice(i, i + 2));
+    }
+  }
+
+  buttons.push([Markup.button.callback('🔙 بازگشت', 'back_main')]);
+  return Markup.inlineKeyboard(buttons);
+}
+
 // ==================== گیم‌پلی ====================
 function performGather(u) {
   const table = [
@@ -731,251 +772,167 @@ bot.start((ctx) => {
   );
 });
 
-bot.command('وضعیت', (ctx) => {
-  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  saveDB(db);
-  ctx.reply(statusText(u), backMenu());
-});
-
-bot.command('ماموریت‌ها', (ctx) => {
-  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  ctx.reply(missionsText(u), backMenu());
-});
-
-bot.command('تحویل_ماموریت', (ctx) => {
-  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  const claimed = claimAvailableMissions(u);
-  saveDB(db);
-  ctx.reply(claimed || '❌ هیچ ماموریت آماده تحویلی نداری', backMenu());
-});
-
-bot.command('خانه', (ctx) => {
-  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  ctx.reply(homeText(u), backMenu());
-});
-
-bot.command('upgrade_home', (ctx) => {
-  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  const nextLevel = u.homeLevel + 1;
-  const cost = HOME_UPGRADES[nextLevel];
-  if (!cost) return ctx.reply('🏠 به حداکثر سطح رسیدی', backMenu());
-  if (u.playerLevel < cost.needPlayerLevel) {
-    return ctx.reply(`❌ برای ارتقا به لول ${nextLevel} باید لول بازیکن ${cost.needPlayerLevel} باشی`, backMenu());
-  }
-  if (!hasResources(u, cost)) {
-    return ctx.reply(`❌ منابع کافی نیست\n📋 نیاز: ${formatCost(cost)}`, backMenu());
-  }
-  takeResources(u, cost);
-  u.homeLevel = nextLevel;
-  bumpAction(u, 'home_upgrade', 1);
-  saveDB(db);
-  ctx.reply(`🏠 خانه به لول ${u.homeLevel} ارتقا یافت!`, backMenu());
-});
-
-bot.command('فروشگاه', (ctx) => {
-  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  if (u.homeLevel < 2) return ctx.reply('🔒 فروشگاه بعد از خانه لول 2 باز می‌شود', backMenu());
-  ctx.reply('🛒 فروشگاه بقا - انتخاب دسته:', shopCategoryKeyboard());
-});
-
-bot.command('buy', (ctx) => {
-  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  if (u.homeLevel < 2) return ctx.reply('🔒 فروشگاه هنوز قفل است', backMenu());
-  const args = parseArgs(ctx.message.text);
-  const key = args[1];
-  const amount = Math.max(1, Number(args[2] || 1));
-  const item = SHOP_BUY[key];
-  if (!item) return ctx.reply('❌ کالای نامعتبر', backMenu());
-  const total = item.price * amount;
-  if (u.resources.gold < total) return ctx.reply('❌ طلای کافی نداری', backMenu());
+// ==================== دستورات ادمین فارسی ====================
+bot.command('اهدای_منبع', (ctx) => {
+  const me = ensureUser(ctx.from.id, ctx.from.first_name || '');
+  if (!isAdmin(me.id)) return ctx.reply('⛔ این دستور فقط برای ادمین ربات قابل استفاده است.');
   
-  addResource(u, 'gold', -total);
-  if (item.type === 'resource') addResource(u, item.key, amount);
-  if (item.type === 'item' || item.type === 'special') addItem(u, item.key, amount);
-  if (item.type === 'weapon') {
-    u.weaponsOwned[item.key] = true;
-    bumpAction(u, 'get_weapon', 1);
-  }
-  bumpAction(u, 'buy', 1);
-  saveDB(db);
-  ctx.reply(`✅ خرید انجام شد: ${item.name} × ${amount}\n💰 طلای باقی‌مانده: ${u.resources.gold}`, backMenu());
-});
-
-bot.command('sell', (ctx) => {
-  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  if (u.homeLevel < 2) return ctx.reply('🔒 فروشگاه هنوز قفل است', backMenu());
-  const args = parseArgs(ctx.message.text);
-  const key = args[1];
-  const amount = Math.max(1, Number(args[2] || 1));
-
-  if (RES_LABELS[key] && key !== 'gold') {
-    if ((u.resources[key] || 0) < amount) return ctx.reply('❌ به این مقدار نداری', backMenu());
-    const price = Math.max(1, Math.floor((SHOP_BUY[key]?.price || 5) / 2));
-    addResource(u, key, -amount);
-    addResource(u, 'gold', price * amount);
-    bumpAction(u, 'sell', 1);
-    saveDB(db);
-    return ctx.reply(`✅ فروخته شد\n${amount} ${RES_LABELS[key]} => ${price * amount} طلا`, backMenu());
-  }
-
-  if (u.items[key] >= amount) {
-    const base = HEAL_ITEMS[key]?.sell || SPECIAL_ITEMS[key]?.sell || Math.max(1, Math.floor((SHOP_BUY[key]?.price || 10) / 2));
-    addItem(u, key, -amount);
-    addResource(u, 'gold', base * amount);
-    bumpAction(u, 'sell', 1);
-    saveDB(db);
-    return ctx.reply(`✅ فروخته شد\n${amount} عدد => ${base * amount} طلا`, backMenu());
-  }
-
-  if (u.weaponsOwned[key] && key !== 'none') {
-    const base = WEAPONS[key]?.sell || 10;
-    delete u.weaponsOwned[key];
-    if (u.weapon === key) u.weapon = 'none';
-    addResource(u, 'gold', base);
-    bumpAction(u, 'sell', 1);
-    saveDB(db);
-    return ctx.reply(`✅ ${WEAPONS[key].name} فروخته شد => ${base} طلا`, backMenu());
-  }
-
-  ctx.reply('❌ چیزی برای فروش پیدا نشد', backMenu());
-});
-
-bot.command('درمانگاه', (ctx) => {
-  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  if (u.homeLevel < 2) return ctx.reply('🔒 درمانگاه بعد از خانه لول 2 باز می‌شود', backMenu());
-  ctx.reply(clinicText(u), backMenu());
-});
-
-bot.command('heal', (ctx) => {
-  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  if (u.homeLevel < 2) return ctx.reply('🔒 درمانگاه هنوز قفل است', backMenu());
-  const args = parseArgs(ctx.message.text);
-  const mode = args[1];
-
-  if (mode === 'free') {
-    if (u.daily.freeHealUsed) return ctx.reply('❌ درمان رایگان امروز را استفاده کردی', backMenu());
-    u.daily.freeHealUsed = true;
-    u.hp = Math.min(u.maxHp, u.hp + 30);
-    bumpAction(u, 'heal', 1);
-    saveDB(db);
-    return ctx.reply(`✅ 30 HP درمان شد\n❤️ HP: ${u.hp}/${u.maxHp}`, backMenu());
-  }
-
-  if (mode === 'gold') {
-    if (u.resources.gold < 20) return ctx.reply('❌ 20 طلا لازم داری', backMenu());
-    addResource(u, 'gold', -20);
-    u.hp = u.maxHp;
-    bumpAction(u, 'heal', 1);
-    saveDB(db);
-    return ctx.reply(`✅ HP کامل شد\n❤️ HP: ${u.hp}/${u.maxHp}`, backMenu());
-  }
-
-  ctx.reply('❌ استفاده: /heal free یا /heal gold', backMenu());
-});
-
-bot.command('use', (ctx) => {
-  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  const args = parseArgs(ctx.message.text);
-  const key = args[1];
-  const item = HEAL_ITEMS[key];
-  if (!item) return ctx.reply('❌ آیتم درمانی نامعتبر', backMenu());
-  if ((u.items[key] || 0) < 1) return ctx.reply('❌ این آیتم را نداری', backMenu());
-  addItem(u, key, -1);
-  u.hp = Math.min(u.maxHp, u.hp + item.heal);
-  bumpAction(u, 'heal', 1);
-  saveDB(db);
-  ctx.reply(`✅ از ${item.name} استفاده شد\n+${item.heal} HP\n❤️ HP: ${u.hp}/${u.maxHp}`, backMenu());
-});
-
-bot.command('اسلحه_خانه', (ctx) => {
-  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  if (u.homeLevel < 2) return ctx.reply('🔒 اسلحه‌خانه بعد از خانه لول 2 باز می‌شود', backMenu());
-  ctx.reply(armoryText(u), backMenu());
-});
-
-bot.command('craft', (ctx) => {
-  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  if (u.homeLevel < 2) return ctx.reply('🔒 اسلحه‌خانه هنوز قفل است', backMenu());
-  const args = parseArgs(ctx.message.text);
-  const key = args[1];
-  const recipe = ARMORY_RECIPES[key];
-  if (!recipe || !WEAPONS[key]) return ctx.reply('❌ سلاح نامعتبر', backMenu());
-  if (u.weaponsOwned[key]) return ctx.reply('❌ این سلاح را داری', backMenu());
-  if (!hasResources(u, recipe)) return ctx.reply(`❌ منابع کافی نیست\n${formatCost(recipe)}`, backMenu());
-  takeResources(u, recipe);
-  u.weaponsOwned[key] = true;
-  bumpAction(u, 'get_weapon', 1);
-  saveDB(db);
-  ctx.reply(`✅ ${WEAPONS[key].name} ساخته شد!`, backMenu());
-});
-
-bot.command('equip', (ctx) => {
-  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  const args = parseArgs(ctx.message.text);
-  const key = args[1];
-  if (!u.weaponsOwned[key]) return ctx.reply('❌ این سلاح را نداری', backMenu());
-  u.weapon = key;
-  saveDB(db);
-  ctx.reply(`⚔️ ${WEAPONS[key].name} تجهیز شد`, backMenu());
-});
-
-bot.command('gather', (ctx) => {
-  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  const found = performGather(u);
-  saveDB(db);
-  ctx.reply(`🪓 جستجو انجام شد\n🎁 ${rewardText(found)}`, backMenu());
-});
-
-bot.command('aramgah', async (ctx) => {
-  const keyboard = Markup.inlineKeyboard([
-    [Markup.button.callback('🤲 دعا', 'pray_dua')],
-    [Markup.button.callback('🧎 نماز', 'pray_namaz')],
-    [Markup.button.callback('📖 روضه', 'pray_rozeh')],
-    [Markup.button.callback('🔙 بازگشت', 'back_main')]
-  ]);
-  return ctx.reply('🕯️ به آرامگاه خوش آمدید. یکی را انتخاب کن:', keyboard);
-});
-
-// ==================== ادمین ====================
-bot.command('admin_give', (ctx) => {
-  const me = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  if (!isAdmin(me.id)) return ctx.reply('⛔ فقط ادمین');
   const args = parseArgs(ctx.message.text);
   const targetId = args[1];
-  const type = args[2];
-  const key = args[3];
-  const amount = Number(args[4] || 0);
+  const resourceKey = args[2];
+  const amount = Number(args[3] || 0);
 
-  if (!targetId || !type || !key || !amount) {
-    return ctx.reply('❌ استفاده:\n/admin_give userId resource wood 10\n/admin_give userId item bandage 2\n/admin_give userId weapon rifle 1');
+  if (!targetId || !resourceKey || !amount) {
+    return ctx.reply(
+      '❌ روش استفاده:\n' +
+      '/اهدای_منبع [آیدی عددی] [نوع منبع] [مقدار]\n\n' +
+      '📋 انواع منبع:\n' +
+      'wood (چوب), stone (سنگ), metal (فلز), iron (آهن), gold (طلا), toman (تومن)\n\n' +
+      '📝 مثال:\n' +
+      '/اهدای_منبع 123456789 wood 100'
+    );
+  }
+
+  if (!RES_LABELS[resourceKey]) {
+    return ctx.reply('❌ نوع منبع نامعتبر است.\n📋 انواع معتبر: wood, stone, metal, iron, gold, toman');
   }
 
   const u = ensureUser(targetId, '');
-  if (type === 'resource') {
-    addResource(u, key, amount);
-  } else if (type === 'item') {
-    addItem(u, key, amount);
-  } else if (type === 'weapon') {
-    u.weaponsOwned[key] = true;
-  } else if (type === 'xp') {
-    addXP(u, amount);
-  } else if (type === 'hp') {
-    u.hp = Math.min(u.maxHp, u.hp + amount);
-  } else {
-    return ctx.reply('❌ type نامعتبر');
-  }
+  addResource(u, resourceKey, amount);
   saveDB(db);
-  ctx.reply('✅ انجام شد');
+  
+  ctx.reply(`✅ انجام شد!\n🎁 ${amount} ${RES_LABELS[resourceKey]} به کاربر ${targetId} اهدا شد.`);
 });
 
-bot.command('admin_full', (ctx) => {
+bot.command('اهدای_آیتم', (ctx) => {
   const me = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  if (!isAdmin(me.id)) return ctx.reply('⛔ فقط ادمین');
+  if (!isAdmin(me.id)) return ctx.reply('⛔ این دستور فقط برای ادمین ربات قابل استفاده است.');
+  
   const args = parseArgs(ctx.message.text);
   const targetId = args[1];
-  if (!targetId) return ctx.reply('❌ استفاده: /admin_full userId');
-  const u = ensureUser(targetId, '');
+  const itemKey = args[2];
+  const amount = Number(args[3] || 0);
 
+  if (!targetId || !itemKey || !amount) {
+    return ctx.reply(
+      '❌ روش استفاده:\n' +
+      '/اهدای_آیتم [آیدی عددی] [نوع آیتم] [مقدار]\n\n' +
+      '📋 انواع آیتم:\n' +
+      'bandage (باند), medkit (جعبه کمک), soup (سوپ), herb (گیاه درمانی), gem (سنگ قیمتی), map (نقشه کهنه), fuel (سوخت)\n\n' +
+      '📝 مثال:\n' +
+      '/اهدای_آیتم 123456789 medkit 5'
+    );
+  }
+
+  if (!HEAL_ITEMS[itemKey] && !SPECIAL_ITEMS[itemKey]) {
+    return ctx.reply('❌ نوع آیتم نامعتبر است.\n📋 انواع معتبر: bandage, medkit, soup, herb, gem, map, fuel');
+  }
+
+  const u = ensureUser(targetId, '');
+  addItem(u, itemKey, amount);
+  saveDB(db);
+  
+  const itemName = HEAL_ITEMS[itemKey]?.name || SPECIAL_ITEMS[itemKey]?.name || itemKey;
+  ctx.reply(`✅ انجام شد!\n🎁 ${amount} ${itemName} به کاربر ${targetId} اهدا شد.`);
+});
+
+bot.command('اهدای_سلاح', (ctx) => {
+  const me = ensureUser(ctx.from.id, ctx.from.first_name || '');
+  if (!isAdmin(me.id)) return ctx.reply('⛔ این دستور فقط برای ادمین ربات قابل استفاده است.');
+  
+  const args = parseArgs(ctx.message.text);
+  const targetId = args[1];
+  const weaponKey = args[2];
+
+  if (!targetId || !weaponKey) {
+    return ctx.reply(
+      '❌ روش استفاده:\n' +
+      '/اهدای_سلاح [آیدی عددی] [نوع سلاح]\n\n' +
+      '📋 انواع سلاح:\n' +
+      'stick (چوب دستی), knife (چاقو), pistol (تپانچه), rifle (تفنگ), axe (تبر جنگی)\n\n' +
+      '📝 مثال:\n' +
+      '/اهدای_سلاح 123456789 rifle'
+    );
+  }
+
+  if (!WEAPONS[weaponKey] || weaponKey === 'none') {
+    return ctx.reply('❌ نوع سلاح نامعتبر است.\n📋 انواع معتبر: stick, knife, pistol, rifle, axe');
+  }
+
+  const u = ensureUser(targetId, '');
+  u.weaponsOwned[weaponKey] = true;
+  saveDB(db);
+  
+  ctx.reply(`✅ انجام شد!\n🎁 سلاح ${WEAPONS[weaponKey].name} به کاربر ${targetId} اهدا شد.`);
+});
+
+bot.command('اهدای_XP', (ctx) => {
+  const me = ensureUser(ctx.from.id, ctx.from.first_name || '');
+  if (!isAdmin(me.id)) return ctx.reply('⛔ این دستور فقط برای ادمین ربات قابل استفاده است.');
+  
+  const args = parseArgs(ctx.message.text);
+  const targetId = args[1];
+  const amount = Number(args[2] || 0);
+
+  if (!targetId || !amount) {
+    return ctx.reply(
+      '❌ روش استفاده:\n' +
+      '/اهدای_XP [آیدی عددی] [مقدار]\n\n' +
+      '📝 مثال:\n' +
+      '/اهدای_XP 123456789 50'
+    );
+  }
+
+  const u = ensureUser(targetId, '');
+  const ups = addXP(u, amount);
+  saveDB(db);
+  
+  ctx.reply(`✅ انجام شد!\n✨ ${amount} XP به کاربر ${targetId} اهدا شد.${ups ? `\n🎉 ${ups} لول افزایش یافت!` : ''}`);
+});
+
+bot.command('اهدای_سلامتی', (ctx) => {
+  const me = ensureUser(ctx.from.id, ctx.from.first_name || '');
+  if (!isAdmin(me.id)) return ctx.reply('⛔ این دستور فقط برای ادمین ربات قابل استفاده است.');
+  
+  const args = parseArgs(ctx.message.text);
+  const targetId = args[1];
+  const amount = Number(args[2] || 0);
+
+  if (!targetId || !amount) {
+    return ctx.reply(
+      '❌ روش استفاده:\n' +
+      '/اهدای_سلامتی [آیدی عددی] [مقدار]\n\n' +
+      '📝 مثال:\n' +
+      '/اهدای_سلامتی 123456789 100'
+    );
+  }
+
+  const u = ensureUser(targetId, '');
+  u.hp = Math.min(u.maxHp, u.hp + amount);
+  saveDB(db);
+  
+  ctx.reply(`✅ انجام شد!\n❤️ ${amount} HP به کاربر ${targetId} اهدا شد.\n❤️ HP فعلی: ${u.hp}/${u.maxHp}`);
+});
+
+bot.command('مکس_کردن', (ctx) => {
+  const me = ensureUser(ctx.from.id, ctx.from.first_name || '');
+  if (!isAdmin(me.id)) return ctx.reply('⛔ این دستور فقط برای ادمین ربات قابل استفاده است.');
+  
+  const args = parseArgs(ctx.message.text);
+  const targetId = args[1];
+  
+  if (!targetId) {
+    return ctx.reply(
+      '❌ روش استفاده:\n' +
+      '/مکس_کردن [آیدی عددی]\n\n' +
+      '📝 مثال:\n' +
+      '/مکس_کردن 123456789\n\n' +
+      '⚠️ این دستور همه چیز کاربر را به حداکثر می‌رساند!'
+    );
+  }
+
+  const u = ensureUser(targetId, '');
+  
   for (const k of RES_KEYS) addResource(u, k, 9999);
   for (const k of Object.keys(HEAL_ITEMS)) addItem(u, k, 99);
   for (const k of Object.keys(SPECIAL_ITEMS)) addItem(u, k, 99);
@@ -986,9 +943,39 @@ bot.command('admin_full', (ctx) => {
   u.maxHp = 300;
   u.hp = 300;
   u.homeLevel = 4;
-
+  
   saveDB(db);
-  ctx.reply('✅ همه چیز داده شد');
+  ctx.reply(`✅ کاربر ${targetId} با موفقیت به حداکثر قدرت رسید!\n🎚️ لول: 20\n❤️ HP: 300/300\n🏠 لول خانه: 4\n🥇 تمام منابع: 9999\n🎒 تمام آیتم‌ها: 99\n⚔️ تمام سلاح‌ها: فعال`);
+});
+
+bot.command('راهنمای_ادمین', (ctx) => {
+  const me = ensureUser(ctx.from.id, ctx.from.first_name || '');
+  if (!isAdmin(me.id)) return ctx.reply('⛔ این دستور فقط برای ادمین ربات قابل استفاده است.');
+  
+  return ctx.reply(
+    '👑 راهنمای دستورات ادمین:\n\n' +
+    '📦 **اهدای منبع:**\n' +
+    '/اهدای_منبع [آیدی] [نوع] [مقدار]\n' +
+    'مثال: /اهدای_منبع 123456789 wood 100\n\n' +
+    '🧰 **اهدای آیتم:**\n' +
+    '/اهدای_آیتم [آیدی] [نوع] [مقدار]\n' +
+    'مثال: /اهدای_آیتم 123456789 medkit 5\n\n' +
+    '⚔️ **اهدای سلاح:**\n' +
+    '/اهدای_سلاح [آیدی] [نوع]\n' +
+    'مثال: /اهدای_سلاح 123456789 rifle\n\n' +
+    '✨ **اهدای XP:**\n' +
+    '/اهدای_XP [آیدی] [مقدار]\n' +
+    'مثال: /اهدای_XP 123456789 50\n\n' +
+    '❤️ **اهدای سلامتی:**\n' +
+    '/اهدای_سلامتی [آیدی] [مقدار]\n' +
+    'مثال: /اهدای_سلامتی 123456789 100\n\n' +
+    '👑 **مکس کردن:**\n' +
+    '/مکس_کردن [آیدی]\n' +
+    'مثال: /مکس_کردن 123456789\n\n' +
+    '📋 **انواع منبع:** wood, stone, metal, iron, gold, toman\n' +
+    '📋 **انواع آیتم:** bandage, medkit, soup, herb, gem, map, fuel\n' +
+    '📋 **انواع سلاح:** stick, knife, pistol, rifle, axe'
+  );
 });
 
 // ==================== اکشن‌های دکمه‌ای ====================
@@ -1016,7 +1003,7 @@ bot.action('claim_missions', (ctx) => {
   ctx.editMessageText(claimed || '❌ هیچ ماموریت آماده تحویلی نداری', backMenu());
 });
 
-// ==================== سیستم مبارزه جدید ====================
+// ==================== سیستم مبارزه ====================
 bot.action('fight_menu', (ctx) => {
   ctx.editMessageText('⚔️ بخش مبارزه - نوع حریف رو انتخاب کن:', Markup.inlineKeyboard([
     [Markup.button.callback('🐺 حیوانات وحشی', 'fight_type_animal')],
@@ -1110,7 +1097,7 @@ bot.action('clinic', (ctx) => {
   ctx.editMessageText(clinicText(u), backMenu());
 });
 
-// ==================== فروشگاه با دکمه‌های شیشه‌ای ====================
+// ==================== فروشگاه ====================
 bot.action('shop', (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
   if (u.homeLevel < 2) return ctx.answerCbQuery('🔒 فروشگاه بعد از خانه لول 2 باز می‌شود');
@@ -1274,6 +1261,57 @@ bot.action('shop_nothing', (ctx) => {
   ctx.answerCbQuery('❌ چیزی برای فروش نداری');
 });
 
+// ==================== اسلحه‌خانه شیشه‌ای ====================
+bot.action('armory', (ctx) => {
+  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
+  if (u.homeLevel < 2) return ctx.answerCbQuery('🔒 اسلحه‌خانه بعد از خانه لول 2 باز می‌شود');
+  
+  ctx.editMessageText('🛠️ اسلحه‌خانه - ساخت و تجهیز سلاح:', armoryMainKeyboard(u));
+});
+
+bot.action(/armory_craft_(.+)/, (ctx) => {
+  const weaponKey = ctx.match[1];
+  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
+  
+  if (u.homeLevel < 2) return ctx.answerCbQuery('🔒 اسلحه‌خانه قفل است');
+  
+  const recipe = ARMORY_RECIPES[weaponKey];
+  if (!recipe || !WEAPONS[weaponKey]) return ctx.answerCbQuery('❌ سلاح نامعتبر');
+  if (u.weaponsOwned[weaponKey]) return ctx.answerCbQuery('✅ این سلاح رو داری');
+  if (!hasResources(u, recipe)) return ctx.answerCbQuery(`❌ منابع کافی نیست\n${formatCost(recipe)}`);
+  
+  takeResources(u, recipe);
+  u.weaponsOwned[weaponKey] = true;
+  bumpAction(u, 'get_weapon', 1);
+  saveDB(db);
+  
+  ctx.answerCbQuery(`✅ ${WEAPONS[weaponKey].name} ساخته شد!`);
+  ctx.editMessageText(
+    `✅ ${WEAPONS[weaponKey].name} با موفقیت ساخته شد!\n\n🛠️ اسلحه‌خانه:`,
+    armoryMainKeyboard(u)
+  );
+});
+
+bot.action(/armory_equip_(.+)/, (ctx) => {
+  const weaponKey = ctx.match[1];
+  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
+  
+  if (!u.weaponsOwned[weaponKey]) return ctx.answerCbQuery('❌ این سلاح رو نداری');
+  
+  u.weapon = weaponKey;
+  saveDB(db);
+  
+  ctx.answerCbQuery(`⚔️ ${WEAPONS[weaponKey].name} تجهیز شد`);
+  ctx.editMessageText(
+    `⚔️ ${WEAPONS[weaponKey].name} با موفقیت تجهیز شد!\n\n🛠️ اسلحه‌خانه:`,
+    armoryMainKeyboard(u)
+  );
+});
+
+bot.action('armory_nothing', (ctx) => {
+  ctx.answerCbQuery('⚔️ یکی از سلاح‌ها رو برای تجهیز انتخاب کن');
+});
+
 // ==================== آرامگاه ====================
 bot.action('aramgah', async (ctx) => {
   await ctx.answerCbQuery();
@@ -1308,12 +1346,6 @@ bot.action(['pray_dua', 'pray_namaz', 'pray_rozeh'], async (ctx) => {
     console.error('Pray error:', e);
     return ctx.answerCbQuery('❌ خطا پیش اومد');
   }
-});
-
-bot.action('armory', (ctx) => {
-  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  if (u.homeLevel < 2) return ctx.answerCbQuery('🔒 اسلحه‌خانه قفل است');
-  ctx.editMessageText(armoryText(u), backMenu());
 });
 
 bot.action('back_main', (ctx) => {
@@ -1361,7 +1393,7 @@ bot.on('text', (ctx) => {
   if (text === 'اسلحه خانه' || text === 'اسلحه‌خانه') {
     const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
     if (u.homeLevel < 2) return ctx.reply('🔒 اسلحه‌خانه قفل است', backMenu());
-    return ctx.reply(armoryText(u), backMenu());
+    return ctx.reply('🛠️ اسلحه‌خانه - ساخت و تجهیز سلاح:', armoryMainKeyboard(u));
   }
 
   if (text === 'جستجو') {
@@ -1400,6 +1432,13 @@ bot.on('text', (ctx) => {
         [Markup.button.callback('🏃 فرار', 'back_main')]
       ])
     );
+  }
+
+  // دستورات قدیمی برای سازگاری
+  if (text.startsWith('/buy ') || text.startsWith('/sell ') || text.startsWith('/craft ') || 
+      text.startsWith('/equip ') || text.startsWith('/heal ') || text.startsWith('/use ') ||
+      text.startsWith('/upgrade_home')) {
+    return; // این دستورات قبلاً تعریف شدن
   }
 });
 
