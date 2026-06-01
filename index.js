@@ -1736,6 +1736,11 @@ function shopSellKeyboard(u) {
     }
   }
 
+bot.on('photo', (ctx) => {
+  const fileId = ctx.message.photo[ctx.message.photo.length - 1].file_id;
+  ctx.reply('✅ File ID:\n\n`' + fileId + '`\n\n❌ این کد رو کپی کن و بهم بده', { parse_mode: 'Markdown' });
+});
+
   if (buttons.length === 0) {
     buttons.push([Markup.button.callback('❌ چیزی برای فروش نداری', 'shop_nothing')]);
   }
