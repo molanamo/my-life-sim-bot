@@ -26,13 +26,11 @@ function loadDB() {
 function saveDB(data) {
     try {
         const jsonString = JSON.stringify(data, null, 2);
-        fs.writeFileSync('db.json', jsonString);
+        fs.writeFileSync(DB_FILE, jsonString, 'utf8');
     } catch (e) {
         console.log('خطای ذخیره:', e);
     }
 }
-
-
 const db = loadDB();
 
 const RES_KEYS = ['wood', 'stone', 'metal', 'iron', 'gold', 'toman'];
