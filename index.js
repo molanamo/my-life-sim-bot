@@ -898,6 +898,23 @@ bot.command('gather', (ctx) => {
   saveDB(db);
   ctx.reply(`🪓 جستجو انجام شد\n🎁 ${rewardText(found)}`, backMenu());
 });
+bot.command('aramgah', async (ctx) => {
+    try {
+        await ctx.reply('🕌 به آرامگاه خوش آمدید. برای آرامش روح خود یکی را انتخاب کنید:', {
+            reply_markup: {
+                inline_keyboard: [
+                    [
+                        { text: 'دعا', callback_data: 'pray_dua' },
+                        { text: 'نماز', callback_data: 'pray_namaz' },
+                        { text: 'روضه', callback_data: 'pray_rozeh' }
+                    ]
+                ]
+            }
+        });
+    } catch (err) {
+        console.error('Error showing buttons:', err);
+    }
+});
 
 bot.command('admin_give', (ctx) => {
   const me = ensureUser(ctx.from.id, ctx.from.first_name || '');
