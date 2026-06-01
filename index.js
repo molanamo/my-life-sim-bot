@@ -1023,7 +1023,7 @@ bot.action('aramgah', async (ctx) => {
 bot.action(['pray_dua', 'pray_namaz', 'pray_rozeh'], async (ctx) => {
   try {
     const u = ctx.session.user;
-    const xpGain = (u.playerLevel <= 3) ? 30 : 10;
+    const xpGain = (u.playerLevel <= 3) ? 20 : 10;
 
     u.playerXP = (u.playerXP || 0) + xpGain;
 
