@@ -15,7 +15,6 @@ const bot = new Telegraf(BOT_TOKEN);
 
 // ==================== عکس‌های بازی ====================
 const IMAGES = {
-  // منوها
   main: 'AgACAgQAAxkBAAFLQ1hqHeE5_2DNtv-c7vXNvlvDzcU2fQACfQ5rG1tF6FB44iYU1s4wDAEAAwIAA3kAAzsE',
   gather: 'AgACAgQAAxkBAAFLQ1lqHeE5nuotPpVTda4Zp_HcAAEvxiAAAn4OaxtbRehQbyq4FMe8AVcBAAMCAAN5AAM7BA',
   fight: 'AgACAgQAAxkBAAFLQ1pqHeE5INNW8pvgTy_zL6hot6hnDgACfw5rG1tF6FDAnH2qKREROgEAAwIAA3kAAzsE',
@@ -23,32 +22,22 @@ const IMAGES = {
   shop: 'AgACAgQAAxkBAAFLQ1xqHeE57-7UwtrxoAue33Tj8qZ2ygACgQ5rG1tF6FDwf9RF0-_aBgEAAwIAA3kAAzsE',
   aramgah: 'AgACAgQAAxkBAAFLQ11qHeE5xKtpYfLlC9iJcm7Xe6DGyAACgg5rG1tF6FDbzuLJ2BC_fQEAAwIAA3kAAzsE',
   dragon: 'AgACAgQAAxkBAAFLQ15qHeE5AaLgMilG1B5C6Amw1JiCYwACgw5rG1tF6FD2QF30YLZcLgEAAwIAA3gAAzsE',
-  
-  // خونه‌ها
   home1: 'AgACAgQAAxkBAAFLRBlqHepqaxA7774kH5kpgnd9MXGOgwACCBBrG_TM8VBGCtZ4DCEaqQEAAwIAA3gAAzsE',
   home2: 'AgACAgQAAxkBAAFLRCBqHeqZJOftg1hF47Pl_Bz6qUGPmgACCRBrG_TM8VCDe8_1u2ZcsQEAAwIAA3kAAzsE',
   home3: 'AgACAgQAAxkBAAFLRCRqHerMfPlTZDd0By5sEnVSIHwMAgACCxBrG_TM8VAoXbBFiAABb20BAAMCAAN5AAM7BA',
   home4: 'AgACAgQAAxkBAAFLRCpqHer4ca-LuPq121ccDF7f971m5gACDBBrG_TM8VDA4LWWaw7GHAEAAwIAA3kAAzsE',
   home5: 'AgACAgQAAxkBAAFLRCxqHesV-20QaQ-YdW44RtwsogpRjAACDRBrG_TM8VBcA1RS6dU6cwEAAwIAA3kAAzsE',
-  
-  // درمانگاه‌ها
   clinic1: 'AgACAgQAAxkBAAFLRDRqHes1jzW9ek8zKcepIexXOytTYQACDhBrG_TM8VCMXdTqxtRh1AEAAwIAA3gAAzsE',
   clinic2: 'AgACAgQAAxkBAAFLRDlqHetNmNKl872Hj3XXAAF3Lnck93gAAg8Qaxv0zPFQqR7p5FJTXIIBAAMCAAN5AAM7BA',
   clinic3: 'AgACAgQAAxkBAAFLRD1qHetj2uTCfi2snjLcjw69s0UI8QACEBBrG_TM8VDD8Ib2cGF7twEAAwIAA3gAAzsE',
-  
-  // اسلحه‌های جدید
   machinegun: 'AgACAgQAAxkBAAFLRD9qHeuEMnvWAiQtE3S9jlK1ypg-6wACERBrG_TM8VCmSk2j7foU-wEAAwIAA3gAAzsE',
   grenade: 'AgACAgQAAxkBAAFLRENqHeumWFysJPqccbO_hqS9YULEmAACEhBrG_TM8VAQUMeQvTFrlAEAAwIAA3kAAzsE',
   sniper: 'AgACAgQAAxkBAAFLRElqHevNnQ_dvkpJE-ifAQt29p9XyQACExBrG_TM8VAzBkI9XUZHFgEAAwIAA3gAAzsE',
-  
-  // زره‌ها
   armor_wood: 'AgACAgQAAxkBAAFLREtqHev6EAUh9-w1__VDDEzipe2UEgACFBBrG_TM8VACM-SfTM1wvgEAAwIAA3kAAzsE',
   armor_leather: 'AgACAgQAAxkBAAFLRFNqHewl9GHqN596fBI_keFy7vZ-0wACFRBrG_TM8VCQje-7kQABpcgBAAMCAAN5AAM7BA',
   armor_iron: 'AgACAgQAAxkBAAFLRFVqHexJ7Ezk5gF8biUXhZmqC3k3CQACFhBrG_TM8VD4GTipBAABnb4BAAMCAAN5AAM7BA',
   armor_gold: 'AgACAgQAAxkBAAFLRFpqHextRo0xTElC0OpcIF0dxJQMZgACFxBrG_TM8VDsUdEPVS4EtAEAAwIAA3kAAzsE',
   armor_dragon: 'AgACAgQAAxkBAAFLRF5qHeyMZ-FzLnyjLgfGrER-y9NQbAACGBBrG_TM8VDa3YRYik_xlwEAAwIAA3kAAzsE',
-  
-  // غذاها و نوشیدنی‌ها
   food_soda: 'AgACAgQAAxkBAAFLRG1qHe7qzypgIQkL2EExAfDv4antQgACGhBrG_TM8VCZY4knQ7935AEAAwIAA3gAAzsE',
   food_tea: 'AgACAgQAAxkBAAFLRHJqHe8DRa8AAbzpmdBCSytbVAAB-V3TAAIbEGsb9MzxUGqg2XWKQGoXAQADAgADeAADOwQ',
   food_coffee: 'AgACAgQAAxkBAAFLRHZqHe8XI6WuAAH62s9m0fGWJ74cGoUAAhwQaxv0zPFQNQ5mngki32QBAAMCAAN4AAM7BA',
@@ -111,7 +100,7 @@ function formatTime(ms) {
 
 function progressBar(current, max, length = 10) {
   const filled = Math.floor((current / max) * length);
-  return '█'.repeat(filled) + '░'.repeat(length - filled);
+  return '█'.repeat(Math.max(0, filled)) + '░'.repeat(Math.max(0, length - filled));
 }
 
 function setCooldown(u, action) {
@@ -125,6 +114,7 @@ const COOLDOWNS = {
   fight: 3 * 60 * 1000,
   boss: 10 * 60 * 1000,
   pray: 6 * 60 * 60 * 1000,
+  pvp: 5 * 60 * 1000,
 };
 
 // ==================== ثابت‌ها ====================
@@ -164,23 +154,23 @@ const HEAL_ITEMS = {
 };
 
 const FOOD_ITEMS = {
-  bread: { name: '🍞 نان', hunger: 30, price: 10, sell: 5, image: 'main' },
-  meat: { name: '🍖 گوشت', hunger: 50, price: 25, sell: 12, image: 'main' },
-  fish: { name: '🐟 ماهی', hunger: 25, price: 15, sell: 7, image: 'main' },
-  water: { name: '💧 آب', thirst: 40, price: 8, sell: 4, image: 'main' },
-  juice: { name: '🧃 آبمیوه', thirst: 50, price: 20, sell: 10, image: 'main' },
-  soda: { name: '🍺 نوشابه', thirst: 25, price: 10, sell: 5, image: 'food_soda' },
-  tea: { name: '🍵 چای', thirst: 35, price: 12, sell: 6, image: 'food_tea' },
-  coffee: { name: '☕ قهوه', thirst: 30, xp: 10, price: 35, sell: 17, image: 'food_coffee' },
-  milk: { name: '🥛 شیر', thirst: 45, price: 15, sell: 7, image: 'food_milk' },
-  honey: { name: '🍯 عسل', hunger: 20, heal: 30, price: 55, sell: 27, image: 'food_honey' },
-  cake: { name: '🍰 کیک', hunger: 25, heal: 20, price: 45, sell: 22, image: 'food_cake' },
-  noodle: { name: '🍜 نودل', hunger: 35, price: 20, sell: 10, image: 'food_noodle' },
-  stew: { name: '🥘 خورشت', hunger: 55, price: 35, sell: 17, image: 'food_stew' },
-  pizza: { name: '🍕 پیتزا', hunger: 80, price: 65, sell: 32, image: 'food_pizza' },
-  steak: { name: '🥩 استیک', hunger: 70, price: 50, sell: 25, image: 'food_steak' },
-  chicken: { name: '🍗 مرغ کبابی', hunger: 45, price: 30, sell: 15, image: 'food_chicken' },
-  burger: { name: '🍔 همبرگر', hunger: 60, price: 40, sell: 20, image: 'food_burger' }
+  bread: { name: '🍞 نان', hunger: 30, price: 10, sell: 5 },
+  meat: { name: '🍖 گوشت', hunger: 50, price: 25, sell: 12 },
+  fish: { name: '🐟 ماهی', hunger: 25, price: 15, sell: 7 },
+  water: { name: '💧 آب', thirst: 40, price: 8, sell: 4 },
+  juice: { name: '🧃 آبمیوه', thirst: 50, price: 20, sell: 10 },
+  soda: { name: '🍺 نوشابه', thirst: 25, price: 10, sell: 5 },
+  tea: { name: '🍵 چای', thirst: 35, price: 12, sell: 6 },
+  coffee: { name: '☕ قهوه', thirst: 30, xp: 10, price: 35, sell: 17 },
+  milk: { name: '🥛 شیر', thirst: 45, price: 15, sell: 7 },
+  honey: { name: '🍯 عسل', hunger: 20, heal: 30, price: 55, sell: 27 },
+  cake: { name: '🍰 کیک', hunger: 25, heal: 20, price: 45, sell: 22 },
+  noodle: { name: '🍜 نودل', hunger: 35, price: 20, sell: 10 },
+  stew: { name: '🥘 خورشت', hunger: 55, price: 35, sell: 17 },
+  pizza: { name: '🍕 پیتزا', hunger: 80, price: 65, sell: 32 },
+  steak: { name: '🥩 استیک', hunger: 70, price: 50, sell: 25 },
+  chicken: { name: '🍗 مرغ کبابی', hunger: 45, price: 30, sell: 15 },
+  burger: { name: '🍔 همبرگر', hunger: 60, price: 40, sell: 20 }
 };
 
 const SPECIAL_ITEMS = {
@@ -274,7 +264,7 @@ function ensureUser(id, name = '') {
       hp: 100, maxHp: 300,
       hunger: 100, maxHunger: 100,
       thirst: 100, maxThirst: 100,
-      homeLevel: 1, clinicLevel: 0,
+      homeLevel: 1, clinicLevel: 1,
       weapon: 'none', armor: 'none', clan: null,
       skills: { gathering: 0, hunting: 0, crafting: 0, survival: 0 },
       skillPoints: 0,
@@ -283,7 +273,8 @@ function ensureUser(id, name = '') {
       weaponsOwned: { none: true },
       armorsOwned: { none: true },
       cooldowns: {},
-      stats: { gather: 0, fight_win: 0, demon_win: 0, boss_win: 0 },
+      daily: {},
+      stats: { gather: 0, fight_win: 0, demon_win: 0, boss_win: 0, pvpWins: 0, pvpLosses: 0 },
       pendingFight: null,
       joinedAt: new Date().toISOString(),
       totalLogins: 1
@@ -306,22 +297,25 @@ function normalizeUser(u) {
   u.hp ??= 100; u.maxHp ??= 300;
   u.hunger ??= 100; u.maxHunger ??= 100;
   u.thirst ??= 100; u.maxThirst ??= 100;
-  u.homeLevel ??= 1; u.clinicLevel ??= 0;
+  u.homeLevel ??= 1; u.clinicLevel ??= 1;
   u.weapon ??= 'none'; u.armor ??= 'none'; u.clan ??= null;
   u.skills ??= { gathering: 0, hunting: 0, crafting: 0, survival: 0 };
   u.skillPoints ??= 0;
-  u.resources ??= {}; u.items ??= {}; 
+  u.resources ??= {}; u.items ??= {};
   u.weaponsOwned ??= { none: true };
   u.armorsOwned ??= { none: true };
   u.cooldowns ??= {};
-  u.stats ??= {}; u.pendingFight ??= null;
-  
+  u.daily ??= {};
+  u.stats ??= { gather: 0, fight_win: 0, demon_win: 0, boss_win: 0, pvpWins: 0, pvpLosses: 0 };
+  u.pendingFight ??= null;
+
   for (const k of RES_KEYS) if (typeof u.resources[k] !== 'number') u.resources[k] = 0;
   for (const k of [...Object.keys(HEAL_ITEMS), ...Object.keys(FOOD_ITEMS), ...Object.keys(SPECIAL_ITEMS)]) {
     if (typeof u.items[k] !== 'number') u.items[k] = 0;
   }
   u.weaponsOwned.none = true;
   u.armorsOwned.none = true;
+  if (!u.clinicLevel || u.clinicLevel < 1) u.clinicLevel = u.homeLevel >= 2 ? (u.homeLevel >= 5 ? 3 : u.homeLevel >= 3 ? 2 : 1) : 1;
 }
 
 function addXP(u, amount) {
@@ -379,17 +373,29 @@ function takeResources(u, cost) {
   }
 }
 
+function getHomeImage(level) {
+  const key = 'home' + Math.min(level, 5);
+  return IMAGES[key] || IMAGES.main;
+}
+
+function getClinicImage(level) {
+  if (!level || level < 1) level = 1;
+  if (level > 3) level = 3;
+  const key = 'clinic' + level;
+  return IMAGES[key] || IMAGES.clinic1;
+}
+
 // ==================== منوها ====================
 function mainMenu() {
   return Markup.inlineKeyboard([
     [Markup.button.callback('📊 وضعیت', 'status'), Markup.button.callback('🪓 جستجو', 'gather')],
     [Markup.button.callback('⚔️ مبارزه', 'fight_menu'), Markup.button.callback('👹 باس', 'boss_menu')],
-    [Markup.button.callback('🏠 خانه', 'home'), Markup.button.callback('🏥 درمانگاه', 'clinic')],
-    [Markup.button.callback('🛒 فروشگاه', 'shop'), Markup.button.callback('🛠️ اسلحه‌خانه', 'armory_menu')],
-    [Markup.button.callback('🛡️ زره‌خانه', 'armory_armor'), Markup.button.callback('🕯️ آرامگاه', 'aramgah')],
-    [Markup.button.callback('🍽️ غذا', 'eat_menu'), Markup.button.callback('🏛️ کلن', 'clan')],
-    [Markup.button.callback('📖 راهنما', 'guide'), Markup.button.callback('⭐ مهارت', 'skills_menu')],
-    [Markup.button.callback('⏱️ زمان‌ها', 'cooldowns')]
+    [Markup.button.callback('⚔️ PvP', 'pvp_menu'), Markup.button.callback('🏠 خانه', 'home')],
+    [Markup.button.callback('🏥 درمانگاه', 'clinic'), Markup.button.callback('🛒 فروشگاه', 'shop')],
+    [Markup.button.callback('🛠️ اسلحه‌خانه', 'armory_menu'), Markup.button.callback('🛡️ زره‌خانه', 'armory_armor')],
+    [Markup.button.callback('🕯️ آرامگاه', 'aramgah'), Markup.button.callback('🍽️ غذا', 'eat_menu')],
+    [Markup.button.callback('🏛️ کلن', 'clan'), Markup.button.callback('📖 راهنما', 'guide')],
+    [Markup.button.callback('⭐ مهارت', 'skills_menu'), Markup.button.callback('⏱️ زمان‌ها', 'cooldowns')]
   ]);
 }
 
@@ -443,25 +449,15 @@ function executeCombat(u, enemy) {
   return { blocked: false, win: false, loss, text: `⚔️ ${enemy.name}\n❌ شکست!\n❤️ -${loss} HP` };
 }
 
-function getHomeImage(level) {
-  const key = 'home' + level;
-  return IMAGES[key] || IMAGES.main;
-}
-
-function getClinicImage(level) {
-  const key = 'clinic' + level;
-  return IMAGES[key] || IMAGES.clinic1;
-}
-
 // ==================== استارت ====================
 bot.start((ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
   const isNew = u.totalLogins === 1;
-  
+
   const text = isNew
     ? `🎉 ${u.name} عزیز، به دنیای بقا خوش اومدی!\n\n🏕️ اینجا باید زنده بمونی، قوی بشی و دنیا رو فتح کنی!\n\n🎁 بسته شروع:\n🪵۲۰ 🪨۲۰ 🥇۳۰ 🩹۱ 🍞۲ 💧۲`
     : `🏕️ ${u.name}، خوش برگشتی!\n\n🎚️ لول: ${u.playerLevel}\n❤️ HP: ${u.hp}/${u.maxHp}\n🥇 طلا: ${u.resources.gold}\n📅 ورود: ${u.totalLogins}بار`;
-  
+
   ctx.replyWithPhoto(IMAGES.main, { caption: text, ...mainMenu() });
 });
 
@@ -470,7 +466,7 @@ bot.action('status', (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
   const weapon = WEAPONS[u.weapon] || WEAPONS.none;
   const armor = ARMORS[u.armor] || ARMORS.none;
-  
+
   const text = [
     `🏕️ ${u.name}`,
     `🎚️ لول ${u.playerLevel} | XP: ${u.playerXP}/30 ${progressBar(u.playerXP, 30, 6)}`,
@@ -479,10 +475,11 @@ bot.action('status', (ctx) => {
     `⚔️ ${weapon.name} | 🛡️ ${armor.name}`,
     `🏠 خونه ${u.homeLevel} | 🏥 درمانگاه ${u.clinicLevel || 1}`,
     `⭐ مهارت: ${u.skillPoints || 0} امتیاز`,
+    `⚔️ PvP: 🏆${u.stats.pvpWins || 0} برد | 💀${u.stats.pvpLosses || 0} باخت`,
     ``,
     `📦 🪵${u.resources.wood} 🪨${u.resources.stone} 🔩${u.resources.metal} ⛓️${u.resources.iron} 🥇${u.resources.gold}`
   ].join('\n');
-  
+
   ctx.replyWithPhoto(IMAGES.main, { caption: text, ...backMenu() });
 });
 
@@ -490,14 +487,14 @@ bot.action('gather', (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
   const cd = checkCooldown(u, 'gather', COOLDOWNS.gather);
   if (!cd.canDo) return ctx.answerCbQuery(`⏳ ${formatTime(cd.remaining)} دیگه`);
-  
+
   setCooldown(u, 'gather');
   const found = performGather(u);
   saveDB(db);
-  
+
   let text = `🪓 جستجو...\n🎁 ${rewardText(found)}`;
   if (found.food) text += `\n🍽️ ${found.food} هم پیدا شد!`;
-  
+
   ctx.replyWithPhoto(IMAGES.gather, { caption: text, ...backMenu() });
 });
 
@@ -505,7 +502,7 @@ bot.action('fight_menu', (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
   const cd = checkCooldown(u, 'fight', COOLDOWNS.fight);
   if (!cd.canDo) return ctx.answerCbQuery(`⏳ ${formatTime(cd.remaining)} دیگه`);
-  
+
   ctx.replyWithPhoto(IMAGES.fight, {
     caption: '⚔️ میدون مبارزه\nحریف انتخاب کن:',
     ...Markup.inlineKeyboard([
@@ -521,7 +518,7 @@ bot.action('boss_menu', (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
   const cd = checkCooldown(u, 'boss', COOLDOWNS.boss);
   if (!cd.canDo) return ctx.answerCbQuery(`⏳ ${formatTime(cd.remaining)} دیگه`);
-  
+
   ctx.replyWithPhoto(IMAGES.dragon, {
     caption: '👹 باس‌های افسانه‌ای',
     ...Markup.inlineKeyboard([
@@ -535,12 +532,12 @@ bot.action(/fight_type_(.+)/, (ctx) => {
   const type = ctx.match[1];
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
   if (u.hp <= 0) return ctx.answerCbQuery('❌ HP صفر');
-  
+
   let pool = type === 'animal' ? ANIMALS : type === 'demon' ? DEMONS : [...ANIMALS, ...DEMONS];
   const enemy = pool[rnd(0, pool.length - 1)];
   u.pendingFight = enemy;
   saveDB(db);
-  
+
   ctx.replyWithPhoto(type === 'demon' ? IMAGES.demon : IMAGES.fight, {
     caption: `⚔️ ${enemy.name}\n💪 قدرت: ${enemy.power}\n❤️ آسیب: ${enemy.hpLoss[0]}-${enemy.hpLoss[1]}\n🎁 ${rewardText(enemy.rewards)}\n\nآماده‌ای؟`,
     ...Markup.inlineKeyboard([
@@ -556,10 +553,10 @@ bot.action(/fight_boss_(.+)/, (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
   if (!boss) return ctx.answerCbQuery('❌');
   if (u.playerLevel < boss.minLevel) return ctx.answerCbQuery(`❌ لول ${boss.minLevel} لازمه`);
-  
+
   u.pendingFight = boss;
   saveDB(db);
-  
+
   ctx.replyWithPhoto(IMAGES.dragon, {
     caption: `👹 ${boss.name}\n💪 ${boss.power}\n❤️ ${boss.hpLoss[0]}-${boss.hpLoss[1]}\n🎁 ${rewardText(boss.rewards)}\n⚠️ خطرناک!`,
     ...Markup.inlineKeyboard([
@@ -572,16 +569,122 @@ bot.action(/fight_boss_(.+)/, (ctx) => {
 bot.action('fight_confirm', (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
   if (!u.pendingFight) return ctx.answerCbQuery('❌');
-  
+
   const isBoss = u.pendingFight.type === 'boss';
   if (isBoss) setCooldown(u, 'boss');
   else setCooldown(u, 'fight');
-  
+
   const result = executeCombat(u, u.pendingFight);
   u.pendingFight = null;
   saveDB(db);
-  
+
   ctx.replyWithPhoto(IMAGES.fight, { caption: result.text, ...backMenu() });
+});
+
+// ==================== PvP ====================
+bot.action('pvp_menu', (ctx) => {
+  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
+
+  ctx.replyWithPhoto(IMAGES.fight, {
+    caption: `⚔️ PvP - جنگ با بازیکن‌ها\n\n📊 آمار:\n🏆 برد: ${u.stats.pvpWins || 0}\n💀 باخت: ${u.stats.pvpLosses || 0}\n\n🎯 /pvp [آیدی عددی]\n📝 آیدی از @userinfobot\n⏱️ هر ${formatTime(COOLDOWNS.pvp)}`,
+    ...backMenu()
+  });
+});
+
+bot.command('pvp', (ctx) => {
+  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
+
+  if (u.hp <= 0) return ctx.reply('❌ HP صفر است');
+  const cd = checkCooldown(u, 'pvp', COOLDOWNS.pvp);
+  if (!cd.canDo) return ctx.reply(`⏳ ${formatTime(cd.remaining)} دیگه`);
+
+  const args = parseArgs(ctx.message.text);
+  const targetId = args[1];
+  if (!targetId) return ctx.reply('❌ /pvp [آیدی عددی]');
+  if (targetId === u.id) return ctx.reply('❌ با خودت نمی‌تونی');
+
+  const enemy = db.users[targetId];
+  if (!enemy) return ctx.reply('❌ حریف یافت نشد');
+  if (enemy.hp <= 0) return ctx.reply('❌ حریف HP صفر داره');
+
+  u.pendingFight = { type: 'pvp', enemyId: targetId, enemyName: enemy.name || 'حریف' };
+  setCooldown(u, 'pvp');
+  saveDB(db);
+
+  const weapon = WEAPONS[u.weapon] || WEAPONS.none;
+  const armor = ARMORS[u.armor] || ARMORS.none;
+  const enemyWeapon = WEAPONS[enemy.weapon] || WEAPONS.none;
+  const enemyArmor = ARMORS[enemy.armor] || ARMORS.none;
+  const myPower = u.playerLevel * 4 + weapon.power;
+  const enemyPower = enemy.playerLevel * 4 + enemyWeapon.power;
+
+  ctx.replyWithPhoto(IMAGES.fight, {
+    caption: `⚔️ PvP!\n\n👤 تو: لول ${u.playerLevel} | ${weapon.name} | ${armor.name}\n⚡ ${myPower}\n\n👤 حریف: لول ${enemy.playerLevel} | ${enemyWeapon.name} | ${enemyArmor.name}\n⚡ ${enemyPower}\n\n🎲 شانس: ${clamp(50 + (myPower - enemyPower) * 3, 10, 90)}%`,
+    ...Markup.inlineKeyboard([
+      [Markup.button.callback('⚔️ حمله!', 'pvp_confirm')],
+      [Markup.button.callback('🏃 انصراف', 'back_main')]
+    ])
+  });
+});
+
+bot.action('pvp_confirm', (ctx) => {
+  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
+  if (!u.pendingFight || u.pendingFight.type !== 'pvp') return ctx.answerCbQuery('❌ منقضی شده');
+
+  const enemyId = u.pendingFight.enemyId;
+  const enemy = db.users[enemyId];
+  u.pendingFight = null;
+  if (!enemy) return ctx.editMessageText('❌ حریف دیگر نیست', backMenu());
+
+  const weapon = WEAPONS[u.weapon] || WEAPONS.none;
+  const armor = ARMORS[u.armor] || ARMORS.none;
+  const enemyWeapon = WEAPONS[enemy.weapon] || WEAPONS.none;
+  const enemyArmor = ARMORS[enemy.armor] || ARMORS.none;
+  const myPower = u.playerLevel * 4 + weapon.power + rnd(0, 10);
+  const enemyPower = enemy.playerLevel * 4 + enemyWeapon.power + rnd(0, 10);
+  const winChance = clamp(50 + (myPower - enemyPower) * 3, 10, 90);
+  const win = Math.random() * 100 < winChance;
+  const rawDamage = rnd(15, 40);
+  const myDamage = Math.max(5, rawDamage - armor.defense);
+  const enemyDamage = Math.max(5, rawDamage - enemyArmor.defense);
+
+  let text;
+  if (win) {
+    u.hp = Math.max(0, u.hp - Math.floor(enemyDamage * 0.5));
+    enemy.hp = Math.max(0, enemy.hp - enemyDamage);
+    const goldReward = rnd(20, 50);
+    const xpReward = rnd(10, 25);
+    addResource(u, 'gold', goldReward);
+    addXP(u, xpReward);
+    u.stats.pvpWins = (u.stats.pvpWins || 0) + 1;
+    enemy.stats.pvpLosses = (enemy.stats.pvpLosses || 0) + 1;
+    text = `⚔️ PvP\n✅ بردی!\n❤️ -${Math.floor(enemyDamage * 0.5)} HP\n🥇 +${goldReward} طلا\n✨ +${xpReward} XP\n❤️ ${u.hp}/${u.maxHp}`;
+  } else {
+    u.hp = Math.max(0, u.hp - myDamage);
+    enemy.hp = Math.max(0, enemy.hp - Math.floor(enemyDamage * 0.3));
+    u.stats.pvpLosses = (u.stats.pvpLosses || 0) + 1;
+    enemy.stats.pvpWins = (enemy.stats.pvpWins || 0) + 1;
+    text = `⚔️ PvP\n❌ باختی!\n❤️ -${myDamage} HP\n❤️ ${u.hp}/${u.maxHp}\n💪 دفعه بعد قوی‌تر برگرد!`;
+  }
+
+  saveDB(db);
+  ctx.editMessageText(text, backMenu());
+});
+
+bot.command('pvp_top', (ctx) => {
+  const users = Object.values(db.users)
+    .filter(u => (u.stats.pvpWins || 0) > 0)
+    .sort((a, b) => (b.stats.pvpWins || 0) - (a.stats.pvpWins || 0))
+    .slice(0, 10);
+
+  if (users.length === 0) return ctx.reply('❌ هنوز کسی PvP نکرده!');
+
+  let text = '🏆 برترین مبارزان PvP:\n\n';
+  users.forEach((u, i) => {
+    text += `${i + 1}. ${u.name || 'ناشناس'} | 🏆${u.stats.pvpWins || 0} برد | 💀${u.stats.pvpLosses || 0} باخت | لول ${u.playerLevel}\n`;
+  });
+
+  ctx.reply(text, backMenu());
 });
 
 // ==================== خانه ====================
@@ -592,7 +695,7 @@ bot.action('home', (ctx) => {
   if (next) {
     upgradeText = `⬆️ ارتقا به ${u.homeLevel + 1}\nنیاز: 🪵${next.wood} 🪨${next.stone} 🔩${next.metal} ⛓️${next.iron} 🥇${next.gold}\nلول لازم: ${next.needLevel}`;
   }
-  
+
   ctx.replyWithPhoto(getHomeImage(u.homeLevel), {
     caption: `🏠 خونه لول ${u.homeLevel}\n\n${upgradeText}\n\nبرای ارتقا: /upgrade_home`,
     ...Markup.inlineKeyboard([
@@ -608,14 +711,13 @@ bot.action('upgrade_home_btn', (ctx) => {
   if (!next) return ctx.answerCbQuery('🏆 حداکثر');
   if (u.playerLevel < next.needLevel) return ctx.answerCbQuery(`❌ لول ${next.needLevel} لازمه`);
   if (!hasResources(u, next)) return ctx.answerCbQuery('❌ منابع کافی نیست');
-  
+
   takeResources(u, next);
   u.homeLevel++;
-  if (u.homeLevel >= 2 && u.clinicLevel === 0) u.clinicLevel = 1;
-  if (u.homeLevel >= 3 && u.clinicLevel === 1) u.clinicLevel = 2;
+  if (u.homeLevel >= 2 && u.clinicLevel === 1) u.clinicLevel = 2;
   if (u.homeLevel >= 5) u.clinicLevel = 3;
   saveDB(db);
-  
+
   ctx.answerCbQuery(`✅ خونه لول ${u.homeLevel}!`);
   ctx.deleteMessage();
   ctx.replyWithPhoto(getHomeImage(u.homeLevel), {
@@ -627,12 +729,45 @@ bot.action('upgrade_home_btn', (ctx) => {
 // ==================== درمانگاه ====================
 bot.action('clinic', (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  const clinicImg = getClinicImage(u.clinicLevel || 1);
-  
-  ctx.replyWithPhoto(clinicImg, {
-    caption: `🏥 درمانگاه لول ${u.clinicLevel || 1}\n\n❤️ HP: ${u.hp}/${u.maxHp} ${progressBar(u.hp, u.maxHp, 8)}\n\n/heal free - درمان رایگان (+30HP)\n/heal gold - درمان کامل (20 طلا)\n/use <آیتم> - استفاده از آیتم`,
-    ...backMenu()
-  });
+  if (!u.clinicLevel || u.clinicLevel < 1) {
+    u.clinicLevel = u.homeLevel >= 2 ? (u.homeLevel >= 5 ? 3 : u.homeLevel >= 3 ? 2 : 1) : 1;
+  }
+  const clinicImg = getClinicImage(u.clinicLevel);
+  const text = [
+    `🏥 درمانگاه - لول ${u.clinicLevel}`,
+    `❤️ HP: ${u.hp}/${u.maxHp} ${progressBar(u.hp, u.maxHp, 8)}`,
+    `💊 رایگان: ${u.daily?.freeHealUsed ? '❌' : '✅'} (+${20 + u.clinicLevel * 10}HP)`,
+    `/heal free | /heal gold | /use <آیتم>`
+  ].join('\n');
+  ctx.replyWithPhoto(clinicImg, { caption: text, ...Markup.inlineKeyboard([
+    [Markup.button.callback('🆓 درمان رایگان', 'heal_free_btn'), Markup.button.callback('💰 درمان کامل', 'heal_gold_btn')],
+    [Markup.button.callback('🔙 بازگشت', 'back_main')]
+  ])});
+});
+
+bot.action('heal_free_btn', (ctx) => {
+  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
+  if (!u.daily) u.daily = {};
+  if (u.daily.freeHealUsed) return ctx.answerCbQuery('❌ استفاده شده');
+  const clinicLevel = u.clinicLevel || 1;
+  const healAmount = 20 + clinicLevel * 10;
+  u.daily.freeHealUsed = true;
+  u.hp = Math.min(u.maxHp, u.hp + healAmount);
+  bumpAction(u, 'heal', 1);
+  saveDB(db);
+  ctx.answerCbQuery(`✅ +${healAmount} HP`);
+  ctx.reply(`✅ +${healAmount} HP\n❤️ ${u.hp}/${u.maxHp}`, backMenu());
+});
+
+bot.action('heal_gold_btn', (ctx) => {
+  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
+  if (u.resources.gold < 20) return ctx.answerCbQuery('❌ 20 طلا');
+  addResource(u, 'gold', -20);
+  u.hp = u.maxHp;
+  bumpAction(u, 'heal', 1);
+  saveDB(db);
+  ctx.answerCbQuery('✅ درمان کامل');
+  ctx.reply(`✅ درمان کامل\n❤️ ${u.hp}/${u.maxHp}`, backMenu());
 });
 
 // ==================== فروشگاه ====================
@@ -648,7 +783,6 @@ bot.action('shop', (ctx) => {
   });
 });
 
-// ==================== فروشگاه - اکشن‌ها ====================
 bot.action('shop_categories', (ctx) => {
   ctx.editMessageCaption('🛒 فروشگاه', Markup.inlineKeyboard([
     [Markup.button.callback('📦 منابع', 'shop_cat_resource'), Markup.button.callback('🍽️ غذا', 'shop_cat_food')],
@@ -669,10 +803,8 @@ bot.action(/shop_cat_(.+)/, (ctx) => {
     if (category === 'food') return v.type === 'food';
     return false;
   });
-  
   const buttons = items.map(([k, v]) => [Markup.button.callback(`${v.name} - ${v.price} طلا`, `shop_buy_${k}_1`)]);
   buttons.push([Markup.button.callback('🔙 دسته‌بندی', 'shop_categories')]);
-  
   ctx.editMessageCaption(`🛒 ${category}:`, Markup.inlineKeyboard(buttons));
 });
 
@@ -680,7 +812,6 @@ bot.action(/shop_buy_(.+)_(.+)/, (ctx) => {
   const itemKey = ctx.match[1];
   const item = SHOP_BUY[itemKey];
   if (!item) return ctx.answerCbQuery('❌');
-  
   ctx.editMessageCaption(`${item.name} - ${item.price} طلا\nتعداد:`, Markup.inlineKeyboard([
     [Markup.button.callback('۱', `shop_confirm_buy_${itemKey}_1`), Markup.button.callback('۵', `shop_confirm_buy_${itemKey}_5`)],
     [Markup.button.callback('۱۰', `shop_confirm_buy_${itemKey}_10`), Markup.button.callback('۵۰', `shop_confirm_buy_${itemKey}_50`)],
@@ -693,11 +824,9 @@ bot.action(/shop_confirm_buy_(.+)_(.+)/, (ctx) => {
   const amount = parseInt(ctx.match[2]);
   const item = SHOP_BUY[itemKey];
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  
   if (!item) return ctx.answerCbQuery('❌');
   const total = item.price * amount;
   if (u.resources.gold < total) return ctx.answerCbQuery(`❌ ${total} طلا لازمه`);
-  
   addResource(u, 'gold', -total);
   if (item.type === 'resource') addResource(u, item.key, amount);
   else if (item.type === 'weapon') u.weaponsOwned[item.key] = true;
@@ -705,7 +834,6 @@ bot.action(/shop_confirm_buy_(.+)_(.+)/, (ctx) => {
   else addItem(u, item.key, amount);
   bumpAction(u, 'buy', 1);
   saveDB(db);
-  
   ctx.answerCbQuery(`✅ ${amount} عدد ${item.name} خریدی!`);
   ctx.editMessageCaption(`✅ خرید موفق!\n${amount} عدد ${item.name}\n💰 طلا: ${u.resources.gold}`, backMenu());
 });
@@ -713,17 +841,12 @@ bot.action(/shop_confirm_buy_(.+)_(.+)/, (ctx) => {
 bot.action('shop_sell_menu', (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
   const buttons = [];
-  
   for (const k of RES_KEYS) {
-    if (k !== 'gold' && u.resources[k] > 0) {
-      buttons.push([Markup.button.callback(`${RES_EMOJI[k]} ${RES_LABELS[k]}: ${u.resources[k]}`, `shop_sell_${k}_1`)]);
-    }
+    if (k !== 'gold' && u.resources[k] > 0) buttons.push([Markup.button.callback(`${RES_EMOJI[k]} ${RES_LABELS[k]}: ${u.resources[k]}`, `shop_sell_${k}_1`)]);
   }
-  
   for (const [k, v] of Object.entries({...HEAL_ITEMS, ...FOOD_ITEMS, ...SPECIAL_ITEMS})) {
     if (u.items[k] > 0) buttons.push([Markup.button.callback(`${v.name}: ${u.items[k]}`, `shop_sell_${k}_1`)]);
   }
-  
   buttons.push([Markup.button.callback('🔙 بازگشت', 'shop_categories')]);
   ctx.editMessageCaption('💰 فروش:', Markup.inlineKeyboard(buttons));
 });
@@ -731,7 +854,6 @@ bot.action('shop_sell_menu', (ctx) => {
 bot.action(/shop_sell_(.+)_(.+)/, (ctx) => {
   const key = ctx.match[1];
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  
   if (RES_LABELS[key] && key !== 'gold') {
     if ((u.resources[key] || 0) < 1) return ctx.answerCbQuery('❌');
     const price = Math.max(1, Math.floor((SHOP_BUY[key]?.price || 5) / 2));
@@ -742,7 +864,6 @@ bot.action(/shop_sell_(.+)_(.+)/, (ctx) => {
     addItem(u, key, -1);
     addResource(u, 'gold', base);
   } else return ctx.answerCbQuery('❌');
-  
   bumpAction(u, 'sell', 1);
   saveDB(db);
   ctx.answerCbQuery('✅ فروخته شد');
@@ -753,7 +874,6 @@ bot.action(/shop_sell_(.+)_(.+)/, (ctx) => {
 bot.action('armory_menu', (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
   const buttons = [];
-  
   for (const [k, w] of Object.entries(WEAPONS)) {
     if (k === 'none') continue;
     buttons.push([Markup.button.callback(
@@ -761,7 +881,6 @@ bot.action('armory_menu', (ctx) => {
       u.weaponsOwned[k] ? `armory_equip_weapon_${k}` : `armory_craft_weapon_${k}`
     )]);
   }
-  
   buttons.push([Markup.button.callback('🔙 بازگشت', 'back_main')]);
   ctx.replyWithPhoto(IMAGES.main, {
     caption: `🛠️ اسلحه‌خانه\nسلاح فعلی: ${WEAPONS[u.weapon]?.name || 'ندارد'}`,
@@ -776,7 +895,6 @@ bot.action(/armory_craft_weapon_(.+)/, (ctx) => {
   if (!weapon) return ctx.answerCbQuery('❌');
   if (u.playerLevel < weapon.level) return ctx.answerCbQuery(`❌ لول ${weapon.level} لازمه`);
   if (u.resources.gold < weapon.price) return ctx.answerCbQuery(`❌ ${weapon.price} طلا لازمه`);
-  
   addResource(u, 'gold', -weapon.price);
   u.weaponsOwned[key] = true;
   saveDB(db);
@@ -797,7 +915,6 @@ bot.action(/armory_equip_weapon_(.+)/, (ctx) => {
 bot.action('armory_armor', (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
   const buttons = [];
-  
   for (const [k, a] of Object.entries(ARMORS)) {
     if (k === 'none') continue;
     buttons.push([Markup.button.callback(
@@ -805,7 +922,6 @@ bot.action('armory_armor', (ctx) => {
       u.armorsOwned[k] ? `armory_equip_armor_${k}` : `armory_craft_armor_${k}`
     )]);
   }
-  
   buttons.push([Markup.button.callback('🔙 بازگشت', 'back_main')]);
   ctx.replyWithPhoto(IMAGES.main, {
     caption: `🛡️ زره‌خانه\nزره فعلی: ${ARMORS[u.armor]?.name || 'ندارد'}`,
@@ -820,7 +936,6 @@ bot.action(/armory_craft_armor_(.+)/, (ctx) => {
   if (!armor) return ctx.answerCbQuery('❌');
   if (u.playerLevel < armor.level) return ctx.answerCbQuery(`❌ لول ${armor.level} لازمه`);
   if (u.resources.gold < armor.price) return ctx.answerCbQuery(`❌ ${armor.price} طلا لازمه`);
-  
   addResource(u, 'gold', -armor.price);
   u.armorsOwned[key] = true;
   saveDB(db);
@@ -842,7 +957,6 @@ bot.action('aramgah', async (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
   const cd = checkCooldown(u, 'pray', COOLDOWNS.pray);
   if (!cd.canDo) { await ctx.answerCbQuery(`⏳ ${formatTime(cd.remaining)}`); return; }
-  
   await ctx.answerCbQuery();
   ctx.replyWithPhoto(IMAGES.aramgah, {
     caption: '🕯️ آرامگاه\n\nنور الهی...',
@@ -859,12 +973,10 @@ bot.action(['pray_dua', 'pray_namaz', 'pray_rozeh'], async (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
   const cd = checkCooldown(u, 'pray', COOLDOWNS.pray);
   if (!cd.canDo) return ctx.answerCbQuery(`⏳ ${formatTime(cd.remaining)}`);
-  
   setCooldown(u, 'pray');
   const xpGain = u.playerLevel <= 3 ? 60 : 30;
   addXP(u, xpGain);
   saveDB(db);
-  
   const names = { pray_dua: 'دعا', pray_namaz: 'نماز', pray_rozeh: 'روضه' };
   await ctx.answerCbQuery(`✨ +${xpGain} XP`);
   ctx.reply(`✅ ${names[ctx.match[0]]} قبول باشه!\n✨ +${xpGain} XP\n⏱️ ${formatTime(COOLDOWNS.pray)} دیگه`, backMenu());
@@ -890,16 +1002,13 @@ bot.action(/eat_(.+)/, (ctx) => {
   const key = ctx.match[1];
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
   if ((u.items[key] || 0) < 1) return ctx.answerCbQuery('❌ نداری');
-  
   const food = FOOD_ITEMS[key] || HEAL_ITEMS[key];
   if (!food) return ctx.answerCbQuery('❌');
-  
   addItem(u, key, -1);
   if (food.hunger) u.hunger = Math.min(u.maxHunger, u.hunger + food.hunger);
   if (food.heal) u.hp = Math.min(u.maxHp, u.hp + food.heal);
   if (food.xp) addXP(u, food.xp);
   saveDB(db);
-  
   ctx.answerCbQuery(`✅ ${food.name} خورده شد`);
 });
 
@@ -907,16 +1016,13 @@ bot.action(/drink_(.+)/, (ctx) => {
   const key = ctx.match[1];
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
   if ((u.items[key] || 0) < 1) return ctx.answerCbQuery('❌ نداری');
-  
   const drink = FOOD_ITEMS[key];
   if (!drink) return ctx.answerCbQuery('❌');
-  
   addItem(u, key, -1);
   if (drink.thirst) u.thirst = Math.min(u.maxThirst, u.thirst + drink.thirst);
   if (drink.hunger) u.hunger = Math.min(u.maxHunger, u.hunger + drink.hunger);
   if (drink.xp) addXP(u, drink.xp);
   saveDB(db);
-  
   ctx.answerCbQuery(`✅ ${drink.name} نوشیده شد`);
 });
 
@@ -931,6 +1037,7 @@ bot.action('guide', (ctx) => {
     `🪓 جستجو: ${formatTime(COOLDOWNS.gather)}\n` +
     `⚔️ مبارزه: ${formatTime(COOLDOWNS.fight)}\n` +
     `👹 باس: ${formatTime(COOLDOWNS.boss)}\n` +
+    `⚔️ PvP: ${formatTime(COOLDOWNS.pvp)}\n` +
     `🕯️ آرامگاه: ${formatTime(COOLDOWNS.pray)}\n\n` +
     '🛡️ زره: آسیب رو کم می‌کنه\n' +
     '🍞 غذا: گرسنگی رو کم می‌کنه\n' +
@@ -972,15 +1079,14 @@ bot.action('cooldowns', (ctx) => {
     { key: 'gather', name: '🪓 جستجو', cd: COOLDOWNS.gather },
     { key: 'fight', name: '⚔️ مبارزه', cd: COOLDOWNS.fight },
     { key: 'boss', name: '👹 باس', cd: COOLDOWNS.boss },
+    { key: 'pvp', name: '⚔️ PvP', cd: COOLDOWNS.pvp },
     { key: 'pray', name: '🕯️ آرامگاه', cd: COOLDOWNS.pray }
   ];
-  
   const lines = ['⏱️ زمان‌ها:', ''];
   for (const a of actions) {
     const cd = checkCooldown(u, a.key, a.cd);
     lines.push(`${a.name}: ${cd.canDo ? '✅ آماده' : `⏳ ${formatTime(cd.remaining)} ${progressBar(a.cd - cd.remaining, a.cd, 6)}`}`);
   }
-  
   ctx.reply(lines.join('\n'), backMenu());
 });
 
@@ -997,9 +1103,10 @@ bot.command('heal', (ctx) => {
     if (u.daily?.freeHealUsed) return ctx.reply('❌ استفاده شده');
     u.daily = u.daily || {};
     u.daily.freeHealUsed = true;
-    u.hp = Math.min(u.maxHp, u.hp + 30);
+    const clinicLevel = u.clinicLevel || 1;
+    u.hp = Math.min(u.maxHp, u.hp + 20 + clinicLevel * 10);
     saveDB(db);
-    return ctx.reply(`✅ +30 HP\n❤️ ${u.hp}/${u.maxHp}`);
+    return ctx.reply(`✅ +${20 + clinicLevel * 10} HP\n❤️ ${u.hp}/${u.maxHp}`);
   }
   if (args[1] === 'gold') {
     if (u.resources.gold < 20) return ctx.reply('❌ 20 طلا');
@@ -1033,8 +1140,7 @@ bot.command('upgrade_home', (ctx) => {
   if (!hasResources(u, next)) return ctx.reply('❌ منابع کافی نیست');
   takeResources(u, next);
   u.homeLevel++;
-  if (u.homeLevel >= 2 && u.clinicLevel === 0) u.clinicLevel = 1;
-  if (u.homeLevel >= 3 && u.clinicLevel === 1) u.clinicLevel = 2;
+  if (u.homeLevel >= 2 && u.clinicLevel === 1) u.clinicLevel = 2;
   if (u.homeLevel >= 5) u.clinicLevel = 3;
   saveDB(db);
   ctx.reply(`✅ خونه لول ${u.homeLevel}!`);
@@ -1054,11 +1160,40 @@ bot.command('skill', (ctx) => {
 });
 
 // ==================== ادمین ====================
+bot.command('users', (ctx) => {
+  if (!isAdmin(ctx.from.id)) return ctx.reply('⛔ فقط ادمین');
+  const users = Object.values(db.users);
+  const top = users.sort((a, b) => b.playerLevel - a.playerLevel).slice(0, 10);
+  let text = `👥 آمار کاربران\n📊 کل: ${users.length} کاربر\n\n🏆 ۱۰ کاربر برتر:\n`;
+  top.forEach((u, i) => text += `${i + 1}. ${u.name || 'ناشناس'} | لول ${u.playerLevel} | 🥇${u.resources.gold}\n`);
+  text += `\n📋 /userinfo [آیدی]`;
+  ctx.reply(text, backMenu());
+});
+
+bot.command('userinfo', (ctx) => {
+  if (!isAdmin(ctx.from.id)) return ctx.reply('⛔ فقط ادمین');
+  const args = parseArgs(ctx.message.text);
+  const targetId = args[1];
+  if (!targetId) return ctx.reply('❌ /userinfo [آیدی]');
+  const u = db.users[targetId];
+  if (!u) return ctx.reply('❌ کاربر یافت نشد');
+  const text = [
+    `👤 ${u.name || '-'} (${u.id})`,
+    `🎚️ لول ${u.playerLevel} | ❤️ ${u.hp}/${u.maxHp}`,
+    `⚔️ ${WEAPONS[u.weapon]?.name || 'ندارد'} | 🛡️ ${ARMORS[u.armor]?.name || 'ندارد'}`,
+    `🏠 خونه ${u.homeLevel} | 🏥 درمانگاه ${u.clinicLevel || 1}`,
+    `🥇 ${u.resources.gold} طلا | ⭐ ${u.skillPoints || 0} امتیاز`,
+    `🏆PvP: ${u.stats.pvpWins || 0} برد | 💀 ${u.stats.pvpLosses || 0} باخت`,
+    `📅 ${u.joinedAt || '?'} | 🔢 ${u.totalLogins || 0} ورود`
+  ].join('\n');
+  ctx.reply(text, backMenu());
+});
+
 bot.command('admin_give', (ctx) => {
   if (!isAdmin(ctx.from.id)) return;
   const args = parseArgs(ctx.message.text);
   const targetId = args[1], type = args[2], key = args[3], amount = Number(args[4] || 0);
-  if (!targetId || !type || !key || !amount) return ctx.reply('/admin_give [id] [type] [key] [amount]');
+  if (!targetId || !type || !key || !amount) return ctx.reply('/admin_give [id] [type] [key] [amount]\nTypes: resource, item, weapon, armor, xp, hp');
   const u = ensureUser(targetId, '');
   if (type === 'resource') addResource(u, key, amount);
   else if (type === 'item') addItem(u, key, amount);
@@ -1066,6 +1201,7 @@ bot.command('admin_give', (ctx) => {
   else if (type === 'armor') u.armorsOwned[key] = true;
   else if (type === 'xp') addXP(u, amount);
   else if (type === 'hp') u.hp = Math.min(u.maxHp, u.hp + amount);
+  else return ctx.reply('❌ نوع نامعتبر');
   saveDB(db);
   ctx.reply('✅ Done');
 });
@@ -1100,14 +1236,14 @@ bot.command('admin_reset_cooldown', (ctx) => {
 });
 
 bot.command('admin_help', (ctx) => {
-  if (!isAdmin(ctx.from.id)) return;
-  ctx.reply('👑 /admin_give [id] [type] [key] [amount]\n/admin_full [id]\n/admin_reset_cooldown [id]');
+  if (!isAdmin(ctx.from.id)) return ctx.reply('⛔ فقط ادمین');
+  ctx.reply('👑 دستورات ادمین:\n\n/users - لیست کاربران\n/userinfo [id] - اطلاعات کاربر\n/admin_give [id] [type] [key] [amount]\n/admin_full [id] - مکس کردن\n/admin_reset_cooldown [id] - ریست زمان‌ها');
 });
 
 // ==================== اجرا ====================
 bot.launch({ dropPendingUpdates: true }).then(() => {
-  console.log('✅ ربات بقا کامل اجرا شد!');
-  console.log('🎮 امکانات: خونه متغیر | درمانگاه متغیر | زره | اسلحه | ۱۷ غذا | باس | کلن | مهارت | کول‌داون');
+  console.log('✅ ربات بقا با PvP و درمانگاه جدید اجرا شد!');
+  console.log('🎮 امکانات: PvP | خونه متغیر | درمانگاه متغیر | زره | اسلحه | ۱۷ غذا | باس | کلن | مهارت | کول‌داون | لیست کاربران');
 });
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
