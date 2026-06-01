@@ -1017,7 +1017,6 @@ bot.action('aramgah', async (ctx) => {
   }
 });
 
-// اکشن برای دریافت XP بعد از کلیک روی دکمه‌ها
 bot.action(['pray_dua', 'pray_namaz', 'pray_rozeh'], async (ctx) => {
   const user = ctx.session.user;
   const userLvl = user.level || 0;
