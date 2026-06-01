@@ -997,12 +997,12 @@ bot.action(/pray_(.+)/, (ctx) => {
 
     ctx.answerCbQuery(`شما ${type} خواندید و ${xpGain} XP گرفتید`);
     ctx.reply(`✅ عمل ${type} انجام شد.\n➕ ${xpGain} XP دریافت کردید.\n📊 وضعیت جدید: لول ${u.playerLevel} | XP ${u.playerXP}${leveledUp ? '\n🎉 تبریک! لول شما افزایش یافت.' : ''}`);
-});
 
+});
 bot.action('aramgah', async (ctx) => {
   try {
     await ctx.answerCbQuery();
-    await ctx.reply('به آرامگاه خوش آمدی، مسافر. برای آرامش روح یکی را انتخاب کنید:', {
+    await ctx.reply('به آرامگاه خوش آمدی، مسافر. یکی را انتخاب کن:', {
       reply_markup: {
         inline_keyboard: [
           [{ text: '🤲 دعا', callback_data: 'pray_dua' }],
@@ -1012,19 +1012,22 @@ bot.action('aramgah', async (ctx) => {
       }
     });
   } catch (err) {
-    console.error('Error showing buttons:', err);
+    console.error('Error showing aramgah menu:', err);
   }
 });
 
 bot.action(['pray_dua', 'pray_namaz', 'pray_rozeh'], async (ctx) => {
-  const user = ctx.session.user;
-  const userLvl = user.level || 0;
-  const xpReward = (userLvl <= 3) ? 50 : 10;
+  try {
+    const u = ctx.session.user;
+    const xpGain = (u.playerLevel <= 3) ? 50 : 10;
 
-  user.xp = (user.xp || 0) + xpReward;
+    u.playerXP = (u.playerXP || 0) + xpGain;
 
-  await ctx.answerCbQuery(`مبارک باشه! ${xpReward} XP گرفتی.`);
-  await ctx.reply(`خدا قبول کند! ${xpReward} امتیاز XP به تجربه‌ات اضافه شد.`);
+    await ctx.answerCbQuery(`+${xpGain} XP`);
+    await ctx.reply(`خدا قبول کند! ${xpGain} XP گرفتی.\nXP فعلی: ${u.playerXP}`);
+  } catch (err) {
+    console.error('Error in pray actions:', err);
+  }
 });
 
 bot.action('missions', (ctx) => {
