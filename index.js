@@ -407,38 +407,51 @@ function bumpAction(u, actionKey, amount = 1) {
 } 
 
 bot.command('فروشگاه', (ctx) => {
-  const buttons = [];
-  for (const [key, item] of Object.entries(SHOP_BUY)) {
-    buttons.push([Markup.button.callback(item.name + ' - ' + item.price + ' طلا', `shop_item:${key}`)]);
+  try {
+    const buttons = [];
+    for (const [key, item] of Object.entries(SHOP_BUY)) {
+      buttons.push([Markup.button.callback(`${item.name} (${item.price} طلا)`, `shop_item:${key}`)]);
+    }
+    ctx.reply('🛒 فروشگاه بقا\nکالای مورد نظر رو انتخاب کن:', Markup.inlineKeyboard(buttons));
+  } catch (err) {
+    ctx.reply('❌ خطا در فروشگاه: ' + err.message);
   }
-  ctx.reply('🛒 فروشگاه بقا\nکالای مورد نظر رو انتخاب کن:', Markup.inlineKeyboard(buttons));
 });
 
 bot.action(/^shop_item:(.+)/, (ctx) => {
-  const key = ctx.match[1];
-  const item = SHOP_BUY[key];
-  ctx.editMessageText(`خرید ${item.name} (${item.price} طلا)\nچند تا می‌خوای؟`, 
-    Markup.inlineKeyboard([
-      [Markup.button.callback('1 عدد', `buy_confirm:${key}:1`), Markup.button.callback('5 عدد', `buy_confirm:${key}:5`)],
-      [Markup.button.callback('10 عدد', `buy_confirm:${key}:10`), Markup.button.callback('50 عدد', `buy_confirm:${key}:50`)]
-    ])
-  );
+  try {
+    const key = ctx.match[1];
+    const item = SHOP_BUY[key];
+    ctx.editMessageText(`خرید ${item.name} (${item.price} طلا)\nچند تا می‌خوای؟`, 
+      Markup.inlineKeyboard([
+        [Markup.button.callback('1', `buy_confirm:${key}:1`), Markup.button.callback('5', `buy_confirm:${key}:5`)],
+        [Markup.button.callback('10', `buy_confirm:${key}:10`), Markup.button.callback('50', `buy_confirm:${key}:50`)]
+      ])
+    );
+  } catch (err) {
+    ctx.answerCbQuery('❌ خطا: ' + err.message);
+  }
 });
 
 bot.action(/^buy_confirm:(.+):(\d+)/, (ctx) => {
-  const key = ctx.match[1];
-  const amount = parseInt(ctx.match[2]);
-  const item = SHOP_BUY[key];
-  const u = ensureUser(ctx.from.id);
+  try {
+    const key = ctx.match[1];
+    const amount = parseInt(ctx.match[2]);
+    const item = SHOP_BUY[key];
+    const u = ensureUser(ctx.from.id);
 
-  if (u.resources.gold < item.price * amount) return ctx.answerCbQuery('⚠️ طلای کافی نداری!');
+    if (u.resources.gold < item.price * amount) {
+      return ctx.answerCbQuery('⚠️ طلای کافی نداری!');
+    }
 
-  addResource(u, 'gold', -(item.price * amount));
-  addResource(u, key, amount); 
-  saveDB(db);
-  ctx.editMessageText(`✅ ${item.name} به تعداد ${amount} خریداری شد.`);
+    addResource(u, 'gold', -(item.price * amount));
+    addResource(u, key, amount); 
+    saveDB(db);
+    ctx.editMessageText(`✅ ${item.name} × ${amount} خریداری شد.`);
+  } catch (err) {
+    ctx.answerCbQuery('❌ خطا: ' + err.message);
+  }
 });
-
 
 function homeText(u) {
   const next = HOME_UPGRADES[u.homeLevel + 1];
