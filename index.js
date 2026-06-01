@@ -330,16 +330,15 @@ function statusText(u) {
 function mainMenu() {
   return Markup.inlineKeyboard([
     [Markup.button.callback('📊 وضعیت', 'status'), Markup.button.callback('🪓 جستجو', 'gather')],
-    [Markup.button.callback('📜 ماموریت‌ها', 'missions'), Markup.button.callback('🎯 ماموریت فعال', 'active_missions')],
+    [Markup.button.callback('📦 ماموریت‌ها', 'missions'), Markup.button.callback('🎯 ماموریت فعال', 'active_missions')],
     [Markup.button.callback('✅ تحویل ماموریت', 'claim_missions'), Markup.button.callback('⚔️ مبارزه', 'fight_animal')],
     [Markup.button.callback('👹 نبرد با دیو', 'fight_demon'), Markup.button.callback('🏠 خانه', 'home')],
     [Markup.button.callback('🏥 درمانگاه', 'clinic'), Markup.button.callback('🛒 فروشگاه', 'shop')],
-    [Markup.button.callback('🛠 اسلحه‌خانه', 'armory')]
-[Markup.button.callback('🕯 آرامگاه', 'aramgah')]
-      ]);
-    }
+    [Markup.button.callback('🛠 اسلحه خانه', 'armory')],
+    [Markup.button.callback('🕯 آرامگاه', 'aramgah')]
   ]);
 }
+
 
 function backMenu() {
   return Markup.inlineKeyboard([
