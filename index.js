@@ -12,6 +12,17 @@ if (!BOT_TOKEN || BOT_TOKEN === 'YOUR_BOT_TOKEN') {
 }
 
 const bot = new Telegraf(BOT_TOKEN);
+// ==================== گرفتن File ID عکس‌ها ====================
+bot.on('photo', (ctx) => {
+  const fileId = ctx.message.photo[ctx.message.photo.length - 1].file_id;
+  ctx.reply('✅ File ID:\n\n`' + fileId + '`\n\nکد رو کپی کن', { parse_mode: 'Markdown' });
+});
+
+// ==================== اجرای ربات ====================
+bot.launch({
+  dropPendingUpdates: true,
+}).then(() => {
+  console.log('✅ ربات بقا با موفقیت اجرا شد!');
 
 // ==================== دیتابیس ====================
 function loadDB() {
