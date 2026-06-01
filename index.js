@@ -1235,9 +1235,12 @@ bot.catch((err, ctx) => {
   } catch {}
 });
 
-bot.launch().then(() => {
-  console.log('Survival bot started');
+bot.launch({
+    dropPendingUpdates: true,
+}).then(() => {
+    console.log('✅ ربات با موفقیت بالا اومد!');
 });
+
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
