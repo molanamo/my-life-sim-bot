@@ -335,6 +335,9 @@ function mainMenu() {
     [Markup.button.callback('👹 نبرد با دیو', 'fight_demon'), Markup.button.callback('🏠 خانه', 'home')],
     [Markup.button.callback('🏥 درمانگاه', 'clinic'), Markup.button.callback('🛒 فروشگاه', 'shop')],
     [Markup.button.callback('🛠 اسلحه‌خانه', 'armory')]
+[Markup.button.callback('🕯 آرامگاه', 'aramgah')]
+      ]);
+    }
   ]);
 }
 
