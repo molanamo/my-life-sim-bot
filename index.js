@@ -23,9 +23,15 @@ function loadDB() {
   }
 }
 
-function saveDB(db) {
-  fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), 'utf8');
+function saveDB(data) {
+    try {
+        const jsonString = JSON.stringify(data, null, 2);
+        fs.writeFileSync('db.json', jsonString);
+    } catch (e) {
+        console.log('خطای ذخیره:', e);
+    }
 }
+
 
 const db = loadDB();
 
