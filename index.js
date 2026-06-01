@@ -541,18 +541,7 @@ bot.start((ctx) => {
     `سلام ${u.name || ''}\nبه بازی بقا خوش اومدی`,
     mainMenu()
  
- );
-});
-// دستور آرامگاه
-bot.command('aramgah', (ctx) => {
-    ctx.reply('🕌 به آرامگاه خوش آمدید. برای آرامش روح خود یکی را انتخاب کنید:', {
-        reply_markup: {
-            inline_keyboard: [
-                [{ text: 'دعا', callback_data: 'pray_dua' }, { text: 'نماز', callback_data: 'pray_namaz' }, { text: 'روضه', callback_data: 'pray_rozeh' }]
-            ]
-        }
-    });
-});
+ 
 
 bot.command('وضعیت', (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
@@ -898,19 +887,23 @@ bot.command('gather', (ctx) => {
   saveDB(db);
   ctx.reply(`🪓 جستجو انجام شد\n🎁 ${rewardText(found)}`, backMenu());
 });
-bot.command('aramgah', async (ctx) => {
-    try {
-        await ctx.reply('🕌 به آرامگاه خوش آمدید. برای آرامش روح خود یکی را انتخاب کنید:', {
-            reply_markup: {
-                inline_keyboard: [
-                    [
-                        { text: 'دعا', callback_data: 'pray_dua' },
-                        { text: 'نماز', callback_data: 'pray_namaz' },
-                        { text: 'روضه', callback_data: 'pray_rozeh' }
-                    ]
+
+bot.command('aramgah', (ctx) => {
+    console.log('دستور آرامگاه اجرا شد'); // این پیام توی ترمینال میاد تا بفهمی کار می‌کنه
+    ctx.reply('🕌 به آرامگاه خوش آمدید. برای آرامش روح خود یکی را انتخاب کنید:', {
+        reply_markup: {
+            inline_keyboard: [
+                [
+                    { text: 'دعا', callback_data: 'pray_dua' },
+                    { text: 'نماز', callback_data: 'pray_namaz' },
+                    { text: 'روضه', callback_data: 'pray_rozeh' }
                 ]
-            }
-        });
+            ]
+        }
+    });
+});
+
+
     } catch (err) {
         console.error('Error showing buttons:', err);
     }
