@@ -404,9 +404,8 @@ function bumpAction(u, actionKey, amount = 1) {
       u.daily.progress[m.id] = (u.daily.progress[m.id] || 0) + amount;
     }
   }
-}
+} 
 
-// کد فروشگاه شیشه‌ای
 bot.command('فروشگاه', (ctx) => {
   const buttons = [];
   for (const [key, item] of Object.entries(SHOP_BUY)) {
