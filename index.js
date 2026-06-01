@@ -1013,16 +1013,17 @@ bot.action('aramgah', (ctx) => {
   });
 });
 
-bot.action(['pray', 'namaz', 'rowzeh'], async (ctx) => {
-  // محاسبه پاداش: لول ۳ یا کمتر ۵۰ تا، بقیه ۱۰ تا
-  const userLvl = ctx.session.user.level || 0;
+bot.action(['pray_dua', 'pray_namaz', 'pray_rozeh'], async (ctx) => {
+  const user = ctx.session.user;
+  const userLvl = user.level || 0;
   const xpReward = (userLvl <= 3) ? 50 : 10;
 
-  // آپدیت XP کاربر
-  ctx.session.user.xp = (ctx.session.user.xp || 0) + xpReward;
+  user.xp = (user.xp || 0) + xpReward;
 
   ctx.answerCbQuery(`مبارک باشه! ${xpReward} XP گرفتی.`);
-  ctx.reply(`قبول باشه! ${xpReward} امتیاز XP به تجربیاتت اضافه شد.`);
+  ctx.reply(`خدا قبول کند! ${xpReward} امتیاز XP به تجربه‌ات اضافه شد.`);
+});
+
 });
 
 bot.action('missions', (ctx) => {
