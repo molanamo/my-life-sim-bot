@@ -63,34 +63,43 @@ function isAdmin(id) {
 const RES_KEYS = ['wood', 'stone', 'metal', 'iron', 'gold', 'toman'];
 
 const RES_LABELS = {
-  wood: 'چوب',
-  stone: 'سنگ',
-  metal: 'فلز',
-  iron: 'آهن',
-  gold: 'طلا',
-  toman: 'تومن'
+  wood: '🪵 چوب',
+  stone: '🪨 سنگ',
+  metal: '🔩 فلز',
+  iron: '⛓️ آهن',
+  gold: '🥇 طلا',
+  toman: '💵 تومن'
+};
+
+const RES_EMOJI = {
+  wood: '🪵',
+  stone: '🪨',
+  metal: '🔩',
+  iron: '⛓️',
+  gold: '🥇',
+  toman: '💵'
 };
 
 const WEAPONS = {
   none: { name: 'بدون سلاح', power: 0, price: 0, sell: 0 },
-  stick: { name: 'چوب', power: 2, price: 20, sell: 10 },
-  knife: { name: 'چاقو', power: 5, price: 80, sell: 40 },
-  pistol: { name: 'تپانچه', power: 10, price: 220, sell: 110 },
-  rifle: { name: 'تفنگ', power: 18, price: 500, sell: 250 },
-  axe: { name: 'تیر غیب', power: 14, price: 350, sell: 175 }
+  stick: { name: '🪵 چوب', power: 2, price: 20, sell: 10 },
+  knife: { name: '🔪 چاقو', power: 5, price: 80, sell: 40 },
+  pistol: { name: '🔫 تپانچه', power: 10, price: 220, sell: 110 },
+  rifle: { name: '🔫 تفنگ', power: 18, price: 500, sell: 250 },
+  axe: { name: '🪓 تیر غیب', power: 14, price: 350, sell: 175 }
 };
 
 const HEAL_ITEMS = {
-  bandage: { name: 'باند', heal: 15, price: 25, sell: 12 },
-  medkit: { name: 'جعبه کمک', heal: 40, price: 80, sell: 40 },
-  soup: { name: 'سوپ گرم', heal: 10, price: 18, sell: 9 },
-  herb: { name: 'گیاه درمانی', heal: 20, price: 35, sell: 17 }
+  bandage: { name: '🩹 باند', heal: 15, price: 25, sell: 12 },
+  medkit: { name: '💊 جعبه کمک', heal: 40, price: 80, sell: 40 },
+  soup: { name: '🍲 سوپ گرم', heal: 10, price: 18, sell: 9 },
+  herb: { name: '🌿 گیاه درمانی', heal: 20, price: 35, sell: 17 }
 };
 
 const SPECIAL_ITEMS = {
-  gem: { name: 'سنگ قیمتی', price: 120, sell: 60 },
-  map: { name: 'نقشه کهنه', price: 90, sell: 45 },
-  fuel: { name: 'سوخت', price: 75, sell: 35 }
+  gem: { name: '💎 سنگ قیمتی', price: 120, sell: 60 },
+  map: { name: '🗺️ نقشه کهنه', price: 90, sell: 45 },
+  fuel: { name: '⛽ سوخت', price: 75, sell: 35 }
 };
 
 const SHOP_BUY = {
@@ -148,6 +157,27 @@ const MISSIONS = [
   { id: 20, title: 'روز سخت', desc: '2 دیو را شکست بده', targetType: 'action', targetKey: 'demon_win', targetAmount: 2, rewards: { xp: 25, gold: 55, iron: 5, toman: 3, gem: 1 } }
 ];
 
+// ==================== دشمنان ====================
+const ANIMALS = [
+  { name: '🐺 گرگ', power: 8, hpLoss: [8, 16], rewards: { gold: 10, wood: 1 } },
+  { name: '🐗 گراز', power: 10, hpLoss: [9, 18], rewards: { gold: 12, stone: 1 } },
+  { name: '🦊 کفتار', power: 12, hpLoss: [10, 20], rewards: { gold: 15, metal: 1 } },
+  { name: '🐻 خرس', power: 16, hpLoss: [14, 28], rewards: { gold: 20, iron: 1 } }
+];
+
+const DEMONS = [
+  { name: '👹 دیو سرخ', power: 16, hpLoss: [18, 35], rewards: { gold: 28, iron: 2, metal: 2 } },
+  { name: '👺 دیو سنگی', power: 22, hpLoss: [22, 40], rewards: { gold: 40, iron: 3, toman: 1 } },
+  { name: '👾 دیو بزرگ', power: 28, hpLoss: [25, 48], rewards: { gold: 55, iron: 4, toman: 1, gem: 1 } }
+];
+
+const PREYS = [
+  { name: '🦌 آهو', power: 3, hpLoss: [2, 5], rewards: { gold: 5, wood: 1 } },
+  { name: '🐑 گوسفند وحشی', power: 4, hpLoss: [3, 7], rewards: { gold: 6, stone: 1 } },
+  { name: '🦃 بوقلمون', power: 2, hpLoss: [1, 3], rewards: { gold: 4, wood: 1 } },
+  { name: '🐇 خرگوش', power: 1, hpLoss: [0, 2], rewards: { gold: 3, wood: 1 } }
+];
+
 // ==================== مدیریت کاربر ====================
 function ensureUser(id, name = '') {
   const uid = String(id);
@@ -200,7 +230,8 @@ function ensureUser(id, name = '') {
         sell: 0,
         heal: 0,
         get_weapon: 0
-      }
+      },
+      pendingFight: null
     };
     rollDailyMissions(db.users[uid]);
     saveDB(db);
@@ -226,6 +257,7 @@ function normalizeUser(u) {
   u.weaponsOwned ??= { none: true };
   u.daily ??= { key: todayKey(), missions: [], progress: {}, freeHealUsed: false, prayUsed: false };
   u.stats ??= {};
+  u.pendingFight ??= null;
   
   for (const k of RES_KEYS) if (typeof u.resources[k] !== 'number') u.resources[k] = 0;
   for (const k of Object.keys(HEAL_ITEMS)) if (typeof u.items[k] !== 'number') u.items[k] = 0;
@@ -311,15 +343,15 @@ function takeResources(u, cost) {
 function formatCost(cost) {
   return Object.entries(cost)
     .filter(([k]) => k !== 'needPlayerLevel')
-    .map(([k, v]) => `${v} ${RES_LABELS[k] || k}`)
+    .map(([k, v]) => `${RES_EMOJI[k] || ''} ${v} ${RES_LABELS[k] || k}`)
     .join(' | ');
 }
 
 function rewardText(rew) {
   const out = [];
   for (const [k, v] of Object.entries(rew)) {
-    if (k === 'xp') out.push(`${v} XP`);
-    else if (RES_LABELS[k]) out.push(`${v} ${RES_LABELS[k]}`);
+    if (k === 'xp') out.push(`✨ ${v} XP`);
+    else if (RES_LABELS[k]) out.push(`${RES_EMOJI[k]} ${v} ${RES_LABELS[k]}`);
     else if (HEAL_ITEMS[k]) out.push(`${v} ${HEAL_ITEMS[k].name}`);
     else if (SPECIAL_ITEMS[k]) out.push(`${v} ${SPECIAL_ITEMS[k].name}`);
   }
@@ -346,7 +378,7 @@ function bumpAction(u, actionKey, amount = 1) {
   refreshDaily(u);
   for (const d of u.daily.missions) {
     const m = missionById(d.id);
-    if (m.targetType === 'action' && m.targetKey === actionKey && !d.claimed) {
+    if (m && m.targetType === 'action' && m.targetKey === actionKey && !d.claimed) {
       u.daily.progress[m.id] = (u.daily.progress[m.id] || 0) + amount;
     }
   }
@@ -357,7 +389,7 @@ function claimAvailableMissions(u) {
   const msgs = [];
   for (const d of u.daily.missions) {
     const m = missionById(d.id);
-    if (!d.claimed && isMissionDone(u, m)) {
+    if (m && !d.claimed && isMissionDone(u, m)) {
       d.claimed = true;
       for (const [k, v] of Object.entries(m.rewards)) {
         if (k === 'xp') continue;
@@ -374,9 +406,9 @@ function claimAvailableMissions(u) {
 // ==================== توابع نمایش ====================
 function getFacilities(u) {
   return [
-    `🏥 درمانگاه: ${u.homeLevel >= 2 ? 'فعال' : 'قفل'}`,
-    `🛒 فروشگاه: ${u.homeLevel >= 2 ? 'فعال' : 'قفل'}`,
-    `🛠 اسلحه‌خانه: ${u.homeLevel >= 2 ? 'فعال' : 'قفل'}`
+    `🏥 درمانگاه: ${u.homeLevel >= 2 ? '✅ فعال' : '🔒 قفل'}`,
+    `🛒 فروشگاه: ${u.homeLevel >= 2 ? '✅ فعال' : '🔒 قفل'}`,
+    `🛠️ اسلحه‌خانه: ${u.homeLevel >= 2 ? '✅ فعال' : '🔒 قفل'}`
   ].join('\n');
 }
 
@@ -385,7 +417,7 @@ function statusText(u) {
   return [
     `🏕️ وضعیت بازیکن`,
     `👤 نام: ${u.name || '-'}`,
-    `🎚 لول: ${u.playerLevel}`,
+    `🎚️ لول: ${u.playerLevel}`,
     `✨ XP: ${u.playerXP}/30`,
     `❤️ HP: ${u.hp}/${u.maxHp}`,
     `🏠 لول خانه: ${u.homeLevel}`,
@@ -395,33 +427,33 @@ function statusText(u) {
     `🪵 چوب: ${u.resources.wood}`,
     `🪨 سنگ: ${u.resources.stone}`,
     `🔩 فلز: ${u.resources.metal}`,
-    `⛓ آهن: ${u.resources.iron}`,
+    `⛓️ آهن: ${u.resources.iron}`,
     `🥇 طلا: ${u.resources.gold}`,
     `💵 تومن: ${u.resources.toman}`,
     ``,
     `🧰 آیتم‌ها:`,
-    `باند: ${u.items.bandage}`,
-    `جعبه کمک: ${u.items.medkit}`,
-    `سوپ: ${u.items.soup}`,
-    `گیاه درمانی: ${u.items.herb}`,
-    `سنگ قیمتی: ${u.items.gem}`,
-    `نقشه کهنه: ${u.items.map}`,
-    `سوخت: ${u.items.fuel}`,
+    `🩹 باند: ${u.items.bandage}`,
+    `💊 جعبه کمک: ${u.items.medkit}`,
+    `🍲 سوپ: ${u.items.soup}`,
+    `🌿 گیاه درمانی: ${u.items.herb}`,
+    `💎 سنگ قیمتی: ${u.items.gem}`,
+    `🗺️ نقشه کهنه: ${u.items.map}`,
+    `⛽ سوخت: ${u.items.fuel}`,
     ``,
-    `🏗 امکانات:`,
+    `🏗️ امکانات:`,
     getFacilities(u)
   ].join('\n');
 }
 
 function homeText(u) {
   const next = HOME_UPGRADES[u.homeLevel + 1];
-  let nextText = 'بیشترین سطح فعلی رسیده';
+  let nextText = '🏠 به حداکثر سطح رسیدی';
   if (next) {
-    nextText = `ارتقا به لول ${u.homeLevel + 1}\nنیاز: ${formatCost(next)}\nلول بازیکن لازم: ${next.needPlayerLevel}`;
+    nextText = `⬆️ ارتقا به لول ${u.homeLevel + 1}\n📋 نیاز: ${formatCost(next)}\n🎚️ لول بازیکن لازم: ${next.needPlayerLevel}`;
   }
   return [
     `🏠 خانه`,
-    `سطح فعلی: ${u.homeLevel}`,
+    `📊 سطح فعلی: ${u.homeLevel}`,
     '',
     nextText,
     '',
@@ -434,6 +466,9 @@ function homeText(u) {
 function missionsText(u) {
   refreshDaily(u);
   const lines = ['📜 ماموریت‌های روزانه:'];
+  if (!u.daily.missions.length) {
+    lines.push('', '❌ ماموریتی موجود نیست');
+  }
   for (const d of u.daily.missions) {
     const m = missionById(d.id);
     if (!m) continue;
@@ -445,7 +480,7 @@ function missionsText(u) {
       `📝 ${m.desc}`,
       `📈 پیشرفت: ${Math.min(prog, m.targetAmount)}/${m.targetAmount}`,
       `🎁 جایزه: ${rewardText(m.rewards)}`,
-      `وضعیت: ${d.claimed ? '✅ تحویل شده' : done ? '🎯 آماده تحویل' : '⏳ در حال انجام'}`
+      `📌 وضعیت: ${d.claimed ? '✅ تحویل شده' : done ? '🎯 آماده تحویل' : '⏳ در حال انجام'}`
     );
   }
   return lines.join('\n');
@@ -454,29 +489,35 @@ function missionsText(u) {
 function shopText() {
   const lines = ['🛒 فروشگاه بقا', '', '📦 منابع:'];
   for (const [k, v] of Object.entries(SHOP_BUY)) {
-    if (v.type === 'resource') lines.push(`/${k} - ${v.name} | قیمت: ${v.price} طلا`);
+    if (v.type === 'resource') lines.push(`${RES_EMOJI[k]} /buy_${k} - ${v.name} | 💰 ${v.price} طلا`);
   }
   lines.push('', '🧰 آیتم‌ها:');
   for (const [k, v] of Object.entries(SHOP_BUY)) {
-    if (v.type === 'item' || v.type === 'special') lines.push(`/${k} - ${v.name} | قیمت: ${v.price} طلا`);
+    if (v.type === 'item' || v.type === 'special') lines.push(`📦 /buy_${k} - ${v.name} | 💰 ${v.price} طلا`);
   }
   lines.push('', '⚔️ سلاح‌ها:');
   for (const [k, v] of Object.entries(SHOP_BUY)) {
-    if (v.type === 'weapon') lines.push(`/${k} - ${v.name} | قیمت: ${v.price} طلا`);
+    if (v.type === 'weapon') lines.push(`🗡️ /buy_${k} - ${v.name} | 💰 ${v.price} طلا`);
   }
-  lines.push('', '📝 استفاده:', '/buy <کالا> <تعداد>', 'مثال: /buy wood 5');
+  lines.push('', '📝 دستور خرید:', '/buy <کالا> <تعداد>', 'مثال: /buy wood 5');
+  lines.push('', '📝 دستور فروش:', '/sell <کالا> <تعداد>', 'مثال: /sell wood 2');
   return lines.join('\n');
 }
 
 function armoryText(u) {
-  const lines = ['🛠 اسلحه‌خانه', 'برای ساخت: /craft <weaponKey>', 'برای تجهیز: /equip <weaponKey>', ''];
+  const lines = ['🛠️ اسلحه‌خانه', '', '🔨 ساخت سلاح:', '/craft <weaponKey>', '⚔️ تجهیز سلاح:', '/equip <weaponKey>', ''];
   for (const [k, c] of Object.entries(ARMORY_RECIPES)) {
-    lines.push(`${k} => ${WEAPONS[k].name} | نیاز: ${formatCost(c)}`);
+    lines.push(`🔸 ${k} => ${WEAPONS[k].name} | 📋 ${formatCost(c)}`);
   }
-  lines.push('', 'سلاح‌های موجود شما:');
+  lines.push('', '🎒 سلاح‌های موجود شما:');
+  let hasWeapon = false;
   for (const k of Object.keys(u.weaponsOwned)) {
-    if (u.weaponsOwned[k]) lines.push(`- ${WEAPONS[k]?.name || k}${u.weapon === k ? ' ⚔️ (در دست)' : ''}`);
+    if (u.weaponsOwned[k]) {
+      lines.push(`- ${WEAPONS[k]?.name || k}${u.weapon === k ? ' ⚔️ (در دست)' : ''}`);
+      hasWeapon = true;
+    }
   }
+  if (!hasWeapon) lines.push('- هیچ سلاحی نداری');
   return lines.join('\n');
 }
 
@@ -494,21 +535,121 @@ function clinicText(u) {
 }
 
 // ==================== منوها ====================
-function mainMenu() {
-  return Markup.inlineKeyboard([
+function mainMenu(isAdmin = false) {
+  const buttons = [
     [Markup.button.callback('📊 وضعیت', 'status'), Markup.button.callback('🪓 جستجو', 'gather')],
-    [Markup.button.callback('📦 ماموریت‌ها', 'missions'), Markup.button.callback('🎯 ماموریت فعال', 'active_missions')],
-    [Markup.button.callback('✅ تحویل ماموریت', 'claim_missions'), Markup.button.callback('⚔️ مبارزه', 'fight_animal')],
-    [Markup.button.callback('👹 نبرد با دیو', 'fight_demon'), Markup.button.callback('🏠 خانه', 'home')],
+    [Markup.button.callback('📦 ماموریت‌ها', 'missions'), Markup.button.callback('✅ تحویل ماموریت', 'claim_missions')],
+    [Markup.button.callback('⚔️ مبارزه', 'fight_menu'), Markup.button.callback('🏠 خانه', 'home')],
     [Markup.button.callback('🏥 درمانگاه', 'clinic'), Markup.button.callback('🛒 فروشگاه', 'shop')],
-    [Markup.button.callback('🛠 اسلحه خانه', 'armory'), Markup.button.callback('🕯 آرامگاه', 'aramgah')]
-  ]);
+    [Markup.button.callback('🛠️ اسلحه خانه', 'armory'), Markup.button.callback('🕯️ آرامگاه', 'aramgah')]
+  ];
+  return Markup.inlineKeyboard(buttons);
 }
 
 function backMenu() {
   return Markup.inlineKeyboard([
     [Markup.button.callback('🔙 بازگشت به منوی اصلی', 'back_main')]
   ]);
+}
+
+// ==================== فروشگاه با دکمه‌های شیشه‌ای ====================
+function shopCategoryKeyboard() {
+  return Markup.inlineKeyboard([
+    [Markup.button.callback('📦 منابع', 'shop_cat_resource'), Markup.button.callback('🧰 آیتم‌ها', 'shop_cat_item')],
+    [Markup.button.callback('⚔️ سلاح‌ها', 'shop_cat_weapon'), Markup.button.callback('💎 ویژه', 'shop_cat_special')],
+    [Markup.button.callback('💰 فروش', 'shop_sell_menu'), Markup.button.callback('🔙 بازگشت', 'back_main')]
+  ]);
+}
+
+function shopItemsKeyboard(category, page = 0) {
+  const items = Object.entries(SHOP_BUY).filter(([k, v]) => {
+    if (category === 'resource') return v.type === 'resource';
+    if (category === 'item') return v.type === 'item';
+    if (category === 'weapon') return v.type === 'weapon';
+    if (category === 'special') return v.type === 'special';
+    return false;
+  });
+
+  const itemsPerPage = 6;
+  const totalPages = Math.ceil(items.length / itemsPerPage);
+  const start = page * itemsPerPage;
+  const pageItems = items.slice(start, start + itemsPerPage);
+
+  const buttons = pageItems.map(([k, v]) => {
+    const emoji = v.type === 'resource' ? RES_EMOJI[k] || '' : '';
+    return [Markup.button.callback(`${emoji} ${v.name} - ${v.price} طلا`, `shop_buy_${k}_1`)];
+  });
+
+  const navButtons = [];
+  if (page > 0) navButtons.push(Markup.button.callback('⬅️ قبلی', `shop_page_${category}_${page - 1}`));
+  navButtons.push(Markup.button.callback('🔙 دسته‌بندی', 'shop_categories'));
+  if (page < totalPages - 1) navButtons.push(Markup.button.callback('بعدی ➡️', `shop_page_${category}_${page + 1}`));
+
+  if (navButtons.length > 0) buttons.push(navButtons);
+
+  return Markup.inlineKeyboard(buttons);
+}
+
+function shopBuyAmountKeyboard(itemKey, amount = 1) {
+  const item = SHOP_BUY[itemKey];
+  if (!item) return Markup.inlineKeyboard([[Markup.button.callback('🔙 بازگشت', 'shop_categories')]]);
+
+  const amounts = [1, 5, 10, 50];
+  const totalPrice = item.price * amount;
+
+  return Markup.inlineKeyboard([
+    ...amounts.map(a => [Markup.button.callback(
+      `${a} عدد - ${item.price * a} طلا ${amount === a ? '✅' : ''}`, 
+      `shop_set_amount_${itemKey}_${a}`
+    )]),
+    [Markup.button.callback(`🛒 خرید ${amount} عدد (${totalPrice} طلا)`, `shop_confirm_buy_${itemKey}_${amount}`)],
+    [Markup.button.callback('🔙 بازگشت', 'shop_categories')]
+  ]);
+}
+
+function shopSellKeyboard(u) {
+  const buttons = [];
+
+  // منابع قابل فروش
+  for (const k of RES_KEYS) {
+    if (k === 'gold') continue;
+    if (u.resources[k] > 0) {
+      buttons.push([Markup.button.callback(
+        `${RES_EMOJI[k]} ${RES_LABELS[k]}: ${u.resources[k]} عدد`, 
+        `shop_sell_select_${k}`
+      )]);
+    }
+  }
+
+  // آیتم‌های قابل فروش
+  for (const [k, v] of Object.entries({...HEAL_ITEMS, ...SPECIAL_ITEMS})) {
+    if (u.items[k] > 0) {
+      buttons.push([Markup.button.callback(
+        `${v.name}: ${u.items[k]} عدد`, 
+        `shop_sell_select_${k}`
+      )]);
+    }
+  }
+
+  // سلاح‌های قابل فروش
+  for (const k of Object.keys(u.weaponsOwned)) {
+    if (k !== 'none' && u.weaponsOwned[k]) {
+      const weapon = WEAPONS[k];
+      if (weapon) {
+        buttons.push([Markup.button.callback(
+          `${weapon.name} (فروش: ${weapon.sell} طلا)`, 
+          `shop_sell_weapon_${k}`
+        )]);
+      }
+    }
+  }
+
+  if (buttons.length === 0) {
+    buttons.push([Markup.button.callback('❌ چیزی برای فروش نداری', 'shop_nothing')]);
+  }
+
+  buttons.push([Markup.button.callback('🔙 بازگشت', 'shop_categories')]);
+  return Markup.inlineKeyboard(buttons);
 }
 
 // ==================== گیم‌پلی ====================
@@ -529,26 +670,23 @@ function performGather(u) {
   return roll;
 }
 
-function rollCombat(u, type = 'animal') {
-  const playerPower = u.playerLevel * 4 + (WEAPONS[u.weapon]?.power || 0) + rnd(0, 8);
-  const enemyList = type === 'demon'
-    ? [
-        { name: 'دیو سرخ', power: 16, hpLoss: [18, 35], rewards: { gold: 28, iron: 2, metal: 2 } },
-        { name: 'دیو سنگی', power: 22, hpLoss: [22, 40], rewards: { gold: 40, iron: 3, toman: 1 } },
-        { name: 'دیو بزرگ', power: 28, hpLoss: [25, 48], rewards: { gold: 55, iron: 4, toman: 1, gem: 1 } }
-      ]
-    : [
-        { name: 'گرگ', power: 8, hpLoss: [8, 16], rewards: { gold: 10, wood: 1 } },
-        { name: 'گراز', power: 10, hpLoss: [9, 18], rewards: { gold: 12, stone: 1 } },
-        { name: 'کفتار', power: 12, hpLoss: [10, 20], rewards: { gold: 15, metal: 1 } },
-        { name: 'خرس', power: 16, hpLoss: [14, 28], rewards: { gold: 20, iron: 1 } }
-      ];
+function selectEnemy(type = 'animal') {
+  let pool;
+  if (type === 'animal') pool = ANIMALS;
+  else if (type === 'demon') pool = DEMONS;
+  else if (type === 'prey') pool = PREYS;
+  else pool = [...ANIMALS, ...DEMONS, ...PREYS];
+  
+  return pool[rnd(0, pool.length - 1)];
+}
 
-  const enemy = enemyList[rnd(0, enemyList.length - 1)];
+function executeCombat(u, enemy) {
+  if (u.hp <= 0) return { blocked: true, text: '❌ HP شما صفر است. اول درمان کن.' };
+
+  const weapon = WEAPONS[u.weapon] || WEAPONS.none;
+  const playerPower = u.playerLevel * 4 + weapon.power + rnd(0, 8);
   const enemyPower = enemy.power + rnd(0, 10);
   const loss = rnd(enemy.hpLoss[0], enemy.hpLoss[1]);
-
-  if (u.hp <= 0) return { blocked: true, text: '❌ HP شما صفر است. اول درمان کن.' };
 
   let winChance = 50 + (playerPower - enemyPower) * 4;
   if (u.playerLevel <= 3) winChance += 15;
@@ -557,19 +695,20 @@ function rollCombat(u, type = 'animal') {
   const win = Math.random() * 100 < winChance;
   u.hp = clamp(u.hp - loss, 0, u.maxHp);
 
+  let isDemon = DEMONS.includes(enemy);
+
   if (win) {
     for (const [k, v] of Object.entries(enemy.rewards)) {
       if (RES_LABELS[k]) addResource(u, k, v);
       else addItem(u, k, v);
     }
     bumpAction(u, 'fight_win', 1);
-    if (type === 'demon') bumpAction(u, 'demon_win', 1);
+    if (isDemon) bumpAction(u, 'demon_win', 1);
     return {
       blocked: false,
       win: true,
       enemy,
       loss,
-      rewards: enemy.rewards,
       text: `⚔️ ${enemy.name}\n✅ پیروز شدی!\n❤️ آسیب: -${loss}\n🎁 غنیمت: ${rewardText(enemy.rewards)}`
     };
   } else {
@@ -624,7 +763,7 @@ bot.command('upgrade_home', (ctx) => {
     return ctx.reply(`❌ برای ارتقا به لول ${nextLevel} باید لول بازیکن ${cost.needPlayerLevel} باشی`, backMenu());
   }
   if (!hasResources(u, cost)) {
-    return ctx.reply(`❌ منابع کافی نیست\nنیاز: ${formatCost(cost)}`, backMenu());
+    return ctx.reply(`❌ منابع کافی نیست\n📋 نیاز: ${formatCost(cost)}`, backMenu());
   }
   takeResources(u, cost);
   u.homeLevel = nextLevel;
@@ -636,7 +775,7 @@ bot.command('upgrade_home', (ctx) => {
 bot.command('فروشگاه', (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
   if (u.homeLevel < 2) return ctx.reply('🔒 فروشگاه بعد از خانه لول 2 باز می‌شود', backMenu());
-  ctx.reply(shopText(), backMenu());
+  ctx.reply('🛒 فروشگاه بقا - انتخاب دسته:', shopCategoryKeyboard());
 });
 
 bot.command('buy', (ctx) => {
@@ -780,20 +919,6 @@ bot.command('equip', (ctx) => {
   ctx.reply(`⚔️ ${WEAPONS[key].name} تجهیز شد`, backMenu());
 });
 
-bot.command('fight', (ctx) => {
-  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  const result = rollCombat(u, 'animal');
-  saveDB(db);
-  ctx.reply(result.text, backMenu());
-});
-
-bot.command('demon', (ctx) => {
-  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  const result = rollCombat(u, 'demon');
-  saveDB(db);
-  ctx.reply(result.text, backMenu());
-});
-
 bot.command('gather', (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
   const found = performGather(u);
@@ -805,9 +930,10 @@ bot.command('aramgah', async (ctx) => {
   const keyboard = Markup.inlineKeyboard([
     [Markup.button.callback('🤲 دعا', 'pray_dua')],
     [Markup.button.callback('🧎 نماز', 'pray_namaz')],
-    [Markup.button.callback('📖 روضه', 'pray_rozeh')]
+    [Markup.button.callback('📖 روضه', 'pray_rozeh')],
+    [Markup.button.callback('🔙 بازگشت', 'back_main')]
   ]);
-  return ctx.reply('🕯 به آرامگاه خوش آمدید. یکی را انتخاب کن:', keyboard);
+  return ctx.reply('🕯️ به آرامگاه خوش آمدید. یکی را انتخاب کن:', keyboard);
 });
 
 // ==================== ادمین ====================
@@ -883,11 +1009,6 @@ bot.action('missions', (ctx) => {
   ctx.editMessageText(missionsText(u), backMenu());
 });
 
-bot.action('active_missions', (ctx) => {
-  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  ctx.editMessageText(missionsText(u), backMenu());
-});
-
 bot.action('claim_missions', (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
   const claimed = claimAvailableMissions(u);
@@ -895,16 +1016,68 @@ bot.action('claim_missions', (ctx) => {
   ctx.editMessageText(claimed || '❌ هیچ ماموریت آماده تحویلی نداری', backMenu());
 });
 
-bot.action('fight_animal', (ctx) => {
-  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  const result = rollCombat(u, 'animal');
-  saveDB(db);
-  ctx.editMessageText(result.text, backMenu());
+// ==================== سیستم مبارزه جدید ====================
+bot.action('fight_menu', (ctx) => {
+  ctx.editMessageText('⚔️ بخش مبارزه - نوع حریف رو انتخاب کن:', Markup.inlineKeyboard([
+    [Markup.button.callback('🐺 حیوانات وحشی', 'fight_type_animal')],
+    [Markup.button.callback('👹 دیوها', 'fight_type_demon')],
+    [Markup.button.callback('🦌 شکار', 'fight_type_prey')],
+    [Markup.button.callback('🎲 رندوم', 'fight_type_random')],
+    [Markup.button.callback('🔙 بازگشت', 'back_main')]
+  ]));
 });
 
-bot.action('fight_demon', (ctx) => {
+bot.action(/fight_type_(.+)/, (ctx) => {
+  const type = ctx.match[1];
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  const result = rollCombat(u, 'demon');
+
+  if (u.hp <= 0) {
+    return ctx.editMessageText('❌ HP شما صفر است. اول درمان کن.', backMenu());
+  }
+
+  let pool;
+  if (type === 'animal') pool = ANIMALS;
+  else if (type === 'demon') pool = DEMONS;
+  else if (type === 'prey') pool = PREYS;
+  else pool = [...ANIMALS, ...DEMONS, ...PREYS];
+
+  const enemy = pool[rnd(0, pool.length - 1)];
+  const weapon = WEAPONS[u.weapon] || WEAPONS.none;
+  const playerPower = u.playerLevel * 4 + weapon.power;
+
+  u.pendingFight = enemy;
+  saveDB(db);
+
+  const enemyInfo = [
+    `⚔️ حریف پیدا شد: ${enemy.name}`,
+    `💪 قدرت تقریبی دشمن: ${enemy.power}`,
+    `❤️ آسیب احتمالی: ${enemy.hpLoss[0]}-${enemy.hpLoss[1]}`,
+    `🎁 غنیمت: ${rewardText(enemy.rewards)}`,
+    '',
+    `⚔️ قدرت شما: ${playerPower}`,
+    `🛡️ شانس برد تقریبی: ${clamp(50 + (playerPower - enemy.power) * 4 + (u.playerLevel <= 3 ? 15 : 0), 15, 85)}%`,
+    '',
+    `آماده‌ای مبارزه کنی؟`
+  ].join('\n');
+
+  ctx.editMessageText(enemyInfo, Markup.inlineKeyboard([
+    [Markup.button.callback('⚔️ حمله!', 'fight_confirm')],
+    [Markup.button.callback('🏃 فرار', 'fight_menu')],
+    [Markup.button.callback('🔙 بازگشت', 'back_main')]
+  ]));
+});
+
+bot.action('fight_confirm', (ctx) => {
+  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
+
+  if (!u.pendingFight) {
+    return ctx.editMessageText('❌ حریفی برای مبارزه نیست. دوباره تلاش کن.', backMenu());
+  }
+
+  const enemy = u.pendingFight;
+  u.pendingFight = null;
+  
+  const result = executeCombat(u, enemy);
   saveDB(db);
   ctx.editMessageText(result.text, backMenu());
 });
@@ -937,26 +1110,180 @@ bot.action('clinic', (ctx) => {
   ctx.editMessageText(clinicText(u), backMenu());
 });
 
+// ==================== فروشگاه با دکمه‌های شیشه‌ای ====================
 bot.action('shop', (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  if (u.homeLevel < 2) return ctx.answerCbQuery('🔒 فروشگاه قفل است');
-  ctx.editMessageText(shopText(), backMenu());
+  if (u.homeLevel < 2) return ctx.answerCbQuery('🔒 فروشگاه بعد از خانه لول 2 باز می‌شود');
+  ctx.editMessageText('🛒 فروشگاه بقا - انتخاب دسته:', shopCategoryKeyboard());
 });
 
-bot.action('armory', (ctx) => {
+bot.action('shop_categories', (ctx) => {
+  ctx.editMessageText('🛒 فروشگاه بقا - انتخاب دسته:', shopCategoryKeyboard());
+});
+
+bot.action(/shop_cat_(.+)/, (ctx) => {
+  const category = ctx.match[1];
+  ctx.editMessageText(`🛒 فروشگاه - بخش ${category}:`, shopItemsKeyboard(category, 0));
+});
+
+bot.action(/shop_page_(.+)_(.+)/, (ctx) => {
+  const category = ctx.match[1];
+  const page = parseInt(ctx.match[2]);
+  ctx.editMessageText(`🛒 فروشگاه - بخش ${category}:`, shopItemsKeyboard(category, page));
+});
+
+bot.action(/shop_buy_(.+)_(.+)/, (ctx) => {
+  const itemKey = ctx.match[1];
+  const amount = parseInt(ctx.match[2]);
+  const item = SHOP_BUY[itemKey];
+  if (!item) return ctx.answerCbQuery('❌ کالا یافت نشد');
+
+  ctx.editMessageText(
+    `🛒 ${item.name} - قیمت هر واحد: ${item.price} طلا\nتعداد مورد نظر رو انتخاب کن:`,
+    shopBuyAmountKeyboard(itemKey, amount)
+  );
+});
+
+bot.action(/shop_set_amount_(.+)_(.+)/, (ctx) => {
+  const itemKey = ctx.match[1];
+  const amount = parseInt(ctx.match[2]);
+  const item = SHOP_BUY[itemKey];
+  if (!item) return ctx.answerCbQuery('❌ کالا یافت نشد');
+
+  ctx.editMessageText(
+    `🛒 ${item.name} - قیمت هر واحد: ${item.price} طلا\nتعداد مورد نظر رو انتخاب کن:`,
+    shopBuyAmountKeyboard(itemKey, amount)
+  );
+});
+
+bot.action(/shop_confirm_buy_(.+)_(.+)/, (ctx) => {
+  const itemKey = ctx.match[1];
+  const amount = parseInt(ctx.match[2]);
+  const item = SHOP_BUY[itemKey];
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  if (u.homeLevel < 2) return ctx.answerCbQuery('🔒 اسلحه‌خانه قفل است');
-  ctx.editMessageText(armoryText(u), backMenu());
+
+  if (!item) return ctx.answerCbQuery('❌ کالا یافت نشد');
+  if (u.homeLevel < 2) return ctx.answerCbQuery('🔒 فروشگاه قفل است');
+
+  const total = item.price * amount;
+  if (u.resources.gold < total) return ctx.answerCbQuery(`❌ طلای کافی نداری! نیاز: ${total} طلا`);
+
+  addResource(u, 'gold', -total);
+  if (item.type === 'resource') addResource(u, item.key, amount);
+  if (item.type === 'item' || item.type === 'special') addItem(u, item.key, amount);
+  if (item.type === 'weapon') {
+    u.weaponsOwned[item.key] = true;
+    bumpAction(u, 'get_weapon', 1);
+  }
+  bumpAction(u, 'buy', 1);
+  saveDB(db);
+
+  ctx.answerCbQuery(`✅ ${amount} عدد ${item.name} خریدی!`);
+  ctx.editMessageText(
+    `✅ خرید موفق!\n📦 ${amount} عدد ${item.name} اضافه شد.\n💰 طلا: ${u.resources.gold}`,
+    backMenu()
+  );
 });
 
+bot.action('shop_sell_menu', (ctx) => {
+  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
+  if (u.homeLevel < 2) return ctx.answerCbQuery('🔒 فروشگاه قفل است');
+  ctx.editMessageText('💰 فروشگاه - انتخاب برای فروش:', shopSellKeyboard(u));
+});
+
+bot.action(/shop_sell_select_(.+)/, (ctx) => {
+  const key = ctx.match[1];
+  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
+
+  if (RES_LABELS[key]) {
+    const amount = u.resources[key] || 0;
+    if (amount <= 0) return ctx.answerCbQuery('❌ چیزی برای فروش نداری');
+    const price = Math.max(1, Math.floor((SHOP_BUY[key]?.price || 5) / 2));
+    
+    ctx.editMessageText(
+      `💰 فروش ${RES_LABELS[key]}\n📦 موجودی: ${amount}\n💵 قیمت هر واحد: ${price} طلا\nتعداد رو انتخاب کن:`,
+      Markup.inlineKeyboard([
+        [1, 5, 10, 25].map(a => Markup.button.callback(`${a} عدد`, `shop_sell_confirm_${key}_${Math.min(a, amount)}`) ),
+        [Markup.button.callback('فروش همه', `shop_sell_confirm_${key}_${amount}`)],
+        [Markup.button.callback('🔙 بازگشت', 'shop_sell_menu')]
+      ])
+    );
+  } else {
+    const amount = u.items[key] || 0;
+    if (amount <= 0) return ctx.answerCbQuery('❌ چیزی برای فروش نداری');
+    const base = HEAL_ITEMS[key]?.sell || SPECIAL_ITEMS[key]?.sell || 10;
+    
+    ctx.editMessageText(
+      `💰 فروش ${HEAL_ITEMS[key]?.name || SPECIAL_ITEMS[key]?.name || key}\n📦 موجودی: ${amount}\n💵 قیمت هر واحد: ${base} طلا\nتعداد رو انتخاب کن:`,
+      Markup.inlineKeyboard([
+        [1, 5, 10, 25].map(a => Markup.button.callback(`${a} عدد`, `shop_sell_confirm_${key}_${Math.min(a, amount)}`) ),
+        [Markup.button.callback('فروش همه', `shop_sell_confirm_${key}_${amount}`)],
+        [Markup.button.callback('🔙 بازگشت', 'shop_sell_menu')]
+      ])
+    );
+  }
+});
+
+bot.action(/shop_sell_confirm_(.+)_(.+)/, (ctx) => {
+  const key = ctx.match[1];
+  const amount = parseInt(ctx.match[2]);
+  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
+
+  if (amount <= 0) return ctx.answerCbQuery('❌ تعداد نامعتبر');
+
+  if (RES_LABELS[key] && key !== 'gold') {
+    if ((u.resources[key] || 0) < amount) return ctx.answerCbQuery('❌ به این مقدار نداری');
+    const price = Math.max(1, Math.floor((SHOP_BUY[key]?.price || 5) / 2));
+    addResource(u, key, -amount);
+    addResource(u, 'gold', price * amount);
+    bumpAction(u, 'sell', 1);
+    saveDB(db);
+    return ctx.editMessageText(`✅ فروخته شد\n${amount} ${RES_LABELS[key]} => ${price * amount} طلا`, backMenu());
+  }
+
+  if (u.items[key] >= amount) {
+    const base = HEAL_ITEMS[key]?.sell || SPECIAL_ITEMS[key]?.sell || Math.max(1, Math.floor((SHOP_BUY[key]?.price || 10) / 2));
+    addItem(u, key, -amount);
+    addResource(u, 'gold', base * amount);
+    bumpAction(u, 'sell', 1);
+    saveDB(db);
+    return ctx.editMessageText(`✅ فروخته شد\n${amount} عدد => ${base * amount} طلا`, backMenu());
+  }
+
+  ctx.answerCbQuery('❌ خطا در فروش');
+});
+
+bot.action(/shop_sell_weapon_(.+)/, (ctx) => {
+  const key = ctx.match[1];
+  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
+  
+  if (!u.weaponsOwned[key] || key === 'none') return ctx.answerCbQuery('❌ این سلاح رو نداری');
+  
+  const base = WEAPONS[key]?.sell || 10;
+  delete u.weaponsOwned[key];
+  if (u.weapon === key) u.weapon = 'none';
+  addResource(u, 'gold', base);
+  bumpAction(u, 'sell', 1);
+  saveDB(db);
+  
+  ctx.answerCbQuery(`✅ ${WEAPONS[key].name} فروخته شد`);
+  ctx.editMessageText(`✅ ${WEAPONS[key].name} فروخته شد => ${base} طلا`, backMenu());
+});
+
+bot.action('shop_nothing', (ctx) => {
+  ctx.answerCbQuery('❌ چیزی برای فروش نداری');
+});
+
+// ==================== آرامگاه ====================
 bot.action('aramgah', async (ctx) => {
   await ctx.answerCbQuery();
   const keyboard = Markup.inlineKeyboard([
     [Markup.button.callback('🤲 دعا', 'pray_dua')],
     [Markup.button.callback('🧎 نماز', 'pray_namaz')],
-    [Markup.button.callback('📖 روضه', 'pray_rozeh')]
+    [Markup.button.callback('📖 روضه', 'pray_rozeh')],
+    [Markup.button.callback('🔙 بازگشت', 'back_main')]
   ]);
-  return ctx.reply('🕯 به آرامگاه خوش آمدید:', keyboard);
+  return ctx.reply('🕯️ به آرامگاه خوش آمدید:', keyboard);
 });
 
 bot.action(['pray_dua', 'pray_namaz', 'pray_rozeh'], async (ctx) => {
@@ -972,12 +1299,21 @@ bot.action(['pray_dua', 'pray_namaz', 'pray_rozeh'], async (ctx) => {
     u.daily.prayUsed = true;
     saveDB(db);
 
+    const prayNames = { pray_dua: 'دعا', pray_namaz: 'نماز', pray_rozeh: 'روضه' };
+    const prayName = prayNames[ctx.match[0]] || 'عبادت';
+
     await ctx.answerCbQuery(`+${xpGain} XP`);
-    return ctx.reply(`✅ قبول باشه!\n✨ ${xpGain} XP گرفتی.\n🎚 لول: ${u.playerLevel} | XP: ${u.playerXP}/30${ups ? `\n🎉 ${ups} لول افزایش یافت!` : ''}`);
+    return ctx.reply(`✅ ${prayName} قبول باشه!\n✨ ${xpGain} XP گرفتی.\n🎚️ لول: ${u.playerLevel} | XP: ${u.playerXP}/30${ups ? `\n🎉 ${ups} لول افزایش یافت!` : ''}`, backMenu());
   } catch (e) {
     console.error('Pray error:', e);
     return ctx.answerCbQuery('❌ خطا پیش اومد');
   }
+});
+
+bot.action('armory', (ctx) => {
+  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
+  if (u.homeLevel < 2) return ctx.answerCbQuery('🔒 اسلحه‌خانه قفل است');
+  ctx.editMessageText(armoryText(u), backMenu());
 });
 
 bot.action('back_main', (ctx) => {
@@ -1019,7 +1355,7 @@ bot.on('text', (ctx) => {
   if (text === 'فروشگاه') {
     const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
     if (u.homeLevel < 2) return ctx.reply('🔒 فروشگاه قفل است', backMenu());
-    return ctx.reply(shopText(), backMenu());
+    return ctx.reply('🛒 فروشگاه بقا - انتخاب دسته:', shopCategoryKeyboard());
   }
 
   if (text === 'اسلحه خانه' || text === 'اسلحه‌خانه') {
@@ -1037,16 +1373,33 @@ bot.on('text', (ctx) => {
 
   if (text === 'مبارزه') {
     const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-    const result = rollCombat(u, 'animal');
-    saveDB(db);
-    return ctx.reply(result.text, backMenu());
+    if (u.hp <= 0) return ctx.reply('❌ HP شما صفر است. اول درمان کن.', backMenu());
+    return ctx.reply('⚔️ بخش مبارزه - نوع حریف رو انتخاب کن:', Markup.inlineKeyboard([
+      [Markup.button.callback('🐺 حیوانات وحشی', 'fight_type_animal')],
+      [Markup.button.callback('👹 دیوها', 'fight_type_demon')],
+      [Markup.button.callback('🦌 شکار', 'fight_type_prey')],
+      [Markup.button.callback('🎲 رندوم', 'fight_type_random')],
+      [Markup.button.callback('🔙 بازگشت', 'back_main')]
+    ]));
   }
 
   if (text === 'دیو') {
     const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-    const result = rollCombat(u, 'demon');
+    if (u.hp <= 0) return ctx.reply('❌ HP شما صفر است. اول درمان کن.', backMenu());
+    const enemy = DEMONS[rnd(0, DEMONS.length - 1)];
+    u.pendingFight = enemy;
     saveDB(db);
-    return ctx.reply(result.text, backMenu());
+    
+    const weapon = WEAPONS[u.weapon] || WEAPONS.none;
+    const playerPower = u.playerLevel * 4 + weapon.power;
+    
+    return ctx.reply(
+      `⚔️ دیو پیدا شد: ${enemy.name}\n💪 قدرت: ${enemy.power}\n❤️ آسیب: ${enemy.hpLoss[0]}-${enemy.hpLoss[1]}\n🎁 غنیمت: ${rewardText(enemy.rewards)}\n\n⚔️ قدرت شما: ${playerPower}\n🛡️ شانس برد: ${clamp(50 + (playerPower - enemy.power) * 4 + (u.playerLevel <= 3 ? 15 : 0), 15, 85)}%\n\nآماده‌ای مبارزه کنی؟`,
+      Markup.inlineKeyboard([
+        [Markup.button.callback('⚔️ حمله!', 'fight_confirm')],
+        [Markup.button.callback('🏃 فرار', 'back_main')]
+      ])
+    );
   }
 });
 
