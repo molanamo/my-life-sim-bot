@@ -921,15 +921,27 @@ bot.command('aramgah', async (ctx) => {
 });
 
 bot.action(['pray_dua', 'pray_namaz', 'pray_rozeh'], async (ctx) => {
-    const u = await getUser(ctx.from.id);
-    const xpGain = (u.playerLevel <= 3) ? 20 : 5;
-    
-    u.playerXP += xpGain;
-    await saveDB();
-    
-    return ctx.reply(`✅ خدا قبول کنه حاج مهدی!\nتعداد ${xpGain} XP به حسابت اضافه شد.`);
-});
+    try {
+        const u = await getUser(ctx.from.id);
 
+        const today = new Date().toDateString();
+        if (u.lastAramgahDate === today) {
+            return ctx.reply("❌ امروز فقط یک بار می‌تونی از آرامگاه استفاده کنی.");
+        }
+
+        const xpGain = (u.playerLevel <= 3) ? 60 : 30;
+
+        u.playerXP += xpGain;
+        u.lastAramgahDate = today;
+
+        await saveDB();
+
+        return ctx.reply(`✅ قبول باشه!\n${xpGain} XP گرفتی.`);
+    } catch (e) {
+        console.error(e);
+        return ctx.reply("❌ خطا پیش اومد.");
+    }
+});
 
   const u = ensureUser(targetId, '');
   if (type === 'resource') {
