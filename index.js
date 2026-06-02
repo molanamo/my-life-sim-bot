@@ -140,9 +140,11 @@ function progressQuest(u, t) { if (!u.questProgress) u.questProgress = {}; u.que
 
 function mainMenu() {
     return Markup.inlineKeyboard([
-        [Markup.button.callback('📊 آمار', 'm_status'), Markup.button.callback('🌲 جستجو', 'm_gather'), Markup.button.callback('⚔️ نبرد', 'm_fight_menu'), Markup.button.callback('🏟️ PvP', 'm_pvp'), Markup.button.callback('🏠 خانه', 'm_home'), Markup.button.callback('🏥 درمانگاه', 'm_heal'), Markup.button.callback('🛒 بازار', 'm_shop')],
-        [Markup.button.callback('🛠️ اسلحه', 'm_armory'), Markup.button.callback('🛡️ زره', 'm_armor_shop'), Markup.button.callback('🕯️ آتشکده', 'm_pray'), Markup.button.callback('🍽️ غذا', 'm_eat'), Markup.button.callback('👤 بزرگان', 'm_npc'), Markup.button.callback('📋 مأموریت', 'm_quest'), Markup.button.callback('🐎 حیوان', 'm_pet')],
-        [Markup.button.callback('🏦 بانک', 'm_bank'), Markup.button.callback('🏆 دستاورد', 'm_achieve'), Markup.button.callback('🏰 قبیله', 'm_clan'), Markup.button.callback('🎁 جعبه', 'm_box'), Markup.button.callback('📖 راهنما', 'm_guide'), Markup.button.callback('⭐ مهارت', 'm_skills'), Markup.button.callback('⏱️ زمان‌ها', 'm_cd')],
+        [Markup.button.callback('📊 آمار', 'm_status'), Markup.button.callback('🌲 جستجو', 'm_gather'), Markup.button.callback('⚔️ نبرد', 'm_fight_menu'), Markup.button.callback('🏟️ PvP', 'm_pvp'), Markup.button.callback('🏠 خانه', 'm_home')],
+        [Markup.button.callback('🏥 درمانگاه', 'm_heal'), Markup.button.callback('🛒 بازار', 'm_shop'), Markup.button.callback('🛠️ اسلحه', 'm_armory'), Markup.button.callback('🛡️ زره', 'm_armor_shop'), Markup.button.callback('🕯️ آتشکده', 'm_pray')],
+        [Markup.button.callback('🍽️ غذا', 'm_eat'), Markup.button.callback('👤 بزرگان', 'm_npc'), Markup.button.callback('📋 مأموریت', 'm_quest'), Markup.button.callback('🐎 حیوان', 'm_pet'), Markup.button.callback('🏦 بانک', 'm_bank')],
+        [Markup.button.callback('🏆 دستاورد', 'm_achieve'), Markup.button.callback('🏰 قبیله', 'm_clan'), Markup.button.callback('🎁 جعبه', 'm_box'), Markup.button.callback('📖 راهنما', 'm_guide'), Markup.button.callback('⭐ مهارت', 'm_skills')],
+        [Markup.button.callback('⏱️ زمان‌ها', 'm_cd')],
     ]);
 }
 
