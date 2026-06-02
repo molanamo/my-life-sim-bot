@@ -11,7 +11,6 @@ if (fs.existsSync(DB_PATH)) {
 function saveDB() { try { fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2), 'utf8'); } catch (e) {} }
 function rand(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
 
-// ==================== NPCهای فیک ====================
 const FAKE_NPCS = [
     { n: '🗡️ کاوه آهنگر', lvl: 5, p: 15, title: '🥉 نوآموز', loss: [5, 12], rew: { gold: 20 }, xp: 10 },
     { n: '🏹 آرتemis پارسی', lvl: 8, p: 22, title: '🥉 جنگجو', loss: [8, 18], rew: { gold: 35 }, xp: 18 },
@@ -25,7 +24,6 @@ const FAKE_NPCS = [
     { n: '🏆 رستم دستان', lvl: 40, p: 120, title: '🏆 جاودان', loss: [50, 100], rew: { gold: 1000 }, xp: 350 },
 ];
 
-// ==================== خانه ====================
 const HOME_UP = {
     2: { wood: 25, stone: 20, gold: 40, needLvl: 3 },
     3: { wood: 45, stone: 35, gold: 90, needLvl: 5 },
@@ -33,18 +31,10 @@ const HOME_UP = {
     5: { wood: 100, stone: 80, gold: 350, needLvl: 12 },
 };
 
-// ==================== کاربر ====================
 function getUser(id, name) {
     const uid = String(id);
     if (!db.users[uid]) {
-        db.users[uid] = {
-            id: uid, name: name || 'ناشناس',
-            level: 1, xp: 0, gold: 100, hp: 100, maxHp: 100, power: 5,
-            wood: 20, stone: 20, bread: 2,
-            homeLvl: 1,
-            arenaWins: 0, arenaLosses: 0, arenaRank: '🥉 نوآموز', arenaPoints: 0,
-            logins: 1
-        };
+        db.users[uid] = { id: uid, name: name || 'ناشناس', level: 1, xp: 0, gold: 100, hp: 100, maxHp: 100, power: 5, wood: 20, stone: 20, bread: 2, homeLvl: 1, arenaWins: 0, arenaLosses: 0, arenaRank: '🥉 نوآموز', arenaPoints: 0, logins: 1 };
         saveDB();
     }
     const u = db.users[uid];
@@ -74,7 +64,6 @@ function updateArenaRank(u) {
     else u.arenaRank = '🥉 نوآموز';
 }
 
-// ==================== منو ====================
 function mainMenu() {
     return Markup.inlineKeyboard([
         [Markup.button.callback('📊 آمار', 'm_status'), Markup.button.callback('🌲 جستجو', 'm_gather')],
@@ -104,18 +93,15 @@ bot.action('m_main', async (ctx) => {
 bot.action('m_status', async (ctx) => {
     await ctx.answerCbQuery();
     const u = getUser(ctx.from.id);
-    const text = `📊 ${u.name}\n🎚️ لول: ${u.level}\n❤️ ${u.hp}/${u.maxHp}\n⚡ ${u.power}\n🥇 ${u.gold} زر\n🪵 ${u.wood} چوب | 🪨 ${u.stone} سنگ\n🍞 ${u.bread} نان\n🏠 خانه لول ${u.homeLvl}\n🏟️ ${u.arenaRank} | ⭐${u.arenaPoints}`;
-    await ctx.editMessageText(text, backBtn());
+    await ctx.editMessageText(`📊 ${u.name}\n🎚️ لول: ${u.level}\n❤️ ${u.hp}/${u.maxHp}\n⚡ ${u.power}\n🥇 ${u.gold} زر\n🪵 ${u.wood} چوب | 🪨 ${u.stone} سنگ\n🍞 ${u.bread} نان\n🏠 خانه لول ${u.homeLvl}\n🏟️ ${u.arenaRank} | ⭐${u.arenaPoints}`, backBtn());
 });
 
 // ==================== جستجو ====================
 bot.action('m_gather', async (ctx) => {
     await ctx.answerCbQuery();
     const u = getUser(ctx.from.id);
-    const w = rand(1, 5);
-    const s = rand(1, 3);
-    u.wood += w;
-    u.stone += s;
+    const w = rand(1, 5), s = rand(1, 3);
+    u.wood += w; u.stone += s;
     u.xp = (u.xp || 0) + rand(5, 15);
     if (u.xp >= 30) { u.xp -= 30; u.level++; u.maxHp += 10; u.hp = u.maxHp; u.power += 2; }
     saveDB();
@@ -138,13 +124,12 @@ bot.action('m_fight', async (ctx) => {
     await ctx.editMessageText(text, backBtn());
 });
 
-// ==================== 🏟️ میدان ====================
+// ==================== میدان ====================
 bot.action('m_arena', async (ctx) => {
     await ctx.answerCbQuery();
     const u = getUser(ctx.from.id);
     if (u.hp <= 0) return ctx.editMessageText('❌ HP صفر!', backBtn());
-    const text = `🏟️ «میدان پهلوانی»\n👤 ${u.name}\n🏆 ${u.arenaRank} | ⭐${u.arenaPoints}\n✅ ${u.arenaWins} | ❌ ${u.arenaLosses}`;
-    await ctx.editMessageText(text, Markup.inlineKeyboard([
+    await ctx.editMessageText(`🏟️ میدان پهلوانی\n👤 ${u.name}\n🏆 ${u.arenaRank} | ⭐${u.arenaPoints}\n✅ ${u.arenaWins} | ❌ ${u.arenaLosses}`, Markup.inlineKeyboard([
         [Markup.button.callback('⚔️ نبرد سریع (NPC)', 'arena_npc')],
         [Markup.button.callback('👤 نبرد با کاربران', 'arena_pvp')],
         [Markup.button.callback('🏆 رده‌بندی', 'arena_ranks')],
@@ -156,18 +141,13 @@ bot.action('arena_npc', async (ctx) => {
     await ctx.answerCbQuery();
     const u = getUser(ctx.from.id);
     if (u.hp <= 0) return ctx.editMessageText('❌ HP صفر!', backBtn());
-    const suitableNPCs = FAKE_NPCS.filter(n => Math.abs(n.lvl - u.level) <= 5);
-    const npc = suitableNPCs.length > 0 ? suitableNPCs[rand(0, suitableNPCs.length - 1)] : FAKE_NPCS[0];
+    const npc = FAKE_NPCS.filter(n => Math.abs(n.lvl - u.level) <= 5)[0] || FAKE_NPCS[0];
     const win = rand(0, 100) < 55;
     const dmg = rand(npc.loss[0], npc.loss[1]);
     u.hp = Math.max(0, u.hp - dmg);
     let text;
-    if (win) {
-        u.gold += npc.rew.gold; u.xp = (u.xp || 0) + npc.xp;
-        if (u.xp >= 30) { u.xp -= 30; u.level++; u.maxHp += 10; u.hp = u.maxHp; u.power += 2; }
-        u.arenaWins++; u.arenaPoints += rand(10, 30); updateArenaRank(u);
-        text = `🏟️ ${npc.n} (${npc.title})\n✅ پیروزی!\n🥇 +${npc.rew.gold}\n⭐ +${rand(10, 30)} امتیاز\n❤️ -${dmg}\n🏆 ${u.arenaRank}`;
-    } else { u.arenaLosses++; text = `🏟️ ${npc.n}\n❌ شکست!\n❤️ -${dmg}`; }
+    if (win) { u.gold += npc.rew.gold; u.xp = (u.xp || 0) + npc.xp; if (u.xp >= 30) { u.xp -= 30; u.level++; u.maxHp += 10; u.hp = u.maxHp; u.power += 2; } u.arenaWins++; u.arenaPoints += rand(10, 30); updateArenaRank(u); text = `🏟️ ${npc.n} (${npc.title})\n✅ پیروزی!\n🥇 +${npc.rew.gold}\n⭐ +${rand(10, 30)}\n❤️ -${dmg}\n🏆 ${u.arenaRank}`; }
+    else { u.arenaLosses++; text = `🏟️ ${npc.n}\n❌ شکست!\n❤️ -${dmg}`; }
     saveDB();
     await ctx.editMessageText(text, backBtn());
 });
@@ -184,10 +164,8 @@ bot.action('arena_pvp', async (ctx) => {
     u.hp = Math.max(0, u.hp - dmg);
     enemy.hp = Math.max(0, (enemy.hp || 100) - dmg);
     let text;
-    if (win) {
-        const gr = rand(20, 50); u.gold += gr; u.arenaWins++; u.arenaPoints += rand(15, 40); updateArenaRank(u);
-        text = `🏟️ ${enemy.name}\n✅ پیروزی!\n🥇 +${gr}\n⭐ +${rand(15, 40)}\n❤️ -${dmg}\n🏆 ${u.arenaRank}`;
-    } else { u.arenaLosses++; text = `🏟️ ${enemy.name}\n❌ شکست!\n❤️ -${dmg}`; }
+    if (win) { u.gold += rand(20, 50); u.arenaWins++; u.arenaPoints += rand(15, 40); updateArenaRank(u); text = `🏟️ ${enemy.name}\n✅ پیروزی!\n⭐ +${rand(15, 40)}\n❤️ -${dmg}\n🏆 ${u.arenaRank}`; }
+    else { u.arenaLosses++; text = `🏟️ ${enemy.name}\n❌ شکست!\n❤️ -${dmg}`; }
     saveDB();
     await ctx.editMessageText(text, backBtn());
 });
@@ -198,25 +176,24 @@ bot.action('arena_ranks', async (ctx) => {
     await ctx.editMessageText(`🏆 رده‌بندی:\n🏆 جاودان: ۱۰۰۰+\n💎 اسطوره: ۷۰۰+\n👑 افسانه: ۵۰۰+\n👑 لرد: ۳۵۰+\n🥇 گرندمستر: ۲۰۰+\n🥇 استاد: ۱۲۰+\n🥈 قهرمان: ۷۰+\n🥈 شوالیه: ۴۰+\n🥉 جنگجو: ۲۰+\n🥉 نوآموز: ۰+\n\n👤 تو: ${u.arenaRank} | ⭐${u.arenaPoints}`, backBtn());
 });
 
-// ==================== 🏠 خانه ====================
+// ==================== خانه ====================
 bot.action('m_home', async (ctx) => {
     await ctx.answerCbQuery();
     const u = getUser(ctx.from.id);
     const next = HOME_UP[u.homeLvl + 1];
     let upText = '🏆 حداکثر';
     if (next) upText = `⬆️ ارتقا به لول ${u.homeLvl + 1}\n🪵 ${next.wood} | 🪨 ${next.stone} | 🥇 ${next.gold}\n🎚️ لول لازم: ${next.needLvl}`;
-    const text = `🏠 خانه لول ${u.homeLvl}\n\n${upText}`;
     const btns = [];
     if (next) btns.push([Markup.button.callback('⬆️ ارتقا', 'up_home')]);
     btns.push([Markup.button.callback('🔙 بازگشت', 'm_main')]);
-    await ctx.editMessageText(text, Markup.inlineKeyboard(btns));
+    await ctx.editMessageText(`🏠 خانه لول ${u.homeLvl}\n\n${upText}`, Markup.inlineKeyboard(btns));
 });
 
 bot.action('up_home', async (ctx) => {
     await ctx.answerCbQuery();
     const u = getUser(ctx.from.id);
     const next = HOME_UP[u.homeLvl + 1];
-    if (!next) return ctx.answerCbQuery('🏆 حداکثر');
+    if (!next) return ctx.answerCbQuery('🏆');
     if (u.level < next.needLvl) return ctx.answerCbQuery(`❌ لول ${next.needLvl} لازمه`);
     if (u.wood < next.wood || u.stone < next.stone || u.gold < next.gold) return ctx.answerCbQuery('❌ منابع کافی نیست');
     u.wood -= next.wood; u.stone -= next.stone; u.gold -= next.gold;
@@ -224,38 +201,38 @@ bot.action('up_home', async (ctx) => {
     await ctx.editMessageText(`🏠 خانه به لول ${u.homeLvl} ارتقا یافت!`, backBtn());
 });
 
-// ==================== 🛒 بازار ====================
+// ==================== بازار ====================
 bot.action('m_shop', async (ctx) => {
     await ctx.answerCbQuery();
-    await ctx.editMessageText('🛒 بازار\n\n📝 /buy [چیز] [تعداد]\n📝 /sell [چیز] [تعداد]\n\n🪵 چوب: خرید ۸ | فروش ۴\n🪨 سنگ: خرید ۱۰ | فروش ۵\n🍞 نان: خرید ۱۰ | فروش ۵', backBtn());
+    await ctx.editMessageText(`🛒 بازار\n━━━━━━━━━━━━\n🪵 چوب: خرید ۸ | فروش ۴\n🪨 سنگ: خرید ۱۰ | فروش ۵\n🍞 نان: خرید ۱۰ | فروش ۵\n\n📝 خرید ۱۰ چوب\n📝 فروش ۵ سنگ`, backBtn());
 });
 
-bot.command('buy', async (ctx) => {
+bot.hears(/^خرید (\d+) (چوب|سنگ|نان)$/, async (ctx) => {
     const u = getUser(ctx.from.id);
-    const args = ctx.message.text.trim().split(/\s+/);
-    const item = args[1]; const amt = Number(args[2] || 1);
-    const prices = { wood: 8, stone: 10, bread: 10 };
-    if (!prices[item]) return ctx.reply('❌ چیز نامعتبر');
+    const amt = parseInt(ctx.match[1]);
+    const item = ctx.match[2];
+    const prices = { چوب: 8, سنگ: 10, نان: 10 };
+    if (!prices[item]) return ctx.reply('❌ کالا نامعتبر');
     const total = prices[item] * amt;
     if (u.gold < total) return ctx.reply(`❌ ${total} زر لازم داری`);
     u.gold -= total;
-    if (item === 'wood') u.wood += amt;
-    if (item === 'stone') u.stone += amt;
-    if (item === 'bread') u.bread += amt;
+    if (item === 'چوب') u.wood += amt;
+    if (item === 'سنگ') u.stone += amt;
+    if (item === 'نان') u.bread += amt;
     saveDB();
     await ctx.reply(`✅ ${amt} ${item} خریداری شد\n💰 ${u.gold} زر`);
 });
 
-bot.command('sell', async (ctx) => {
+bot.hears(/^فروش (\d+) (چوب|سنگ|نان)$/, async (ctx) => {
     const u = getUser(ctx.from.id);
-    const args = ctx.message.text.trim().split(/\s+/);
-    const item = args[1]; const amt = Number(args[2] || 1);
-    const prices = { wood: 4, stone: 5, bread: 5 };
-    if (!prices[item]) return ctx.reply('❌ چیز نامعتبر');
-    if ((item === 'wood' && u.wood < amt) || (item === 'stone' && u.stone < amt) || (item === 'bread' && u.bread < amt)) return ctx.reply('❌ نداری');
-    if (item === 'wood') u.wood -= amt;
-    if (item === 'stone') u.stone -= amt;
-    if (item === 'bread') u.bread -= amt;
+    const amt = parseInt(ctx.match[1]);
+    const item = ctx.match[2];
+    const prices = { چوب: 4, سنگ: 5, نان: 5 };
+    if (!prices[item]) return ctx.reply('❌ کالا نامعتبر');
+    if ((item === 'چوب' && u.wood < amt) || (item === 'سنگ' && u.stone < amt) || (item === 'نان' && u.bread < amt)) return ctx.reply('❌ نداری');
+    if (item === 'چوب') u.wood -= amt;
+    if (item === 'سنگ') u.stone -= amt;
+    if (item === 'نان') u.bread -= amt;
     u.gold += prices[item] * amt;
     saveDB();
     await ctx.reply(`✅ ${amt} ${item} فروخته شد\n💰 ${u.gold} زر`);
