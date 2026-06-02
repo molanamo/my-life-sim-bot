@@ -40,8 +40,14 @@ function progressBar(c, max, len = 8) {
 
 // ==================== ⏱️ کول‌داون‌ها ====================
 const CD = {
-    gather: 120000, fight: 180000, pray: 21600000, pvp: 300000,
-    daily: 86400000, shahnameh: 3600000, npc: 3600000, box: 14400000,
+    gather: 120000,
+    fight: 180000,
+    pray: 21600000,
+    pvp: 300000,
+    daily: 86400000,
+    shahnameh: 3600000,
+    npc: 3600000,
+    box: 14400000,
     library: 3600000,
 };
 
@@ -50,7 +56,10 @@ function checkCD(u, action, ms) {
     const last = u.cooldowns[action] || 0;
     return (Date.now() - last >= ms) ? { can: true, rem: 0 } : { can: false, rem: ms - (Date.now() - last) };
 }
-function setCD(u, action) { if (!u.cooldowns) u.cooldowns = {}; u.cooldowns[action] = Date.now(); }
+function setCD(u, action) {
+    if (!u.cooldowns) u.cooldowns = {};
+    u.cooldowns[action] = Date.now();
+}
 
 // ==================== 📦 منابع ====================
 const RES = { wood: '🪵', stone: '🪨', metal: '🔩', iron: '⛓️', gold: '🥇' };
@@ -115,7 +124,6 @@ const LIBRARY = {
             { text: 'به نام خداوند جان و خرد\nکزین برتر اندیشه برنگذرد', rew: { gold: 10 } },
             { text: 'هنر نزد ایرانیان است و بس\nندارند شیر ژیان را به کس', rew: { gold: 25 } },
             { text: 'چو ایران نباشد تن من مباد\nبدین بوم و بر زنده یک تن مباد', rew: { gold: 30 } },
-            { text: 'میازار موری که دانه‌کش است\nکه جان دارد و جان شیرین خوش است', rew: { gold: 20 } },
         ],
     },
     masnavi: {
@@ -123,28 +131,24 @@ const LIBRARY = {
         verses: [
             { text: 'بشنو از نی چون حکایت می‌کند\nاز جدایی‌ها شکایت می‌کند', rew: { xp: 25 } },
             { text: 'هر کسی کو دور ماند از اصل خویش\nباز جوید روزگار وصل خویش', rew: { xp: 20 } },
-            { text: 'این جهان کوه است و فعل ما ندا\nسوی ما آید نداها را صدا', rew: { xp: 30 } },
         ],
     },
     golestan: {
         name: '🌹 گلستان', poet: 'سعدی',
         verses: [
             { text: 'بنی‌آدم اعضای یکدیگرند\nکه در آفرینش ز یک گوهرند', rew: { gold: 10, xp: 10 } },
-            { text: 'چو عضوی به درد آورد روزگار\nدگر عضوها را نماند قرار', rew: { gold: 15, xp: 15 } },
         ],
     },
     hafez: {
         name: '💫 دیوان حافظ', poet: 'خواجه حافظ شیرازی',
         verses: [
             { text: 'یوسف گمگشته باز آید به کنعان غم مخور\nکلبه احزان شود روزی گلستان غم مخور', rew: { gold: 20 } },
-            { text: 'در ازل پرتو حسنت ز تجلی دم زد\nعشق پیدا شد و آتش به همه عالم زد', rew: { gold: 25 } },
         ],
     },
     khayyam: {
         name: '🌙 رباعیات', poet: 'حکیم عمر خیام',
         verses: [
             { text: 'هر ذره که در خاک زمینی بودست\nپیش از من و تو تاج و نگینی بودست', rew: { gold: 10, xp: 15 } },
-            { text: 'از دی که گذشت هیچ از او یاد مکن\nفردا که نیامده است فریاد مکن', rew: { gold: 15, xp: 10 } },
         ],
     },
 };
@@ -191,7 +195,7 @@ const NPCS = {
     ferdosi: { n: '📜 فردوسی', price: 30, f: (u) => { u.gold += 50; return '🥇 +۵۰ زر'; } },
 };
 
-// ==================== 🌍 رویدادهای تصادفی ====================
+// ==================== 🌍 رویدادها ====================
 const EVENTS = [
     { n: '🌪️ طوفان سهمگین', desc: 'طوفان به کاشانه‌ات آسیب زد!', f: (u) => { if (!u.res) u.res = {}; u.res.wood = Math.floor((u.res.wood || 0) * 0.7); u.res.stone = Math.floor((u.res.stone || 0) * 0.7); return '🪵 و 🪨 کاهش یافت'; } },
     { n: '💰 گنج پنهان', desc: 'گنج کهنه پیدا کردی!', f: (u) => { const g = rand(100, 500); u.gold += g; return `🥇 +${g} زر`; } },
@@ -302,6 +306,7 @@ function mainMenu() {
     ]);
 }
 
+// ==================== 🔙 دکمه برگشت هوشمند ====================
 function backBtn(target) {
     return Markup.inlineKeyboard([[Markup.button.callback('🔙 بازگشت', `back_${target}`)]]);
 }
@@ -309,20 +314,39 @@ function backBtn(target) {
 bot.action(/back_(.+)/, async (ctx) => {
     await ctx.answerCbQuery();
     const t = ctx.match[1];
-    try { await ctx.deleteMessage(); } catch (e) {}
+    
     const actions = {
-        main: () => { const u = getUser(ctx.from.id); ctx.reply(`🏛️ «در بارگاه جمشید»\n━━━━━━━━━━━━\n«که این دشت و هامون و این بوم و بر\nهمه جای جنگ است و جای هنر»\n\n🎚️ لول: ${u.level} | ❤️ ${u.hp}/${u.maxHp} | 🥇 ${u.gold}`, mainMenu()); },
-        status: () => bot.action('m_status')(ctx), gather: () => bot.action('m_gather')(ctx),
-        fight_menu: () => bot.action('m_fight_menu')(ctx), pvp: () => bot.action('m_pvp')(ctx),
-        base: () => bot.action('m_base')(ctx), home: () => bot.action('m_home')(ctx),
-        heal: () => bot.action('m_heal')(ctx), bank: () => bot.action('m_bank')(ctx), clan: () => bot.action('m_clan')(ctx),
-        shop: () => bot.action('m_shop')(ctx), equip: () => bot.action('m_equip')(ctx),
-        armory: () => bot.action('m_armory')(ctx), armor_shop: () => bot.action('m_armor_shop')(ctx), skills: () => bot.action('m_skills')(ctx),
-        facilities: () => bot.action('m_facilities')(ctx), pray: () => bot.action('m_pray')(ctx),
-        eat: () => bot.action('m_eat')(ctx), npc: () => bot.action('m_npc')(ctx), pet: () => bot.action('m_pet')(ctx),
-        quest: () => bot.action('m_quest')(ctx), achieve: () => bot.action('m_achieve')(ctx),
-        library: () => bot.action('m_library')(ctx), other: () => bot.action('m_other')(ctx),
-        box: () => bot.action('m_box')(ctx), guide: () => bot.action('m_guide')(ctx), cd: () => bot.action('m_cd')(ctx),
+        main: () => { 
+            const u = getUser(ctx.from.id); 
+            const text = `🏛️ «در بارگاه جمشید»\n━━━━━━━━━━━━\n«که این دشت و هامون و این بوم و بر\nهمه جای جنگ است و جای هنر»\n\n🎚️ لول: ${u.level} | ❤️ ${u.hp}/${u.maxHp} | 🥇 ${u.gold}`;
+            try { await ctx.editMessageText(text, mainMenu()); } catch (e) { await ctx.reply(text, mainMenu()); }
+        },
+        status: () => bot.action('m_status')(ctx),
+        gather: () => bot.action('m_gather')(ctx),
+        fight_menu: () => bot.action('m_fight_menu')(ctx),
+        pvp: () => bot.action('m_pvp')(ctx),
+        base: () => bot.action('m_base')(ctx),
+        home: () => bot.action('m_home')(ctx),
+        heal: () => bot.action('m_heal')(ctx),
+        bank: () => bot.action('m_bank')(ctx),
+        clan: () => bot.action('m_clan')(ctx),
+        shop: () => bot.action('m_shop')(ctx),
+        equip: () => bot.action('m_equip')(ctx),
+        armory: () => bot.action('m_armory')(ctx),
+        armor_shop: () => bot.action('m_armor_shop')(ctx),
+        skills: () => bot.action('m_skills')(ctx),
+        facilities: () => bot.action('m_facilities')(ctx),
+        pray: () => bot.action('m_pray')(ctx),
+        eat: () => bot.action('m_eat')(ctx),
+        npc: () => bot.action('m_npc')(ctx),
+        pet: () => bot.action('m_pet')(ctx),
+        quest: () => bot.action('m_quest')(ctx),
+        achieve: () => bot.action('m_achieve')(ctx),
+        library: () => bot.action('m_library')(ctx),
+        other: () => bot.action('m_other')(ctx),
+        box: () => bot.action('m_box')(ctx),
+        guide: () => bot.action('m_guide')(ctx),
+        cd: () => bot.action('m_cd')(ctx),
     };
     (actions[t] || actions.main)();
 });
@@ -330,8 +354,6 @@ bot.action(/back_(.+)/, async (ctx) => {
 // ==================== 🏛️ استارت ====================
 bot.start(async (ctx) => {
     const u = getUser(ctx.from.id, ctx.from.first_name);
-    
-    // رویداد تصادفی
     let eventText = '';
     if (Math.random() < 0.15) {
         const event = EVENTS[rand(0, EVENTS.length - 1)];
@@ -339,7 +361,6 @@ bot.start(async (ctx) => {
         eventText = `\n\n🌍 «${event.n}»\n${event.desc}\n${result}`;
     }
     saveDB();
-    
     const text = `🏛️ «در بارگاه جمشید»\n━━━━━━━━━━━━━━━━\n«که این دشت و هامون و این بوم و بر\nهمه جای جنگ است و جای هنر»\n\nدرود بر تو ای پهلوان ${u.name}!\n🎚️ لول: ${u.level} | ❤️ ${u.hp}/${u.maxHp} | 🥇 ${u.gold} زر${eventText}`;
     await ctx.reply(text, mainMenu());
 });
@@ -352,8 +373,7 @@ bot.action('m_status', async (ctx) => {
     const a = ARMORS[u.armor] || ARMORS.none;
     const l = PVP_LEAGUES[u.pvpLeague || 'bronze'];
     const text = `📊 «دیوان آمار»\n━━━━━━━━━━━━\n👤 ${u.name}\n🎚️ لول: ${u.level} | ✨ ${u.xp}/30\n❤️ ${u.hp}/${u.maxHp}\n⚡ ${u.power}\n🗡️ ${w.n}\n🛡️ ${a.n}\n🐎 ${u.pet?PETS[u.pet]?.n:'ندارد'}\n🏆 ${l.n} ⭐${u.pvpRating}\n🎖️ ${u.loyalty} | 📚 ${u.shahnamehCount}\n🏦 ${u.bankGold} | 🥇 ${u.gold}`;
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(text, backBtn('main'));
+    try { await ctx.editMessageText(text, backBtn('main')); } catch (e) { await ctx.reply(text, backBtn('main')); }
 });
 
 // ==================== 🌲 جستجو ====================
@@ -368,20 +388,25 @@ bot.action('m_gather', async (ctx) => {
     let ex = '';
     if (Math.random() < 0.3) { const f = ['bread', 'fish', 'water', 'meat'][rand(0, 3)]; addItem(u, f, 1); ex = `\n🍽️ ${FOODS[f]?.n || f} نیز یافت شد!`; }
     u.loyalty = (u.loyalty || 0) + 1; progressQuest(u, 'gather'); saveDB();
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(`🌲 «به بیشه نارون»\n━━━━━━━━━━━━\n🎁 ${rwText(roll)}${ex}\n⏳ ${formatTime(CD.gather)}`, backBtn('main'));
+    const text = `🌲 «به بیشه نارون»\n━━━━━━━━━━━━\n🎁 ${rwText(roll)}${ex}\n⏳ ${formatTime(CD.gather)}`;
+    try { await ctx.editMessageText(text, backBtn('main')); } catch (e) { await ctx.reply(text, backBtn('main')); }
 });
 
 // ==================== ⚔️ نبرد ====================
 bot.action('m_fight_menu', async (ctx) => {
     await ctx.answerCbQuery();
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply('⚔️ «میدان رزم»\n━━━━━━━━━━━━', Markup.inlineKeyboard([
+    const text = '⚔️ «میدان رزم»\n━━━━━━━━━━━━';
+    try { await ctx.editMessageText(text, Markup.inlineKeyboard([
         [Markup.button.callback('🐺 ددان', 'f_animals'), Markup.button.callback('👹 دیوان', 'f_demons')],
         [Markup.button.callback('👿 پلید', 'f_bosses'), Markup.button.callback('🎲 رندوم', 'f_random')],
         [Markup.button.callback('🔙 بازگشت', 'back_fight_menu')],
-    ]));
+    ])); } catch (e) { await ctx.reply(text, Markup.inlineKeyboard([
+        [Markup.button.callback('🐺 ددان', 'f_animals'), Markup.button.callback('👹 دیوان', 'f_demons')],
+        [Markup.button.callback('👿 پلید', 'f_bosses'), Markup.button.callback('🎲 رندوم', 'f_random')],
+        [Markup.button.callback('🔙 بازگشت', 'back_fight_menu')],
+    ])); }
 });
+
 bot.action('f_animals', async (ctx) => startFight(ctx, 'animal'));
 bot.action('f_demons', async (ctx) => startFight(ctx, 'demon'));
 bot.action('f_bosses', async (ctx) => startFight(ctx, 'boss'));
@@ -397,11 +422,12 @@ async function startFight(ctx, type) {
     u.pendingFight = enemy; setCD(u, 'fight'); saveDB();
     const w = WEAPONS[u.weapon] || WEAPONS.none;
     const ch = clamp(50 + (u.power + w.p - enemy.p) * 5, 5, 95);
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(`⚔️ ${enemy.n}\n💪 ${enemy.p}\n🎁 ${rwText(enemy.rew)}\n🛡️ ${ch}%`, Markup.inlineKeyboard([
+    const text = `⚔️ ${enemy.n}\n💪 ${enemy.p}\n🎁 ${rwText(enemy.rew)}\n🛡️ ${ch}%`;
+    const btns = Markup.inlineKeyboard([
         [Markup.button.callback('⚔️ حمله!', `fg_${ALL_ENEMIES.indexOf(enemy)}`)],
         [Markup.button.callback('🔙 بازگشت', 'back_fight_menu')],
-    ]));
+    ]);
+    try { await ctx.editMessageText(text, btns); } catch (e) { await ctx.reply(text, btns); }
 }
 
 bot.action(/fg_(\d+)/, async (ctx) => {
@@ -426,8 +452,8 @@ bot.action(/fg_(\d+)/, async (ctx) => {
         txt = `✅ پیروزی!\n✨ +${enemy.xp} XP\n❤️ -${dmg}\n🎁 ${rwText(enemy.rew)}`;
     } else { txt = `❌ شکست!\n❤️ -${dmg}`; }
     u.pendingFight = null; saveDB();
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(`⚔️ ${enemy.n}\n${txt}`, backBtn('fight_menu'));
+    const text = `⚔️ ${enemy.n}\n${txt}`;
+    try { await ctx.editMessageText(text, backBtn('fight_menu')); } catch (e) { await ctx.reply(text, backBtn('fight_menu')); }
 });
 
 // ==================== 🏟️ PvP فوق پیشرفته ====================
@@ -435,20 +461,21 @@ bot.action('m_pvp', async (ctx) => {
     await ctx.answerCbQuery();
     const u = getUser(ctx.from.id);
     if (u.jailUntil && Date.now() < u.jailUntil) {
-        try { await ctx.deleteMessage(); } catch (e) {}
-        return ctx.reply(`⛓️ «در سیاه‌چال»\n${formatTime(u.jailUntil - Date.now())} دیگر`, backBtn('main'));
+        const text = `⛓️ «در سیاه‌چال»\n${formatTime(u.jailUntil - Date.now())} دیگر`;
+        try { await ctx.editMessageText(text, backBtn('main')); } catch (e) { await ctx.reply(text, backBtn('main')); }
+        return;
     }
     const l = PVP_LEAGUES[u.pvpLeague || 'bronze'];
     const total = (u.pvpWins || 0) + (u.pvpLosses || 0);
     const text = `🏟️ «میدان پهلوانی»\n━━━━━━━━━━━━\n🏆 ${l.n} | ⭐${u.pvpRating}\n📊 ${total} نبرد\n✅ ${u.pvpWins} | ❌ ${u.pvpLosses}\n🔥 پیاپی: ${u.pvpStreak || 0}\n\n🎯 /pvp [آیدی]\n💰 /pvp_bet [آیدی] [مبلغ]`;
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(text, Markup.inlineKeyboard([
+    const btns = Markup.inlineKeyboard([
         [Markup.button.callback('⚔️ نبرد سریع', 'pvp_quick')],
         [Markup.button.callback('🏆 لیگ‌ها', 'pvp_league')],
         [Markup.button.callback('📜 تاریخچه', 'pvp_history')],
         [Markup.button.callback('🏅 برترین‌ها', 'pvp_leaderboard')],
         [Markup.button.callback('🔙 بازگشت', 'back_pvp')],
-    ]));
+    ]);
+    try { await ctx.editMessageText(text, btns); } catch (e) { await ctx.reply(text, btns); }
 });
 
 bot.action('pvp_quick', async (ctx) => {
@@ -466,8 +493,8 @@ bot.action('pvp_quick', async (ctx) => {
     setCD(u, 'pvp'); saveDB();
     const wbtns = myWeapons.map(w => [Markup.button.callback(`${w.n} (⚡${w.p})`, `pvp_sel_${Object.keys(WEAPONS).find(k => WEAPONS[k] === w)}`)]);
     wbtns.push([Markup.button.callback('🔙 بازگشت', 'back_pvp')]);
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(`⚔️ نبرد با ${enemy.name}\n👤 لول ${enemy.level || 1}\n\n🗡️ سلاح برگزین:`, Markup.inlineKeyboard(wbtns));
+    const text = `⚔️ نبرد با ${enemy.name}\n👤 لول ${enemy.level || 1}\n\n🗡️ سلاح برگزین:`;
+    try { await ctx.editMessageText(text, Markup.inlineKeyboard(wbtns)); } catch (e) { await ctx.reply(text, Markup.inlineKeyboard(wbtns)); }
 });
 
 bot.action(/pvp_sel_(.+)/, async (ctx) => {
@@ -478,17 +505,18 @@ bot.action(/pvp_sel_(.+)/, async (ctx) => {
     u.pendingPvP.sw = wk; saveDB();
     const w = WEAPONS[wk];
     const enemy = db.users[u.pendingPvP.eid];
-    if (!enemy) return ctx.reply('❌', backBtn('pvp'));
+    if (!enemy) return ctx.answerCbQuery('❌');
     const a = ARMORS[u.armor] || ARMORS.none;
     const ew = WEAPONS[enemy.weapon] || WEAPONS.none;
     const ea = ARMORS[enemy.armor] || ARMORS.none;
     const mp = u.power + w.p; const ep = (enemy.power || 5) + ew.p;
     const ch = clamp(50 + (mp - ep) * 3, 10, 90);
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(`⚔️ تاختن به ${enemy.name}\n━━━━━━━━━━━━\n🗡️ تو: ${w.n} (⚡${w.p})\n🛡️ تو: ${a.n}\n⚡ قدرت: ${mp}\n\n👤 حریف: ${enemy.name}\n🗡️ حریف: ${ew.n}\n🛡️ حریف: ${ea.n}\n⚡ قدرت: ${ep}\n\n🎲 شانس: ${ch}%\n🏠 تخریب: ${Math.floor(ch*0.3)}%\n📦 تاراج: ${Math.floor(ch*0.4)}%`, Markup.inlineKeyboard([
+    const text = `⚔️ تاختن به ${enemy.name}\n━━━━━━━━━━━━\n🗡️ تو: ${w.n} (⚡${w.p})\n🛡️ تو: ${a.n}\n⚡ قدرت: ${mp}\n\n👤 حریف: ${enemy.name}\n🗡️ حریف: ${ew.n}\n🛡️ حریف: ${ea.n}\n⚡ قدرت: ${ep}\n\n🎲 شانس: ${ch}%\n🏠 تخریب: ${Math.floor(ch*0.3)}%\n📦 تاراج: ${Math.floor(ch*0.4)}%`;
+    const btns = Markup.inlineKeyboard([
         [Markup.button.callback('⚔️ تاختن!', 'pvp_go')],
         [Markup.button.callback('🏃 گریختن', 'back_pvp')],
-    ]));
+    ]);
+    try { await ctx.editMessageText(text, btns); } catch (e) { await ctx.reply(text, btns); }
 });
 
 bot.action('pvp_go', async (ctx) => {
@@ -534,8 +562,7 @@ bot.action('pvp_go', async (ctx) => {
     }
     u.loyalty = (u.loyalty || 0) + 1; saveDB();
     try { await bot.telegram.sendMessage(eid, dt, Markup.inlineKeyboard([[Markup.button.callback('⚔️ انتقام!', `pvp_rev_${u.id}`)], [Markup.button.callback('🔙', 'm_main')]])); } catch (e) {}
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(at, backBtn('pvp'));
+    try { await ctx.editMessageText(at, backBtn('pvp')); } catch (e) { await ctx.reply(at, backBtn('pvp')); }
 });
 
 bot.action(/pvp_rev_(.+)/, async (ctx) => {
@@ -555,8 +582,8 @@ bot.action('pvp_league', async (ctx) => {
     await ctx.answerCbQuery();
     const u = getUser(ctx.from.id);
     const list = Object.entries(PVP_LEAGUES).map(([k, l]) => `${l.n}${u.pvpLeague === k ? ' ✅' : ''}: ${l.min}+`).join('\n');
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(`🏆 لیگ‌ها\n\n${list}`, backBtn('pvp'));
+    const text = `🏆 لیگ‌ها\n\n${list}`;
+    try { await ctx.editMessageText(text, backBtn('pvp')); } catch (e) { await ctx.reply(text, backBtn('pvp')); }
 });
 
 bot.action('pvp_history', async (ctx) => {
@@ -564,18 +591,16 @@ bot.action('pvp_history', async (ctx) => {
     const u = getUser(ctx.from.id);
     const h = u.pvpHistory || [];
     if (!h.length) return ctx.answerCbQuery('📜 خالی');
-    const text = ['📜 تاریخچه:\n', ...h.slice(-10).reverse().map((b, i) => `${i + 1}. ${b.win ? '✅' : '❌'} vs ${b.enemy}`)];
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(text.join('\n'), backBtn('pvp'));
+    const text = ['📜 تاریخچه:\n', ...h.slice(-10).reverse().map((b, i) => `${i + 1}. ${b.win ? '✅' : '❌'} vs ${b.enemy}`)].join('\n');
+    try { await ctx.editMessageText(text, backBtn('pvp')); } catch (e) { await ctx.reply(text, backBtn('pvp')); }
 });
 
 bot.action('pvp_leaderboard', async (ctx) => {
     await ctx.answerCbQuery();
     const us = Object.values(db.users).filter(u => (u.pvpRating || 0) > 0).sort((a, b) => (b.pvpRating || 0) - (a.pvpRating || 0)).slice(0, 10);
     if (!us.length) return ctx.answerCbQuery('❌');
-    const text = ['🏅 برترین‌ها:\n', ...us.map((u, i) => `${i + 1}. ${u.name || '?'} | ${PVP_LEAGUES[u.pvpLeague || 'bronze'].n} | ⭐${u.pvpRating}`)];
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(text.join('\n'), backBtn('pvp'));
+    const text = ['🏅 برترین‌ها:\n', ...us.map((u, i) => `${i + 1}. ${u.name || '?'} | ${PVP_LEAGUES[u.pvpLeague || 'bronze'].n} | ⭐${u.pvpRating}`)].join('\n');
+    try { await ctx.editMessageText(text, backBtn('pvp')); } catch (e) { await ctx.reply(text, backBtn('pvp')); }
 });
 
 bot.command('pvp', async (ctx) => {
@@ -633,12 +658,13 @@ console.log('✅ بخش ۲ از ۳ - مبارزه و PvP بارگذاری شد')
 // ==================== 🏠 پایگاه ====================
 bot.action('m_base', async (ctx) => {
     await ctx.answerCbQuery();
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply('🏠 «پایگاه»\n━━━━━━━━━━━━', Markup.inlineKeyboard([
+    const text = '🏠 «پایگاه»\n━━━━━━━━━━━━';
+    const btns = Markup.inlineKeyboard([
         [Markup.button.callback('🏠 خانه', 'm_home'), Markup.button.callback('🏥 درمانگاه', 'm_heal')],
         [Markup.button.callback('🏦 بانک', 'm_bank'), Markup.button.callback('🏰 قبیله', 'm_clan')],
         [Markup.button.callback('🔙 بازگشت', 'back_base')],
-    ]));
+    ]);
+    try { await ctx.editMessageText(text, btns); } catch (e) { await ctx.reply(text, btns); }
 });
 
 bot.action('m_home', async (ctx) => {
@@ -647,11 +673,12 @@ bot.action('m_home', async (ctx) => {
     const next = HOME_UP[u.homeLvl + 1];
     let up = '🏆 به اوج';
     if (next) up = `⬆️ ${u.homeLvl + 1}\n🪵${next.wood} 🪨${next.stone} 🔩${next.metal} ⛓️${next.iron} 🥇${next.gold}\nلول: ${next.nl}`;
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(`🏠 خانه لول ${u.homeLvl}\n${up}\n/upgrade_home`, Markup.inlineKeyboard([
+    const text = `🏠 خانه لول ${u.homeLvl}\n${up}\n/upgrade_home`;
+    const btns = Markup.inlineKeyboard([
         [Markup.button.callback('⬆️ ارتقا', 'up_home')],
         [Markup.button.callback('🔙 بازگشت', 'back_home')],
-    ]));
+    ]);
+    try { await ctx.editMessageText(text, btns); } catch (e) { await ctx.reply(text, btns); }
 });
 
 bot.action('up_home', async (ctx) => {
@@ -665,8 +692,8 @@ bot.action('up_home', async (ctx) => {
     if (u.homeLvl >= 3) u.clinicLvl = 2;
     if (u.homeLvl >= 5) u.clinicLvl = 3;
     saveDB();
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(`✅ خانه لول ${u.homeLvl}!`, backBtn('home'));
+    const text = `✅ خانه لول ${u.homeLvl}!`;
+    try { await ctx.editMessageText(text, backBtn('home')); } catch (e) { await ctx.reply(text, backBtn('home')); }
 });
 
 bot.action('m_heal', async (ctx) => {
@@ -674,11 +701,12 @@ bot.action('m_heal', async (ctx) => {
     const u = getUser(ctx.from.id);
     if (!u.clinicLvl) u.clinicLvl = 1;
     const amt = 20 + u.clinicLvl * 10;
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(`🏥 درمانگاه\n❤️ ${u.hp}/${u.maxHp}\n💊 رایگان: ${u.daily.fh ? '❌' : '✅'} (+${amt})\n💰 کامل: ۲۰ زر`, Markup.inlineKeyboard([
+    const text = `🏥 درمانگاه\n❤️ ${u.hp}/${u.maxHp}\n💊 رایگان: ${u.daily.fh ? '❌' : '✅'} (+${amt})\n💰 کامل: ۲۰ زر`;
+    const btns = Markup.inlineKeyboard([
         [Markup.button.callback('🆓 رایگان', 'hl_free'), Markup.button.callback('💰 کامل', 'hl_gold')],
         [Markup.button.callback('🔙 بازگشت', 'back_heal')],
-    ]));
+    ]);
+    try { await ctx.editMessageText(text, btns); } catch (e) { await ctx.reply(text, btns); }
 });
 
 bot.action('hl_free', async (ctx) => {
@@ -687,8 +715,8 @@ bot.action('hl_free', async (ctx) => {
     if (u.daily.fh) return ctx.answerCbQuery('❌');
     const amt = 20 + (u.clinicLvl || 1) * 10;
     u.daily.fh = true; u.hp = Math.min(u.maxHp, u.hp + amt); saveDB();
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(`✅ +${amt}\n❤️ ${u.hp}/${u.maxHp}`, backBtn('heal'));
+    const text = `✅ +${amt}\n❤️ ${u.hp}/${u.maxHp}`;
+    try { await ctx.editMessageText(text, backBtn('heal')); } catch (e) { await ctx.reply(text, backBtn('heal')); }
 });
 
 bot.action('hl_gold', async (ctx) => {
@@ -696,42 +724,47 @@ bot.action('hl_gold', async (ctx) => {
     const u = getUser(ctx.from.id);
     if (u.gold < 20) return ctx.answerCbQuery('❌ ۲۰ زر');
     u.gold -= 20; u.hp = u.maxHp; saveDB();
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(`✅ درمان\n❤️ ${u.hp}/${u.maxHp}`, backBtn('heal'));
+    const text = `✅ درمان\n❤️ ${u.hp}/${u.maxHp}`;
+    try { await ctx.editMessageText(text, backBtn('heal')); } catch (e) { await ctx.reply(text, backBtn('heal')); }
 });
 
 bot.action('m_bank', async (ctx) => {
     await ctx.answerCbQuery();
     const u = getUser(ctx.from.id);
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(`🏦 بانک\n💰 ${u.bankGold} زر\n📝 /deposit [مبلغ]\n📝 /withdraw [مبلغ]`, backBtn('bank'));
+    const text = `🏦 بانک\n💰 ${u.bankGold} زر\n📝 /deposit [مبلغ]\n📝 /withdraw [مبلغ]`;
+    try { await ctx.editMessageText(text, backBtn('bank')); } catch (e) { await ctx.reply(text, backBtn('bank')); }
 });
 
 bot.action('m_clan', async (ctx) => {
     await ctx.answerCbQuery();
     const u = getUser(ctx.from.id);
-    try { await ctx.deleteMessage(); } catch (e) {}
-    if (!u.clan) return ctx.reply('🏰 قبیله\n📝 /create_clan [اسم]\n📝 /join_clan [اسم]\n📝 /clans', backBtn('clan'));
+    if (!u.clan) {
+        const text = '🏰 قبیله\n📝 /create_clan [اسم]\n📝 /join_clan [اسم]\n📝 /clans';
+        try { await ctx.editMessageText(text, backBtn('clan')); } catch (e) { await ctx.reply(text, backBtn('clan')); }
+        return;
+    }
     const cl = db.clans[u.clan];
-    if (!cl) { u.clan = null; saveDB(); return ctx.reply('❌', backBtn('clan')); }
+    if (!cl) { u.clan = null; saveDB(); return; }
     const m = cl.members.map(mid => db.users[mid]?.name || mid).join('، ');
-    await ctx.reply(`🏰 ${cl.name}\n👑 ${db.users[cl.owner]?.name}\n👥 ${m}\n💰 ${cl.treasury || 0}\n📝 /donate gold [مقدار]\n📝 /leave_clan`, backBtn('clan'));
+    const text = `🏰 ${cl.name}\n👑 ${db.users[cl.owner]?.name}\n👥 ${m}\n💰 ${cl.treasury || 0}\n📝 /donate gold [مقدار]\n📝 /leave_clan`;
+    try { await ctx.editMessageText(text, backBtn('clan')); } catch (e) { await ctx.reply(text, backBtn('clan')); }
 });
 
 // ==================== 🛒 بازار ====================
 bot.action('m_shop', async (ctx) => {
     await ctx.answerCbQuery();
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply('🛒 بازار', Markup.inlineKeyboard([
+    const text = '🛒 بازار';
+    const btns = Markup.inlineKeyboard([
         [Markup.button.callback('📦 خرید', 'sh_res'), Markup.button.callback('💰 فروش', 'sh_sell')],
         [Markup.button.callback('🔙 بازگشت', 'back_shop')],
-    ]));
+    ]);
+    try { await ctx.editMessageText(text, btns); } catch (e) { await ctx.reply(text, btns); }
 });
 
 bot.action('sh_res', async (ctx) => {
     await ctx.answerCbQuery();
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply('📦 🪵۸ 🪨۱۰ 🔩۱۸ ⛓️۲۵\n🍞۱۰ 🍖۲۵ 💧۸\n📝 /buy [کالا] [تعداد]', backBtn('shop'));
+    const text = '📦 🪵۸ 🪨۱۰ 🔩۱۸ ⛓️۲۵\n🍞۱۰ 🍖۲۵ 💧۸\n📝 /buy [کالا] [تعداد]';
+    try { await ctx.editMessageText(text, backBtn('shop')); } catch (e) { await ctx.reply(text, backBtn('shop')); }
 });
 
 bot.action('sh_sell', async (ctx) => {
@@ -740,19 +773,19 @@ bot.action('sh_sell', async (ctx) => {
     let t = '💰 فروش:\n';
     for (const [k, v] of Object.entries(u.res || {})) { if (v > 0 && k !== 'gold') t += `${RES[k]} ${k}: ${v}\n`; }
     t += '📝 /sell [کالا] [تعداد]';
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(t, backBtn('shop'));
+    try { await ctx.editMessageText(t, backBtn('shop')); } catch (e) { await ctx.reply(t, backBtn('shop')); }
 });
 
 // ==================== 🏪 تجهیزات ====================
 bot.action('m_equip', async (ctx) => {
     await ctx.answerCbQuery();
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply('🏪 «تجهیزات»', Markup.inlineKeyboard([
+    const text = '🏪 «تجهیزات»';
+    const btns = Markup.inlineKeyboard([
         [Markup.button.callback('🛠️ اسلحه', 'm_armory'), Markup.button.callback('🛡️ زره', 'm_armor_shop')],
         [Markup.button.callback('⭐ مهارت', 'm_skills')],
         [Markup.button.callback('🔙 بازگشت', 'back_equip')],
-    ]));
+    ]);
+    try { await ctx.editMessageText(text, btns); } catch (e) { await ctx.reply(text, btns); }
 });
 
 bot.action('m_armory', async (ctx) => {
@@ -760,21 +793,21 @@ bot.action('m_armory', async (ctx) => {
     const u = getUser(ctx.from.id);
     const btns = Object.entries(WEAPONS).filter(([k]) => k !== 'none').map(([k, w]) => [Markup.button.callback(`${u.wOwned[k] ? '✅' : '🔨'} ${w.n}${u.weapon === k ? '⚔️' : ''}`, u.wOwned[k] ? `eq_w_${k}` : `cr_w_${k}`)]);
     btns.push([Markup.button.callback('🔥 ارتقا', 'enchant_w')], [Markup.button.callback('🔙 بازگشت', 'back_armory')]);
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(`🛠️ اسلحه‌خانه\nفعلی: ${WEAPONS[u.weapon]?.n || 'ندارد'}`, Markup.inlineKeyboard(btns));
+    const text = `🛠️ اسلحه‌خانه\nفعلی: ${WEAPONS[u.weapon]?.n || 'ندارد'}`;
+    try { await ctx.editMessageText(text, Markup.inlineKeyboard(btns)); } catch (e) { await ctx.reply(text, Markup.inlineKeyboard(btns)); }
 });
 
 bot.action(/cr_w_(.+)/, async (ctx) => { await ctx.answerCbQuery(); const k = ctx.match[1]; const u = getUser(ctx.from.id); const w = WEAPONS[k]; if (!w) return; if (u.level < w.lvl) return ctx.answerCbQuery(`❌ لول ${w.lvl}`); if (u.gold < w.price) return ctx.answerCbQuery(`❌ ${w.price} زر`); u.gold -= w.price; u.wOwned[k] = true; saveDB(); await ctx.answerCbQuery(`✅ ${w.n} ساخته شد!`); });
 bot.action(/eq_w_(.+)/, async (ctx) => { await ctx.answerCbQuery(); const k = ctx.match[1]; const u = getUser(ctx.from.id); if (!u.wOwned[k]) return; u.weapon = k; saveDB(); await ctx.answerCbQuery(`⚔️ ${WEAPONS[k].n}`); });
-bot.action('enchant_w', async (ctx) => { await ctx.answerCbQuery(); try { await ctx.deleteMessage(); } catch (e) {} await ctx.reply('🔥 ارتقا (۵۰۰ زر)\n🔥 آتشین: +۵\n❄️ یخی: کندی\n💀 زهر: تدریجی\n📝 /enchant [fire|ice|poison]', backBtn('armory')); });
+bot.action('enchant_w', async (ctx) => { await ctx.answerCbQuery(); const text = '🔥 ارتقا (۵۰۰ زر)\n🔥 آتشین: +۵\n❄️ یخی: کندی\n💀 زهر: تدریجی\n📝 /enchant [fire|ice|poison]'; try { await ctx.editMessageText(text, backBtn('armory')); } catch (e) { await ctx.reply(text, backBtn('armory')); } });
 
 bot.action('m_armor_shop', async (ctx) => {
     await ctx.answerCbQuery();
     const u = getUser(ctx.from.id);
     const btns = Object.entries(ARMORS).filter(([k]) => k !== 'none').map(([k, a]) => [Markup.button.callback(`${u.aOwned[k] ? '✅' : '🔨'} ${a.n}${u.armor === k ? '🛡️' : ''}`, u.aOwned[k] ? `eq_a_${k}` : `cr_a_${k}`)]);
     btns.push([Markup.button.callback('🔙 بازگشت', 'back_armor_shop')]);
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(`🛡️ زره‌خانه\nفعلی: ${ARMORS[u.armor]?.n || 'ندارد'}`, Markup.inlineKeyboard(btns));
+    const text = `🛡️ زره‌خانه\nفعلی: ${ARMORS[u.armor]?.n || 'ندارد'}`;
+    try { await ctx.editMessageText(text, Markup.inlineKeyboard(btns)); } catch (e) { await ctx.reply(text, Markup.inlineKeyboard(btns)); }
 });
 
 bot.action(/cr_a_(.+)/, async (ctx) => { await ctx.answerCbQuery(); const k = ctx.match[1]; const u = getUser(ctx.from.id); const a = ARMORS[k]; if (!a) return; if (u.level < a.lvl) return ctx.answerCbQuery(`❌ لول ${a.lvl}`); if (u.gold < a.price) return ctx.answerCbQuery(`❌ ${a.price} زر`); u.gold -= a.price; u.aOwned[k] = true; saveDB(); await ctx.answerCbQuery(`✅ ${a.n} ساخته شد!`); });
@@ -783,12 +816,13 @@ bot.action(/eq_a_(.+)/, async (ctx) => { await ctx.answerCbQuery(); const k = ct
 bot.action('m_skills', async (ctx) => {
     await ctx.answerCbQuery();
     const u = getUser(ctx.from.id);
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(`⭐ مهارت | ${u.sp} امتیاز\n⛏️ ${u.skills.g}/10 | 🏹 ${u.skills.h}/10\n🔨 ${u.skills.c}/10 | 🏕️ ${u.skills.s}/10\n📝 /skill <g|h|c|s>`, Markup.inlineKeyboard([
+    const text = `⭐ مهارت | ${u.sp} امتیاز\n⛏️ ${u.skills.g}/10 | 🏹 ${u.skills.h}/10\n🔨 ${u.skills.c}/10 | 🏕️ ${u.skills.s}/10\n📝 /skill <g|h|c|s>`;
+    const btns = Markup.inlineKeyboard([
         [Markup.button.callback('⛏️', 'sk_g'), Markup.button.callback('🏹', 'sk_h')],
         [Markup.button.callback('🔨', 'sk_c'), Markup.button.callback('🏕️', 'sk_s')],
         [Markup.button.callback('🔙', 'back_skills')],
-    ]));
+    ]);
+    try { await ctx.editMessageText(text, btns); } catch (e) { await ctx.reply(text, btns); }
 });
 
 bot.action(/sk_(.+)/, async (ctx) => { await ctx.answerCbQuery(); const k = ctx.match[1]; const u = getUser(ctx.from.id); if (!u.sp) return; if ((u.skills[k] || 0) >= 10) return; u.skills[k] = (u.skills[k] || 0) + 1; u.sp--; saveDB(); await ctx.answerCbQuery(`✅ ${u.skills[k]}/10`); });
@@ -796,23 +830,25 @@ bot.action(/sk_(.+)/, async (ctx) => { await ctx.answerCbQuery(); const k = ctx.
 // ==================== 🎭 امکانات ====================
 bot.action('m_facilities', async (ctx) => {
     await ctx.answerCbQuery();
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply('🎭 «امکانات»', Markup.inlineKeyboard([
+    const text = '🎭 «امکانات»';
+    const btns = Markup.inlineKeyboard([
         [Markup.button.callback('🕯️ آتشکده', 'm_pray'), Markup.button.callback('🍽️ غذا', 'm_eat')],
         [Markup.button.callback('👤 بزرگان', 'm_npc'), Markup.button.callback('🐎 حیوان', 'm_pet')],
         [Markup.button.callback('📋 مأموریت', 'm_quest'), Markup.button.callback('🏆 دستاورد', 'm_achieve')],
         [Markup.button.callback('🔙 بازگشت', 'back_facilities')],
-    ]));
+    ]);
+    try { await ctx.editMessageText(text, btns); } catch (e) { await ctx.reply(text, btns); }
 });
 
 bot.action('m_pray', async (ctx) => {
     await ctx.answerCbQuery();
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply('🕯️ آتشکده', Markup.inlineKeyboard([
+    const text = '🕯️ آتشکده';
+    const btns = Markup.inlineKeyboard([
         [Markup.button.callback('🤲 دعا', 'p_dua'), Markup.button.callback('🧎 نماز', 'p_namaz')],
         [Markup.button.callback('📖 روضه', 'p_rozeh')],
         [Markup.button.callback('🔙 بازگشت', 'back_pray')],
-    ]));
+    ]);
+    try { await ctx.editMessageText(text, btns); } catch (e) { await ctx.reply(text, btns); }
 });
 
 bot.action(['p_dua', 'p_namaz', 'p_rozeh'], async (ctx) => {
@@ -825,21 +861,22 @@ bot.action(['p_dua', 'p_namaz', 'p_rozeh'], async (ctx) => {
     if (ctx.match[0] === 'p_rozeh') { u.loyalty = (u.loyalty || 0) + 8; u.shahnamehCount = (u.shahnamehCount || 0) + 1; }
     u.loyalty = (u.loyalty || 0) + 3; progressQuest(u, 'pray'); saveDB();
     const names = { p_dua: 'دعا', p_namaz: 'نماز', p_rozeh: 'روضه' };
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(`✅ ${names[ctx.match[0]]} قبول!\n✨ +${xp}`, backBtn('pray'));
+    const text = `✅ ${names[ctx.match[0]]} قبول!\n✨ +${xp}`;
+    try { await ctx.editMessageText(text, backBtn('pray')); } catch (e) { await ctx.reply(text, backBtn('pray')); }
 });
 
 bot.action('m_eat', async (ctx) => {
     await ctx.answerCbQuery();
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply('🍽️ سفره', Markup.inlineKeyboard([
+    const text = '🍽️ سفره';
+    const btns = Markup.inlineKeyboard([
         [Markup.button.callback('🍞', 'e_bread'), Markup.button.callback('🍖', 'e_meat'), Markup.button.callback('🐟', 'e_fish')],
         [Markup.button.callback('🍗', 'e_chicken'), Markup.button.callback('🥩', 'e_steak'), Markup.button.callback('🥘', 'e_stew')],
         [Markup.button.callback('🍜', 'e_noodle'), Markup.button.callback('🍰', 'e_cake'), Markup.button.callback('🍯', 'e_honey')],
         [Markup.button.callback('💧', 'd_water'), Markup.button.callback('🧃', 'd_juice'), Markup.button.callback('🍺', 'd_soda')],
         [Markup.button.callback('🍵', 'd_tea'), Markup.button.callback('☕', 'd_coffee'), Markup.button.callback('🥛', 'd_milk')],
         [Markup.button.callback('🔙', 'back_eat')],
-    ]));
+    ]);
+    try { await ctx.editMessageText(text, btns); } catch (e) { await ctx.reply(text, btns); }
 });
 
 bot.action(/e_(.+)/, async (ctx) => { await ctx.answerCbQuery(); const k = ctx.match[1]; const u = getUser(ctx.from.id); if ((u.items[k] || 0) < 1) return; const f = FOODS[k]; if (!f) return; addItem(u, k, -1); if (f.h) u.hunger = Math.min(u.maxHp, (u.hunger || 100) + f.h); if (f.heal) u.hp = Math.min(u.maxHp, u.hp + f.heal); saveDB(); await ctx.answerCbQuery(`✅ ${f.n}`); });
@@ -851,11 +888,11 @@ bot.action('m_npc', async (ctx) => {
     const cd = checkCD(u, 'npc', CD.npc);
     const btns = Object.entries(NPCS).map(([k, n]) => [Markup.button.callback(`${n.n}: ${n.price} زر`, `npc_${k}`)]);
     btns.push([Markup.button.callback('🔙', 'back_npc')]);
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(`👤 بزرگان\n${cd.can ? '✅' : '⏳ ' + formatTime(cd.rem)}`, Markup.inlineKeyboard(btns));
+    const text = `👤 بزرگان\n${cd.can ? '✅' : '⏳ ' + formatTime(cd.rem)}`;
+    try { await ctx.editMessageText(text, Markup.inlineKeyboard(btns)); } catch (e) { await ctx.reply(text, Markup.inlineKeyboard(btns)); }
 });
 
-bot.action(/npc_(.+)/, async (ctx) => { await ctx.answerCbQuery(); const k = ctx.match[1]; const npc = NPCS[k]; const u = getUser(ctx.from.id); if (!npc) return; if (!checkCD(u, 'npc', CD.npc).can) return ctx.answerCbQuery(`⏳`); if (u.gold < npc.price) return ctx.answerCbQuery(`❌ ${npc.price} زر`); u.gold -= npc.price; const r = npc.f(u); setCD(u, 'npc'); saveDB(); try { await ctx.deleteMessage(); } catch (e) {} await ctx.reply(`👤 ${npc.n}\n${r}`, backBtn('npc')); });
+bot.action(/npc_(.+)/, async (ctx) => { await ctx.answerCbQuery(); const k = ctx.match[1]; const npc = NPCS[k]; const u = getUser(ctx.from.id); if (!npc) return; if (!checkCD(u, 'npc', CD.npc).can) return ctx.answerCbQuery(`⏳`); if (u.gold < npc.price) return ctx.answerCbQuery(`❌ ${npc.price} زر`); u.gold -= npc.price; const r = npc.f(u); setCD(u, 'npc'); saveDB(); const text = `👤 ${npc.n}\n${r}`; try { await ctx.editMessageText(text, backBtn('npc')); } catch (e) { await ctx.reply(text, backBtn('npc')); } });
 
 bot.action('m_pet', async (ctx) => {
     await ctx.answerCbQuery();
@@ -863,11 +900,11 @@ bot.action('m_pet', async (ctx) => {
     const cur = u.pet ? PETS[u.pet]?.n : 'نداری';
     const btns = Object.entries(PETS).map(([k, p]) => [Markup.button.callback(`${p.n}: ${p.price} زر`, `buy_pet_${k}`)]);
     btns.push([Markup.button.callback('🔙', 'back_pet')]);
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(`🐎 حیوانات\nفعلی: ${cur}`, Markup.inlineKeyboard(btns));
+    const text = `🐎 حیوانات\nفعلی: ${cur}`;
+    try { await ctx.editMessageText(text, Markup.inlineKeyboard(btns)); } catch (e) { await ctx.reply(text, Markup.inlineKeyboard(btns)); }
 });
 
-bot.action(/buy_pet_(.+)/, async (ctx) => { await ctx.answerCbQuery(); const k = ctx.match[1]; const pet = PETS[k]; const u = getUser(ctx.from.id); if (!pet) return; if (u.pet) return ctx.answerCbQuery('❌'); if (u.gold < pet.price) return ctx.answerCbQuery(`❌ ${pet.price} زر`); u.gold -= pet.price; u.pet = k; saveDB(); try { await ctx.deleteMessage(); } catch (e) {} await ctx.reply(`🐎 ${pet.n} همراه شد!`, backBtn('pet')); });
+bot.action(/buy_pet_(.+)/, async (ctx) => { await ctx.answerCbQuery(); const k = ctx.match[1]; const pet = PETS[k]; const u = getUser(ctx.from.id); if (!pet) return; if (u.pet) return ctx.answerCbQuery('❌'); if (u.gold < pet.price) return ctx.answerCbQuery(`❌ ${pet.price} زر`); u.gold -= pet.price; u.pet = k; saveDB(); const text = `🐎 ${pet.n} همراه شد!`; try { await ctx.editMessageText(text, backBtn('pet')); } catch (e) { await ctx.reply(text, backBtn('pet')); } });
 
 bot.action('m_quest', async (ctx) => {
     await ctx.answerCbQuery();
@@ -876,8 +913,8 @@ bot.action('m_quest', async (ctx) => {
     const t = ['📋 مأموریت‌ها:\n'];
     u.quests.forEach(q => { const p = u.questProgress[q.t] || 0; t.push(`${p >= q.g ? '✅' : '⏳'} ${q.n}: ${p}/${q.g}`); });
     t.push('\n📝 /claim_quests');
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(t.join('\n'), backBtn('quest'));
+    const text = t.join('\n');
+    try { await ctx.editMessageText(text, backBtn('quest')); } catch (e) { await ctx.reply(text, backBtn('quest')); }
 });
 
 bot.action('m_achieve', async (ctx) => {
@@ -886,17 +923,20 @@ bot.action('m_achieve', async (ctx) => {
     let t = '🏆 دستاوردها:\n'; let c = 0;
     [{ id: 'fb', n: '🩸 اولین خون', d: '۱ برد', ch: u => (u.stats.fw || 0) + (u.stats.dw || 0) >= 1 }, { id: 'wr', n: '⚔️ جنگجو', d: '۱۰ برد', ch: u => (u.stats.fw || 0) + (u.stats.dw || 0) >= 10 }, { id: 'rc', n: '💰 خزانه‌دار', d: '۱۰۰۰۰ طلا', ch: u => u.gold >= 10000 }, { id: 'bl', n: '🏠 معمار', d: 'خانه لول ۵', ch: u => u.homeLvl >= 5 }, { id: 'sr', n: '📚 شاعر', d: '۲۰ شعر', ch: u => (u.shahnamehCount || 0) >= 20 }].forEach(a => { const e = u.achievements.includes(a.id); if (e) c++; t += `${e ? '✅' : '🔒'} ${a.n}: ${a.d}\n`; if (!e && a.ch(u)) { u.achievements.push(a.id); t += '🎉 نو!\n'; } });
     t += `\n📊 ${c}/۵`; saveDB();
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(t, backBtn('achieve'));
+    const text = t;
+    try { await ctx.editMessageText(text, backBtn('achieve')); } catch (e) { await ctx.reply(text, backBtn('achieve')); }
 });
 
-// ==================== 📚 کتابخانه ====================
+// ==================== 📚 کتابخانه پیشرفته ====================
 bot.action('m_library', async (ctx) => {
     await ctx.answerCbQuery();
-    try { await ctx.deleteMessage(); } catch (e) {}
-    const btns = Object.entries(LIBRARY).map(([k, v]) => [Markup.button.callback(`${v.name} - ${v.poet}`, `lib_${k}`)]);
-    btns.push([Markup.button.callback('🔙 بازگشت', 'back_library')]);
-    await ctx.reply('📚 «گنجینه پارسی»\n━━━━━━━━━━━━\nکتابی برگزین:', Markup.inlineKeyboard(btns));
+    const u = getUser(ctx.from.id);
+    const text = '📚 «گنجینه پارس»\n━━━━━━━━━━━━\nکتابی برگزین تا از حکمتش بهره ببری:';
+    const btns = [
+        ...Object.entries(LIBRARY).map(([k, v]) => [Markup.button.callback(`${v.name} - ${v.poet}`, `lib_${k}`)]),
+        [Markup.button.callback('🔙 بازگشت', 'back_library')],
+    ];
+    try { await ctx.editMessageText(text, Markup.inlineKeyboard(btns)); } catch (e) { await ctx.reply(text, Markup.inlineKeyboard(btns)); }
 });
 
 bot.action(/lib_(.+)/, async (ctx) => {
@@ -912,22 +952,23 @@ bot.action(/lib_(.+)/, async (ctx) => {
     const verse = book.verses[rand(0, book.verses.length - 1)];
     giveReward(u, verse.rew);
     if (verse.rew.xp) addXP(u, verse.rew.xp);
-    u.loyalty = (u.loyalty || 0) + 3;
+    u.loyalty = (u.loyalty || 0) + 5;
     u.shahnamehCount = (u.shahnamehCount || 0) + 1;
     saveDB();
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(`${book.name}\n━━━━━━━━━━━━\n«${verse.text}»\n━━━━━━━━━━━━\n🎁 ${rwText(verse.rew)}\n⭐ +۳ وفاداری\n\n📜 ${book.poet}`, backBtn('library'));
+    const text = `${book.name}\n━━━━━━━━━━━━\n«${verse.text}»\n━━━━━━━━━━━━\n🎁 ${rwText(verse.rew)}\n⭐ +۵ وفاداری\n📚 ${u.shahnamehCount} شعر\n\n📜 ${book.poet}`;
+    try { await ctx.editMessageText(text, backBtn('library')); } catch (e) { await ctx.reply(text, backBtn('library')); }
 });
 
 // ==================== 🎁 سایر ====================
 bot.action('m_other', async (ctx) => {
     await ctx.answerCbQuery();
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply('🎁 «سایر»', Markup.inlineKeyboard([
+    const text = '🎁 «سایر»';
+    const btns = Markup.inlineKeyboard([
         [Markup.button.callback('🎁 صندوقچه', 'm_box'), Markup.button.callback('📖 راهنما', 'm_guide')],
         [Markup.button.callback('⏱️ زمان‌ها', 'm_cd')],
         [Markup.button.callback('🔙 بازگشت', 'back_other')],
-    ]));
+    ]);
+    try { await ctx.editMessageText(text, btns); } catch (e) { await ctx.reply(text, btns); }
 });
 
 bot.action('m_box', async (ctx) => {
@@ -938,14 +979,14 @@ bot.action('m_box', async (ctx) => {
     u.lastBox = now;
     const loot = BOX_LOOT[rand(0, BOX_LOOT.length - 1)];
     loot.f(u); saveDB();
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(`🎁 صندوقچه!\n${loot.n}`, backBtn('box'));
+    const text = `🎁 صندوقچه!\n${loot.n}`;
+    try { await ctx.editMessageText(text, backBtn('box')); } catch (e) { await ctx.reply(text, backBtn('box')); }
 });
 
 bot.action('m_guide', async (ctx) => {
     await ctx.answerCbQuery();
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(`📖 راهنما\n🌲 ${formatTime(CD.gather)}\n⚔️ ${formatTime(CD.fight)}\n🏟️ ${formatTime(CD.pvp)}\n🕯️ ${formatTime(CD.pray)}\n🎁 ${formatTime(CD.box)}\n📚 ${formatTime(CD.library)}\n👤 ${formatTime(CD.npc)}`, backBtn('guide'));
+    const text = `📖 راهنما\n🌲 ${formatTime(CD.gather)}\n⚔️ ${formatTime(CD.fight)}\n🏟️ ${formatTime(CD.pvp)}\n🕯️ ${formatTime(CD.pray)}\n🎁 ${formatTime(CD.box)}\n📚 ${formatTime(CD.library)}\n👤 ${formatTime(CD.npc)}`;
+    try { await ctx.editMessageText(text, backBtn('guide')); } catch (e) { await ctx.reply(text, backBtn('guide')); }
 });
 
 bot.action('m_cd', async (ctx) => {
@@ -954,8 +995,8 @@ bot.action('m_cd', async (ctx) => {
     const acts = [['gather','🌲',CD.gather],['fight','⚔️',CD.fight],['pvp','🏟️',CD.pvp],['pray','🕯️',CD.pray],['box','🎁',CD.box],['daily','🎁',CD.daily],['library','📚',CD.library],['npc','👤',CD.npc]];
     const lines = ['⏱️:\n'];
     for (const [k, n, cd] of acts) { const c = checkCD(u, k, cd); lines.push(`${n}: ${c.can ? '✅' : '⏳ ' + formatTime(c.rem)}`); }
-    try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(lines.join('\n'), backBtn('cd'));
+    const text = lines.join('\n');
+    try { await ctx.editMessageText(text, backBtn('cd')); } catch (e) { await ctx.reply(text, backBtn('cd')); }
 });
 
 // ==================== 📝 کامندهای متنی ====================
@@ -979,10 +1020,89 @@ bot.command('clans', async (ctx) => { const cls = Object.values(db.clans); if (!
 bot.command('claim_quests', async (ctx) => { const u = getUser(ctx.from.id); let c = false; for (const q of u.quests) { if ((u.questProgress[q.t] || 0) >= q.g && !q.claimed) { giveReward(u, q.rew); if (q.rew.xp) addXP(u, q.rew.xp); q.claimed = true; c = true; } } if (!c) return ctx.reply('❌'); saveDB(); await ctx.reply('✅'); });
 bot.command('top_loyalty', async (ctx) => { const us = Object.values(db.users).filter(u => (u.loyalty || 0) > 0).sort((a, b) => (b.loyalty || 0) - (a.loyalty || 0)).slice(0, 10); if (!us.length) return ctx.reply('❌'); await ctx.reply(us.map((u, i) => `${i + 1}. ${u.name || '?'} | ⭐${u.loyalty}`).join('\n')); });
 
-// ==================== 👑 ادمین ====================
-bot.command('users', async (ctx) => { if (!isAdmin(ctx.from.id)) return; const us = Object.values(db.users).sort((a, b) => b.level - a.level).slice(0, 10); let t = `👥 ${Object.keys(db.users).length}\n`; us.forEach((u, i) => t += `${i + 1}. ${u.name} | ${u.level} | 🥇${u.gold}\n`); await ctx.reply(t); });
-bot.command('admin_give', async (ctx) => { if (!isAdmin(ctx.from.id)) return; const args = ctx.message.text.trim().split(/\s+/); const u = getUser(args[1], ''); if (args[2] === 'resource') addRes(u, args[3], Number(args[4] || 0)); else if (args[2] === 'item') addItem(u, args[3], Number(args[4] || 0)); else if (args[2] === 'weapon') u.wOwned[args[3]] = true; else if (args[2] === 'armor') u.aOwned[args[3]] = true; else if (args[2] === 'xp') addXP(u, Number(args[4] || 0)); else if (args[2] === 'gold') u.gold += Number(args[4] || 0); saveDB(); await ctx.reply('✅'); });
-bot.command('admin_full', async (ctx) => { if (!isAdmin(ctx.from.id)) return; const u = getUser(ctx.message.text.trim().split(/\s+/)[1], ''); for (const k of Object.keys(RES)) u.res[k] = 9999; for (const k of Object.keys(WEAPONS)) u.wOwned[k] = true; for (const k of Object.keys(ARMORS)) u.aOwned[k] = true; u.weapon = 'zolfaghar'; u.armor = 'babr_bayan'; u.level = 20; u.hp = u.maxHp = 500; u.power = 50; u.sp = 40; u.homeLvl = 5; u.clinicLvl = 3; u.pvpRating = 1500; u.pvpLeague = 'legendary'; u.loyalty = 1000; u.gold = 99999; u.bankGold = 50000; saveDB(); await ctx.reply('✅'); });
+// ==================== 👑 ادمین فوق پیشرفته ====================
+bot.command('users', async (ctx) => {
+    if (!isAdmin(ctx.from.id)) return;
+    const total = Object.keys(db.users).length;
+    const active = Object.values(db.users).filter(u => (u.logins || 0) > 1).length;
+    const top = Object.values(db.users).sort((a, b) => (b.level || 1) - (a.level || 1)).slice(0, 10);
+    let t = `👥 آمار کلی:\n📊 کل کاربران: ${total}\n🟢 فعال: ${active}\n\n🏆 ۱۰ کاربر برتر:\n`;
+    top.forEach((u, i) => {
+        const l = PVP_LEAGUES[u.pvpLeague || 'bronze'];
+        t += `${i + 1}. ${u.name || '?'} | 🎚️${u.level || 1} | ${l.n} | 🥇${u.gold || 0}\n`;
+    });
+    t += `\n📝 /userinfo [آیدی] - اطلاعات کامل\n📝 /admin_give - اهدا\n📝 /admin_full - مکس کردن\n📝 /admin_reset - ریست کول‌داون\n📝 /admin_broadcast - پیام همگانی`;
+    await ctx.reply(t);
+});
+
+bot.command('userinfo', async (ctx) => {
+    if (!isAdmin(ctx.from.id)) return;
+    const args = ctx.message.text.trim().split(/\s+/);
+    const uid = args[1];
+    if (!uid) return ctx.reply('📝 /userinfo [آیدی]');
+    const u = db.users[uid];
+    if (!u) return ctx.reply('❌ کاربر یافت نشد');
+    const w = WEAPONS[u.weapon] || WEAPONS.none;
+    const a = ARMORS[u.armor] || ARMORS.none;
+    const l = PVP_LEAGUES[u.pvpLeague || 'bronze'];
+    const text = `👤 اطلاعات کامل:\n🆔 ${u.id}\n👤 ${u.name}\n🎚️ لول: ${u.level}\n✨ XP: ${u.xp}/30\n❤️ HP: ${u.hp}/${u.maxHp}\n⚡ قدرت: ${u.power}\n🗡️ سلاح: ${w.n}\n🛡️ زره: ${a.n}\n🐎 حیوان: ${u.pet ? PETS[u.pet]?.n : 'ندارد'}\n🏠 خانه: ${u.homeLvl}\n🏥 درمانگاه: ${u.clinicLvl}\n⭐ مهارت: ${u.sp} امتیاز\n🏆 PvP: ${l.n} | ⭐${u.pvpRating}\n✅ برد: ${u.pvpWins} | ❌ باخت: ${u.pvpLosses}\n🎖️ وفاداری: ${u.loyalty}\n📚 شعر: ${u.shahnamehCount}\n🏦 بانک: ${u.bankGold}\n🥇 طلا: ${u.gold}\n🏰 قبیله: ${u.clan || 'ندارد'}\n📅 ورود: ${u.logins} بار`;
+    await ctx.reply(text);
+});
+
+bot.command('admin_give', async (ctx) => {
+    if (!isAdmin(ctx.from.id)) return;
+    const args = ctx.message.text.trim().split(/\s+/);
+    if (!args[1] || !args[2] || !args[3]) return ctx.reply('📝 /admin_give [آیدی] [نوع] [کلید] [مقدار]\n📋 انواع: resource | item | weapon | armor | xp | gold\n📋 مثال: /admin_give 123456 resource wood 100');
+    const u = getUser(args[1], '');
+    if (args[2] === 'resource') addRes(u, args[3], Number(args[4] || 0));
+    else if (args[2] === 'item') addItem(u, args[3], Number(args[4] || 0));
+    else if (args[2] === 'weapon') u.wOwned[args[3]] = true;
+    else if (args[2] === 'armor') u.aOwned[args[3]] = true;
+    else if (args[2] === 'xp') addXP(u, Number(args[3] || 0));
+    else if (args[2] === 'gold') u.gold += Number(args[3] || 0);
+    else return ctx.reply('❌ نوع نامعتبر');
+    saveDB();
+    await ctx.reply('✅ انجام شد');
+});
+
+bot.command('admin_full', async (ctx) => {
+    if (!isAdmin(ctx.from.id)) return;
+    const args = ctx.message.text.trim().split(/\s+/);
+    if (!args[1]) return ctx.reply('📝 /admin_full [آیدی]');
+    const u = getUser(args[1], '');
+    for (const k of Object.keys(RES)) u.res[k] = 9999;
+    for (const k of Object.keys(WEAPONS)) u.wOwned[k] = true;
+    for (const k of Object.keys(ARMORS)) u.aOwned[k] = true;
+    u.weapon = 'zolfaghar'; u.armor = 'babr_bayan';
+    u.level = 20; u.hp = u.maxHp = 500; u.power = 50; u.sp = 40;
+    u.homeLvl = 5; u.clinicLvl = 3;
+    u.pvpRating = 1500; u.pvpLeague = 'legendary'; u.honorPoints = 500;
+    u.loyalty = 1000; u.shahnamehCount = 50;
+    u.gold = 99999; u.bankGold = 50000;
+    saveDB();
+    await ctx.reply('✅ کاربر به شاهنشاه ارتقا یافت!');
+});
+
+bot.command('admin_reset', async (ctx) => {
+    if (!isAdmin(ctx.from.id)) return;
+    const args = ctx.message.text.trim().split(/\s+/);
+    if (!args[1]) return ctx.reply('📝 /admin_reset [آیدی]');
+    const u = getUser(args[1], '');
+    u.cooldowns = {}; u.daily = {};
+    saveDB();
+    await ctx.reply('✅ کول‌داون‌ها ریست شد');
+});
+
+bot.command('admin_broadcast', async (ctx) => {
+    if (!isAdmin(ctx.from.id)) return;
+    const msg = ctx.message.text.split(' ').slice(1).join(' ');
+    if (!msg) return ctx.reply('📝 /admin_broadcast [پیام]');
+    let sent = 0;
+    for (const uid of Object.keys(db.users)) {
+        try { await bot.telegram.sendMessage(uid, `📢 پیام شاهنشاه:\n\n${msg}`); sent++; } catch (e) {}
+    }
+    await ctx.reply(`✅ پیام به ${sent} نفر ارسال شد`);
+});
 
 // ==================== 🚀 اجرا ====================
 bot.catch((err) => console.error('❌', err.message));
@@ -991,4 +1111,4 @@ process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
 
 console.log('✅ بخش ۳ از ۳ - همه امکانات بارگذاری شد');
-console.log('🏛️ بقای باستانی - پرو مکس نهایی آماده اجراست!');
+console.log('🏛️ بقای باستانی - آماده اجراست!');
