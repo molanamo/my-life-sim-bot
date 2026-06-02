@@ -150,17 +150,37 @@ function mainMenu() {
     ]);
 }
 
-function backBtn() {
+function backBtn(target) {
     return Markup.inlineKeyboard([
-        [Markup.button.callback('🔙 بازگشت به بارگاه', 'm_main')]
+        [Markup.button.callback('🔙 بازگشت', `back_${target}`)]
     ]);
 }
 
-bot.action('m_main', async (ctx) => {
+bot.action(/back_(.+)/, async (ctx) => {
     await ctx.answerCbQuery();
-    const u = getUser(ctx.from.id);
+    const target = ctx.match[1];
     try { await ctx.deleteMessage(); } catch (e) {}
-    await ctx.reply(`🏛️ بارگاه جمشید\n🎚️ لول: ${u.level} | ❤️ ${u.hp}/${u.maxHp} | 🥇 ${u.gold}`, mainMenu());
+    if (target === 'pray') return bot.action('m_pray')(ctx);
+    if (target === 'status') return bot.action('m_status')(ctx);
+    if (target === 'gather') return bot.action('m_gather')(ctx);
+    if (target === 'fight_menu') return bot.action('m_fight_menu')(ctx);
+    if (target === 'pvp') return bot.action('m_pvp')(ctx);
+    if (target === 'home') return bot.action('m_home')(ctx);
+    if (target === 'heal') return bot.action('m_heal')(ctx);
+    if (target === 'shop') return bot.action('m_shop')(ctx);
+    if (target === 'armory') return bot.action('m_armory')(ctx);
+    if (target === 'armor_shop') return bot.action('m_armor_shop')(ctx);
+    if (target === 'eat') return bot.action('m_eat')(ctx);
+    if (target === 'npc') return bot.action('m_npc')(ctx);
+    if (target === 'quest') return bot.action('m_quest')(ctx);
+    if (target === 'pet') return bot.action('m_pet')(ctx);
+    if (target === 'bank') return bot.action('m_bank')(ctx);
+    if (target === 'achieve') return bot.action('m_achieve')(ctx);
+    if (target === 'clan') return bot.action('m_clan')(ctx);
+    if (target === 'box') return bot.action('m_box')(ctx);
+    if (target === 'guide') return bot.action('m_guide')(ctx);
+    if (target === 'skills') return bot.action('m_skills')(ctx);
+    if (target === 'cd') return bot.action('m_cd')(ctx);
 });
 
 // ==================== استارت ====================
