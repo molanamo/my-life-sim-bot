@@ -1,12 +1,15 @@
 {
-  "name": "survival-bot",
-  "version": "1.0.0",
-  "description": "بازی بقا - نسخه شاهنامه",
+  "name": "bagha-bastani-bot",
+  "version": "2.0.0",
+  "description": "بقای باستانی - نسخه پرو مکس",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
     "telegraf": "^4.16.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
