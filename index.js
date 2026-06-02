@@ -57,7 +57,6 @@ const db = loadDB();
 // ==================== توابع کمکی ====================
 function rnd(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 function clamp(value, min, max) { return Math.min(max, Math.max(min, value)); }
-function todayKey() { const d = new Date(); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; }
 function parseArgs(text) { return text.trim().split(/\s+/); }
 function isAdmin(id) { return Number(id) === ADMIN_ID; }
 
@@ -455,7 +454,7 @@ bot.action('fight_confirm', (ctx) => {
   ctx.replyWithPhoto(IMAGES.fight, { caption: result.text, ...backMenu() });
 });
 
-// ==================== PvP ====================
+// ==================== PvP کامل با انتقام و تخریب ====================
 bot.action('pvp_menu', (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
   ctx.replyWithPhoto(IMAGES.fight, {
@@ -466,7 +465,7 @@ bot.action('pvp_menu', (ctx) => {
 
 bot.command('pvp', (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  if (u.hp <= 0) return ctx.reply('❌ HP صفر');
+  if (u.hp <= 0) return ctx.reply('❌ HP صفره! برو درمانگاه.');
   const cd = checkCooldown(u, 'pvp', COOLDOWNS.pvp);
   if (!cd.canDo) return ctx.reply(`⏳ ${formatTime(cd.remaining)} دیگه`);
   const args = parseArgs(ctx.message.text);
@@ -476,66 +475,180 @@ bot.command('pvp', (ctx) => {
   const enemy = db.users[targetId];
   if (!enemy) return ctx.reply('❌ یافت نشد');
   if (enemy.hp <= 0) return ctx.reply('❌ حریف HP صفر');
-  u.pendingFight = { type: 'pvp', enemyId: targetId, enemyName: enemy.name || 'ناشناس' };
+
+  const myWeapons = Object.entries(u.weaponsOwned)
+    .filter(([k, v]) => v && k !== 'none')
+    .map(([k]) => ({ key: k, ...WEAPONS[k] }))
+    .sort((a, b) => b.power - a.power)
+    .slice(0, 2);
+
+  if (myWeapons.length === 0) return ctx.reply('❌ حداقل یه سلاح لازم داری! برو اسلحه‌خانه.');
+
+  u.pendingFight = { type: 'pvp', enemyId: targetId, enemyName: enemy.name || 'ناشناس', myWeapons };
   setCooldown(u, 'pvp');
   saveDB(db);
-  const weapon = WEAPONS[u.weapon] || WEAPONS.none;
+
+  const armor = ARMORS[u.armor] || ARMORS.none;
+  const enemyWeapon = WEAPONS[enemy.weapon] || WEAPONS.none;
+  const enemyArmor = ARMORS[enemy.armor] || ARMORS.none;
+  const myPower = u.playerLevel * 4 + Math.max(...myWeapons.map(w => w.power));
+  const enemyPower = enemy.playerLevel * 4 + enemyWeapon.power;
+  const chance = clamp(50 + (myPower - enemyPower) * 3, 10, 90);
+
+  const weaponButtons = myWeapons.map(w => 
+    Markup.button.callback(`${w.name} (⚡${w.power})`, `pvp_select_weapon_${w.key}`)
+  );
+
+  ctx.replyWithPhoto(IMAGES.fight, {
+    caption: `⚔️ حمله به ${enemy.name || 'ناشناس'}\n\n👤 حریف: لول ${enemy.playerLevel}\n⚔️ ${enemyWeapon.name} | 🛡️ ${enemyArmor.name}\n⚡ قدرت: ${enemyPower}\n\n🎲 شانس برد: ${chance}%\n\n🗡️ سلاح حمله رو انتخاب کن:`,
+    ...Markup.inlineKeyboard([weaponButtons, [Markup.button.callback('🏃 انصراف', 'back_main')]])
+  });
+});
+
+bot.action(/pvp_select_weapon_(.+)/, async (ctx) => {
+  const weaponKey = ctx.match[1];
+  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
+  if (!u.pendingFight || u.pendingFight.type !== 'pvp') {
+    await ctx.answerCbQuery('❌ منقضی شده');
+    return ctx.deleteMessage();
+  }
+  u.pendingFight.selectedWeapon = weaponKey;
+  saveDB(db);
+  const weapon = WEAPONS[weaponKey];
+  const enemy = db.users[u.pendingFight.enemyId];
+  if (!enemy) { await ctx.answerCbQuery('❌ حریف نیست'); return ctx.deleteMessage(); }
   const armor = ARMORS[u.armor] || ARMORS.none;
   const enemyWeapon = WEAPONS[enemy.weapon] || WEAPONS.none;
   const enemyArmor = ARMORS[enemy.armor] || ARMORS.none;
   const myPower = u.playerLevel * 4 + weapon.power;
   const enemyPower = enemy.playerLevel * 4 + enemyWeapon.power;
-  ctx.replyWithPhoto(IMAGES.fight, {
-    caption: `⚔️ PvP!\n👤 تو: لول ${u.playerLevel} | ${weapon.name}\n⚡ ${myPower}\n👤 حریف: لول ${enemy.playerLevel} | ${enemyWeapon.name}\n⚡ ${enemyPower}\n🎲 شانس: ${clamp(50 + (myPower - enemyPower) * 3, 10, 90)}%`,
-    ...Markup.inlineKeyboard([
-      [Markup.button.callback('⚔️ حمله!', 'pvp_confirm')],
+  const chance = clamp(50 + (myPower - enemyPower) * 3, 10, 90);
+  await ctx.answerCbQuery(`${weapon.name} انتخاب شد`);
+  ctx.editMessageCaption(
+    `⚔️ حمله به ${enemy.name || 'ناشناس'}\n\n` +
+    `🗡️ سلاح: ${weapon.name} (⚡${weapon.power})\n🛡️ زره: ${armor.name}\n⚡ قدرت: ${myPower}\n\n` +
+    `👤 حریف: لول ${enemy.playerLevel}\n⚔️ ${enemyWeapon.name} | 🛡️ ${enemyArmor.name}\n⚡ قدرت: ${enemyPower}\n\n` +
+    `🎲 شانس برد: ${chance}%\n\n🏠 تخریب خانه: ${Math.floor(chance * 0.3)}%\n🏛️ غارت کلن: ${Math.floor(chance * 0.2)}%\n📦 غارت منابع: ${Math.floor(chance * 0.4)}%`,
+    Markup.inlineKeyboard([
+      [Markup.button.callback('⚔️ حمله!', 'pvp_attack_confirm')],
       [Markup.button.callback('🏃 انصراف', 'back_main')]
     ])
-  });
+  );
 });
 
-bot.action('pvp_confirm', async (ctx) => {
+bot.action('pvp_attack_confirm', async (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
-  if (!u.pendingFight || u.pendingFight.type !== 'pvp') {
+  if (!u.pendingFight || !u.pendingFight.selectedWeapon) {
     await ctx.answerCbQuery('❌ منقضی شده');
-    return ctx.editMessageText('❌ منقضی شد', backMenu());
+    return ctx.deleteMessage();
   }
   const enemyId = u.pendingFight.enemyId;
+  const weaponKey = u.pendingFight.selectedWeapon;
   const enemy = db.users[enemyId];
+  const attackerName = u.name || 'ناشناس';
   u.pendingFight = null;
-  if (!enemy) {
-    await ctx.answerCbQuery('❌');
-    return ctx.editMessageText('❌ حریف نیست', backMenu());
-  }
-  const weapon = WEAPONS[u.weapon] || WEAPONS.none;
+  if (!enemy) { await ctx.answerCbQuery('❌'); return ctx.editMessageText('❌ حریف نیست', backMenu()); }
+
+  const weapon = WEAPONS[weaponKey] || WEAPONS.none;
   const armor = ARMORS[u.armor] || ARMORS.none;
   const enemyWeapon = WEAPONS[enemy.weapon] || WEAPONS.none;
   const enemyArmor = ARMORS[enemy.armor] || ARMORS.none;
   const myPower = u.playerLevel * 4 + weapon.power + rnd(0, 10);
   const enemyPower = enemy.playerLevel * 4 + enemyWeapon.power + rnd(0, 10);
-  const win = Math.random() * 100 < clamp(50 + (myPower - enemyPower) * 3, 10, 90);
+  const winChance = clamp(50 + (myPower - enemyPower) * 3, 10, 90);
+  const win = Math.random() * 100 < winChance;
   const rawDamage = rnd(15, 40);
   const myDamage = Math.max(5, rawDamage - armor.defense);
   const enemyDamage = Math.max(5, rawDamage - enemyArmor.defense);
-  let text;
+
+  let attackerText, defenderText, destroyed = false, raided = false, resourceStolen = 0;
+
   if (win) {
-    u.hp = Math.max(0, u.hp - Math.floor(enemyDamage * 0.5));
+    u.hp = Math.max(0, u.hp - Math.floor(enemyDamage * 0.3));
     enemy.hp = Math.max(0, enemy.hp - enemyDamage);
-    const goldReward = rnd(20, 50), xpReward = rnd(10, 25);
+    const goldReward = rnd(30, 80), xpReward = rnd(15, 35);
     addResource(u, 'gold', goldReward); addXP(u, xpReward);
     u.stats.pvpWins = (u.stats.pvpWins || 0) + 1;
     enemy.stats.pvpLosses = (enemy.stats.pvpLosses || 0) + 1;
-    text = `⚔️ PvP\n✅ بردی!\n❤️ -${Math.floor(enemyDamage * 0.5)} HP\n🥇 +${goldReward}\n✨ +${xpReward} XP\n❤️ ${u.hp}/${u.maxHp}`;
+    bumpAction(u, 'fight_win', 1);
+
+    if (Math.random() < winChance * 0.003 && enemy.homeLevel > 1) {
+      enemy.homeLevel--;
+      if (enemy.clinicLevel > 1) enemy.clinicLevel--;
+      destroyed = true;
+    }
+    if (enemy.clan && db.clans[enemy.clan] && Math.random() < winChance * 0.002) {
+      const clan = db.clans[enemy.clan];
+      if (clan.resources && clan.resources.gold > 50) {
+        const stolen = Math.floor(clan.resources.gold * 0.2);
+        clan.resources.gold -= stolen;
+        addResource(u, 'gold', stolen);
+        resourceStolen = stolen; raided = true;
+      }
+    }
+    if (!raided && Math.random() < winChance * 0.004) {
+      const stealGold = Math.floor(enemy.resources.gold * 0.15);
+      if (stealGold > 10) {
+        enemy.resources.gold -= stealGold;
+        addResource(u, 'gold', stealGold);
+        resourceStolen = stealGold;
+      }
+    }
+
+    attackerText = `⚔️ حمله به ${enemy.name || 'ناشناس'}\n\n✅ تو بردی!\n\n❤️ -${Math.floor(enemyDamage * 0.3)} HP\n🥇 +${goldReward} طلا\n✨ +${xpReward} XP\n${destroyed ? `🏠 خونه حریف تخریب شد!\n` : ''}${raided ? `🏛️ کلن غارت شد! +${resourceStolen} طلا\n` : ''}${!raided && resourceStolen > 0 ? `📦 منابع غارت شد! +${resourceStolen} طلا\n` : ''}\n❤️ HP: ${u.hp}/${u.maxHp}`;
+    defenderText = `⚔️ ${attackerName} به شما حمله کرد!\n\n❌ تو باختی!\n\n❤️ -${enemyDamage} HP\n🥇 طلا از دست رفته: ${goldReward}\n${destroyed ? `🏠 خونه‌ات تخریب شد!\n` : ''}${raided ? `🏛️ کلنت غارت شد! -${resourceStolen} طلا\n` : ''}${!raided && resourceStolen > 0 ? `📦 منابع غارت شد! -${resourceStolen} طلا\n` : ''}\n❤️ HP: ${enemy.hp}/${enemy.maxHp}`;
   } else {
     u.hp = Math.max(0, u.hp - myDamage);
     enemy.hp = Math.max(0, enemy.hp - Math.floor(enemyDamage * 0.3));
     u.stats.pvpLosses = (u.stats.pvpLosses || 0) + 1;
     enemy.stats.pvpWins = (enemy.stats.pvpWins || 0) + 1;
-    text = `⚔️ PvP\n❌ باختی!\n❤️ -${myDamage} HP\n❤️ ${u.hp}/${u.maxHp}\n💪 دفعه بعد قوی‌تر!`;
+    attackerText = `⚔️ حمله به ${enemy.name || 'ناشناس'}\n\n❌ باختی!\n\n❤️ -${myDamage} HP\n❤️ HP: ${u.hp}/${u.maxHp}\n💪 دفعه بعد قوی‌تر!`;
+    defenderText = `⚔️ ${attackerName} به شما حمله کرد!\n\n✅ تو بردی!\n\n❤️ -${Math.floor(enemyDamage * 0.3)} HP\n✨ دفاع موفق!\n❤️ HP: ${enemy.hp}/${enemy.maxHp}`;
   }
+
   saveDB(db);
-  await ctx.answerCbQuery('تموم شد');
-  ctx.editMessageText(text, backMenu());
+
+  try {
+    bot.telegram.sendPhoto(enemyId, IMAGES.fight, {
+      caption: defenderText,
+      ...Markup.inlineKeyboard([
+        [Markup.button.callback('⚔️ انتقام!', `pvp_revenge_${u.id}`)],
+        [Markup.button.callback('🔙 بستن', 'back_main')]
+      ])
+    });
+  } catch (e) {}
+
+  await ctx.answerCbQuery('نبرد تموم شد!');
+  ctx.editMessageText(attackerText, backMenu());
+});
+
+bot.action(/pvp_revenge_(.+)/, async (ctx) => {
+  const targetId = ctx.match[1];
+  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
+  if (u.hp <= 0) { await ctx.answerCbQuery('❌ HP صفره!'); return; }
+  const cd = checkCooldown(u, 'pvp', COOLDOWNS.pvp);
+  if (!cd.canDo) { await ctx.answerCbQuery(`⏳ ${formatTime(cd.remaining)}`); return; }
+  const enemy = db.users[targetId];
+  if (!enemy) { await ctx.answerCbQuery('❌ کاربر نیست'); return; }
+
+  const revengeWeapons = Object.entries(u.weaponsOwned)
+    .filter(([k, v]) => v && k !== 'none')
+    .map(([k]) => ({ key: k, ...WEAPONS[k] }))
+    .sort((a, b) => b.power - a.power)
+    .slice(0, 2);
+
+  if (revengeWeapons.length === 0) { await ctx.answerCbQuery('❌ سلاح نداری'); return; }
+
+  u.pendingFight = { type: 'pvp', enemyId: targetId, enemyName: enemy.name || 'ناشناس', myWeapons: revengeWeapons, isRevenge: true };
+  setCooldown(u, 'pvp');
+  saveDB(db);
+
+  const weaponButtons = revengeWeapons.map(w => Markup.button.callback(`${w.name} (⚡${w.power})`, `pvp_select_weapon_${w.key}`));
+  await ctx.answerCbQuery('🗡️ سلاح انتخاب کن');
+  ctx.replyWithPhoto(IMAGES.fight, {
+    caption: `⚔️ انتقام از ${enemy.name || 'ناشناس'}!\n\n🗡️ سلاح حمله رو انتخاب کن:`,
+    ...Markup.inlineKeyboard([weaponButtons, [Markup.button.callback('🔙 بی‌خیال', 'back_main')]])
+  });
 });
 
 bot.command('pvp_top', (ctx) => {
@@ -544,6 +657,11 @@ bot.command('pvp_top', (ctx) => {
   let text = '🏆 برترین PvP:\n\n';
   users.forEach((u, i) => text += `${i + 1}. ${u.name || '?'} | 🏆${u.stats.pvpWins || 0} برد | 💀${u.stats.pvpLosses || 0} باخت | لول ${u.playerLevel}\n`);
   ctx.reply(text, backMenu());
+});
+
+bot.command('pvp_log', (ctx) => {
+  const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
+  ctx.reply(`📊 آمار PvP\n\n🏆 برد: ${u.stats.pvpWins || 0}\n💀 باخت: ${u.stats.pvpLosses || 0}\n\n🏆 /pvp_top\n⚔️ /pvp [id]`, backMenu());
 });
 
 // ==================== خانه ====================
@@ -616,6 +734,27 @@ bot.action('heal_gold_btn', (ctx) => {
 });
 
 // ==================== فروشگاه ====================
+const SHOP_ITEMS = {
+  wood: { type: 'resource', key: 'wood', name: '🪵 چوب', price: 8 },
+  stone: { type: 'resource', key: 'stone', name: '🪨 سنگ', price: 10 },
+  metal: { type: 'resource', key: 'metal', name: '🔩 فلز', price: 18 },
+  iron: { type: 'resource', key: 'iron', name: '⛓️ آهن', price: 25 },
+  bandage: { type: 'item', key: 'bandage', name: '🩹 باند', price: 25 },
+  medkit: { type: 'item', key: 'medkit', name: '💊 جعبه کمک', price: 80 },
+  herb: { type: 'item', key: 'herb', name: '🌿 گیاه', price: 35 },
+  elixir: { type: 'item', key: 'elixir', name: '🧪 اکسیر', price: 200 },
+  bread: { type: 'food', key: 'bread', name: '🍞 نان', price: 10 },
+  meat: { type: 'food', key: 'meat', name: '🍖 گوشت', price: 25 },
+  water: { type: 'food', key: 'water', name: '💧 آب', price: 8 },
+  stick: { type: 'weapon', key: 'stick', name: '🪵 چوب دستی', price: 20 },
+  knife: { type: 'weapon', key: 'knife', name: '🔪 چاقو', price: 80 },
+  pistol: { type: 'weapon', key: 'pistol', name: '🔫 تپانچه', price: 220 },
+  rifle: { type: 'weapon', key: 'rifle', name: '🔫 تفنگ', price: 500 },
+  armor_wood: { type: 'armor', key: 'armor_wood', name: '🪵 زره چوبی', price: 50 },
+  armor_leather: { type: 'armor', key: 'armor_leather', name: '🐄 زره چرمی', price: 150 },
+  armor_iron: { type: 'armor', key: 'armor_iron', name: '⛓️ زره آهنی', price: 400 }
+};
+
 bot.action('shop', (ctx) => {
   ctx.replyWithPhoto(IMAGES.shop, {
     caption: '🛒 فروشگاه',
@@ -639,27 +778,7 @@ bot.action('shop_categories', (ctx) => {
 
 bot.action(/shop_cat_(.+)/, (ctx) => {
   const cat = ctx.match[1];
-  const SHOP_BUY = {
-    wood: { type: 'resource', key: 'wood', name: '🪵 چوب', price: 8 },
-    stone: { type: 'resource', key: 'stone', name: '🪨 سنگ', price: 10 },
-    metal: { type: 'resource', key: 'metal', name: '🔩 فلز', price: 18 },
-    iron: { type: 'resource', key: 'iron', name: '⛓️ آهن', price: 25 },
-    bandage: { type: 'item', key: 'bandage', name: '🩹 باند', price: 25 },
-    medkit: { type: 'item', key: 'medkit', name: '💊 جعبه کمک', price: 80 },
-    herb: { type: 'item', key: 'herb', name: '🌿 گیاه', price: 35 },
-    elixir: { type: 'item', key: 'elixir', name: '🧪 اکسیر', price: 200 },
-    bread: { type: 'food', key: 'bread', name: '🍞 نان', price: 10 },
-    meat: { type: 'food', key: 'meat', name: '🍖 گوشت', price: 25 },
-    water: { type: 'food', key: 'water', name: '💧 آب', price: 8 },
-    stick: { type: 'weapon', key: 'stick', name: '🪵 چوب دستی', price: 20 },
-    knife: { type: 'weapon', key: 'knife', name: '🔪 چاقو', price: 80 },
-    pistol: { type: 'weapon', key: 'pistol', name: '🔫 تپانچه', price: 220 },
-    rifle: { type: 'weapon', key: 'rifle', name: '🔫 تفنگ', price: 500 },
-    armor_wood: { type: 'armor', key: 'armor_wood', name: '🪵 زره چوبی', price: 50 },
-    armor_leather: { type: 'armor', key: 'armor_leather', name: '🐄 زره چرمی', price: 150 },
-    armor_iron: { type: 'armor', key: 'armor_iron', name: '⛓️ زره آهنی', price: 400 }
-  };
-  const items = Object.entries(SHOP_BUY).filter(([k, v]) => {
+  const items = Object.entries(SHOP_ITEMS).filter(([k, v]) => {
     if (cat === 'resource') return v.type === 'resource';
     if (cat === 'item') return v.type === 'item';
     if (cat === 'weapon') return v.type === 'weapon';
@@ -674,27 +793,7 @@ bot.action(/shop_cat_(.+)/, (ctx) => {
 
 bot.action(/shop_buy_(.+)_(.+)/, (ctx) => {
   const itemKey = ctx.match[1];
-  const SHOP_BUY = {
-    wood: { type: 'resource', key: 'wood', name: '🪵 چوب', price: 8 },
-    stone: { type: 'resource', key: 'stone', name: '🪨 سنگ', price: 10 },
-    metal: { type: 'resource', key: 'metal', name: '🔩 فلز', price: 18 },
-    iron: { type: 'resource', key: 'iron', name: '⛓️ آهن', price: 25 },
-    bandage: { type: 'item', key: 'bandage', name: '🩹 باند', price: 25 },
-    medkit: { type: 'item', key: 'medkit', name: '💊 جعبه کمک', price: 80 },
-    herb: { type: 'item', key: 'herb', name: '🌿 گیاه', price: 35 },
-    elixir: { type: 'item', key: 'elixir', name: '🧪 اکسیر', price: 200 },
-    bread: { type: 'food', key: 'bread', name: '🍞 نان', price: 10 },
-    meat: { type: 'food', key: 'meat', name: '🍖 گوشت', price: 25 },
-    water: { type: 'food', key: 'water', name: '💧 آب', price: 8 },
-    stick: { type: 'weapon', key: 'stick', name: '🪵 چوب دستی', price: 20 },
-    knife: { type: 'weapon', key: 'knife', name: '🔪 چاقو', price: 80 },
-    pistol: { type: 'weapon', key: 'pistol', name: '🔫 تپانچه', price: 220 },
-    rifle: { type: 'weapon', key: 'rifle', name: '🔫 تفنگ', price: 500 },
-    armor_wood: { type: 'armor', key: 'armor_wood', name: '🪵 زره چوبی', price: 50 },
-    armor_leather: { type: 'armor', key: 'armor_leather', name: '🐄 زره چرمی', price: 150 },
-    armor_iron: { type: 'armor', key: 'armor_iron', name: '⛓️ زره آهنی', price: 400 }
-  };
-  const item = SHOP_BUY[itemKey];
+  const item = SHOP_ITEMS[itemKey];
   if (!item) return ctx.answerCbQuery('❌');
   ctx.editMessageCaption(`${item.name} - ${item.price} طلا`, Markup.inlineKeyboard([
     [Markup.button.callback('۱', `shop_confirm_buy_${itemKey}_1`), Markup.button.callback('۵', `shop_confirm_buy_${itemKey}_5`)],
@@ -705,27 +804,7 @@ bot.action(/shop_buy_(.+)_(.+)/, (ctx) => {
 
 bot.action(/shop_confirm_buy_(.+)_(.+)/, (ctx) => {
   const itemKey = ctx.match[1], amount = parseInt(ctx.match[2]);
-  const SHOP_BUY = {
-    wood: { type: 'resource', key: 'wood', name: 'چوب', price: 8 },
-    stone: { type: 'resource', key: 'stone', name: 'سنگ', price: 10 },
-    metal: { type: 'resource', key: 'metal', name: 'فلز', price: 18 },
-    iron: { type: 'resource', key: 'iron', name: 'آهن', price: 25 },
-    bandage: { type: 'item', key: 'bandage', name: 'باند', price: 25 },
-    medkit: { type: 'item', key: 'medkit', name: 'جعبه کمک', price: 80 },
-    herb: { type: 'item', key: 'herb', name: 'گیاه', price: 35 },
-    elixir: { type: 'item', key: 'elixir', name: 'اکسیر', price: 200 },
-    bread: { type: 'food', key: 'bread', name: 'نان', price: 10 },
-    meat: { type: 'food', key: 'meat', name: 'گوشت', price: 25 },
-    water: { type: 'food', key: 'water', name: 'آب', price: 8 },
-    stick: { type: 'weapon', key: 'stick', name: 'چوب دستی', price: 20 },
-    knife: { type: 'weapon', key: 'knife', name: 'چاقو', price: 80 },
-    pistol: { type: 'weapon', key: 'pistol', name: 'تپانچه', price: 220 },
-    rifle: { type: 'weapon', key: 'rifle', name: 'تفنگ', price: 500 },
-    armor_wood: { type: 'armor', key: 'armor_wood', name: 'زره چوبی', price: 50 },
-    armor_leather: { type: 'armor', key: 'armor_leather', name: 'زره چرمی', price: 150 },
-    armor_iron: { type: 'armor', key: 'armor_iron', name: 'زره آهنی', price: 400 }
-  };
-  const item = SHOP_BUY[itemKey];
+  const item = SHOP_ITEMS[itemKey];
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
   if (!item) return ctx.answerCbQuery('❌');
   const total = item.price * amount;
@@ -914,7 +993,7 @@ bot.action(/drink_(.+)/, (ctx) => {
 bot.action('clan', (ctx) => ctx.reply('🏛️ کلن\n\n/create_clan <اسم>\n/join_clan <اسم>\n/leave_clan\n/donate <نوع> <مقدار>', backMenu()));
 
 bot.action('guide', (ctx) => {
-  ctx.reply(`📖 راهنما\n\n🪓 جستجو: ${formatTime(COOLDOWNS.gather)}\n⚔️ مبارزه: ${formatTime(COOLDOWNS.fight)}\n👹 باس: ${formatTime(COOLDOWNS.boss)}\n⚔️ PvP: ${formatTime(COOLDOWNS.pvp)}\n🕯️ آرامگاه: ${formatTime(COOLDOWNS.pray)}\n\n🛡️ زره آسیب رو کم می‌کنه\n🍞 غذا گرسنگی\n💧 نوشیدنی تشنگی\n⭐ مهارت با لول آپ`, backMenu());
+  ctx.reply(`📖 راهنما\n\n🪓 جستجو: ${formatTime(COOLDOWNS.gather)}\n⚔️ مبارزه: ${formatTime(COOLDOWNS.fight)}\n👹 باس: ${formatTime(COOLDOWNS.boss)}\n⚔️ PvP: ${formatTime(COOLDOWNS.pvp)}\n🕯️ آرامگاه: ${formatTime(COOLDOWNS.pray)}`, backMenu());
 });
 
 bot.action('skills_menu', (ctx) => {
@@ -931,8 +1010,7 @@ bot.action(/skill_(.+)/, (ctx) => {
   const u = ensureUser(ctx.from.id, ctx.from.first_name || '');
   if (!u.skillPoints || u.skillPoints <= 0) return ctx.answerCbQuery('❌ امتیاز نداری');
   if ((u.skills[skill] || 0) >= 10) return ctx.answerCbQuery('❌ حداکثر');
-  u.skills[skill] = (u.skills[skill] || 0) + 1;
-  u.skillPoints--;
+  u.skills[skill] = (u.skills[skill] || 0) + 1; u.skillPoints--;
   saveDB(db);
   ctx.answerCbQuery(`✅ ${u.skills[skill]}/10`);
 });
