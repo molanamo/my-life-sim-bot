@@ -1,15 +1,7 @@
 {
   "name": "bagha-bastani-bot",
-  "version": "2.0.0",
-  "description": "بقای باستانی - نسخه پرو مکس",
+  "version": "5.0.0",
   "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
-  "dependencies": {
-    "telegraf": "^4.16.3"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  }
+  "scripts": { "start": "node index.js" },
+  "dependencies": { "telegraf": "^4.16.3" }
 }
