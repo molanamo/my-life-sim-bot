@@ -280,27 +280,33 @@ function mainMenu() {
 }
 
 function backBtn(menu) {
+  const target = menu || 'main';
   return Markup.inlineKeyboard([
-    [Markup.button.callback('🔙 بازگشت', `back_${menu || 'main'}`)],
+    [Markup.button.callback('🔙 بازگشت', `goback_${target}`)],
     [Markup.button.callback('🏛️ بارگاه', 'm_main')],
   ]);
-}
 
-bot.action(/back_(.+)/, async (ctx) => {
+bot.action(/goback_(.+)/, async (ctx) => {
+  await ctx.answerCbQuery();
   const menu = ctx.match[1];
   try { await ctx.deleteMessage().catch(() => {}); } catch (e) {}
-  const actions = {
-    main: () => ctx.reply('🏛️ بارگاه', mainMenu()),
-    status: () => bot.action('m_status')(ctx), gather: () => bot.action('m_gather')(ctx),
-    fight: () => bot.action('m_fight')(ctx), boss: () => bot.action('m_boss')(ctx),
-    pvp: () => bot.action('m_pvp')(ctx), home: () => bot.action('m_home')(ctx),
-    clinic: () => bot.action('m_clinic')(ctx), shop: () => bot.action('m_shop')(ctx),
-    armory: () => bot.action('m_armory')(ctx), armor: () => bot.action('m_armor_shop')(ctx),
-    pray: () => bot.action('m_pray')(ctx), eat: () => bot.action('m_eat')(ctx),
-    skills: () => bot.action('m_skills')(ctx), guide: () => bot.action('m_guide')(ctx),
-    cd: () => bot.action('m_cd')(ctx),
-  };
-  (actions[menu] || actions.main)();
+  if (menu === 'main') return ctx.reply('🏛️ بارگاه', mainMenu());
+  if (menu === 'status') return bot.action('m_status')(ctx);
+  if (menu === 'gather') return bot.action('m_gather')(ctx);
+  if (menu === 'fight') return bot.action('m_fight')(ctx);
+  if (menu === 'boss') return bot.action('m_boss')(ctx);
+  if (menu === 'pvp') return bot.action('m_pvp')(ctx);
+  if (menu === 'home') return bot.action('m_home')(ctx);
+  if (menu === 'clinic') return bot.action('m_clinic')(ctx);
+  if (menu === 'shop') return bot.action('m_shop')(ctx);
+  if (menu === 'armory') return bot.action('m_armory')(ctx);
+  if (menu === 'armor') return bot.action('m_armor_shop')(ctx);
+  if (menu === 'pray') return bot.action('m_pray')(ctx);
+  if (menu === 'eat') return bot.action('m_eat')(ctx);
+  if (menu === 'skills') return bot.action('m_skills')(ctx);
+  if (menu === 'guide') return bot.action('m_guide')(ctx);
+  if (menu === 'cd') return bot.action('m_cd')(ctx);
+  return ctx.reply('🏛️ بارگاه', mainMenu());
 });
 
 bot.action('m_main', async (ctx) => {
