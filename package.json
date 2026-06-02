@@ -1,6 +1,7 @@
 {
   "name": "survival-bot",
   "version": "1.0.0",
+  "description": "بازی بقا - نسخه شاهنامه",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
