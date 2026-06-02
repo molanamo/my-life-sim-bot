@@ -150,7 +150,18 @@ function mainMenu() {
     ]);
 }
 
-function backBtn() { return Markup.inlineKeyboard([[Markup.button.callback('🔙 بازگشت به بارگاه', 'm_main')]]); }
+function backBtn() {
+    return Markup.inlineKeyboard([
+        [Markup.button.callback('🔙 بازگشت به بارگاه', 'm_main')]
+    ]);
+}
+
+bot.action('m_main', async (ctx) => {
+    await ctx.answerCbQuery();
+    const u = getUser(ctx.from.id);
+    try { await ctx.deleteMessage(); } catch (e) {}
+    await ctx.reply(`🏛️ بارگاه جمشید\n🎚️ لول: ${u.level} | ❤️ ${u.hp}/${u.maxHp} | 🥇 ${u.gold}`, mainMenu());
+});
 
 // ==================== استارت ====================
 bot.start(async (ctx) => {
