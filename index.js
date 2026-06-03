@@ -3,101 +3,170 @@ require("dotenv").config();
 
 const bot = new Bot(process.env.BOT_TOKEN);
 
-// لیست رهبران
-const leaders = {
-  cyrus: "کوروش بزرگ",
-  darius: "داریوش بزرگ",
-  abbas: "شاه عباس صفوی",
-  nader: "نادرشاه افشار",
-  karim: "کریم‌خان زند",
-  rezashah: "رضاشاه پهلوی",
-  khomeini: "امام خمینی",
-  khamenei: "رهبر خامنه‌ای"
+// ساختار درختی رهبران
+const categories = {
+  ancient: {
+    name: "🏛️ پادشاهان باستان",
+    leaders: {
+      cyrus: "کوروش بزرگ (هخامنشی)",
+      darius: "داریوش بزرگ (هخامنشی)",
+      anushirvan: "انوشیروان دادگر (ساسانی)"
+    }
+  },
+  islamic: {
+    name: "⚔️ پادشاهان اسلامی",
+    leaders: {
+      shahabbas: "شاه عباس کبیر (صفوی)",
+      nader: "نادرشاه افشار",
+      karim: "کریم‌خان زند"
+    }
+  },
+  modern: {
+    name: "🏭 پادشاهان معاصر",
+    leaders: {
+      aghamohammad: "آقا محمدخان قاجار",
+      rezashah: "رضاشاه پهلوی",
+      mohammadreza: "محمدرضا پهلوی"
+    }
+  },
+  islamicRepublic: {
+    name: "🕌 رهبران جمهوری اسلامی",
+    leaders: {
+      khomeini: "امام خمینی (ره)",
+      khamenei: "آیت‌الله خامنه‌ای (ره)"
+    }
+  }
 };
 
-// ذخیره انتخاب کاربر (برای تست ساده)
-const userChoices = new Map();
+const userStates = new Map(); // ذخیره موقعیت کاربر در منو
 
-// مدیریت session
-bot.use(session({ initial: () => ({}) }));
+// منوی اصلی (دسته‌بندی)
+function getMainMenu() {
+  const keyboard = new InlineKeyboard()
+    .text(categories.ancient.name, "cat_ancient")
+    .text(categories.islamic.name, "cat_islamic")
+    .row()
+    .text(categories.modern.name, "cat_modern")
+    .text(categories.islamicRepublic.name, "cat_islamicRepublic")
+    .row()
+    .text("🔙 بازگشت به منوی اصلی", "back_main");
+
+  return keyboard;
+}
+
+// منوی رهبران یک دسته خاص
+function getLeadersMenu(categoryId) {
+  const category = categories[categoryId];
+  if (!category) return getMainMenu();
+
+  const keyboard = new InlineKeyboard();
+  const leaders = Object.entries(category.leaders);
+  
+  for (let i = 0; i < leaders.length; i++) {
+    const [key, name] = leaders[i];
+    keyboard.text(name, `leader_${categoryId}_${key}`);
+    if ((i + 1) % 2 === 0 && i + 1 < leaders.length) keyboard.row();
+  }
+  
+  keyboard.row().text("🔙 بازگشت به دسته‌بندی", `back_${categoryId}`);
+  return keyboard;
+}
 
 // استارت بازی
 bot.command("start", async (ctx) => {
-  const keyboard = new InlineKeyboard()
-    .text("👑 کوروش بزرگ", "leader_cyrus")
-    .text("👑 داریوش بزرگ", "leader_darius")
-    .row()
-    .text("👑 شاه عباس", "leader_abbas")
-    .text("⚔️ نادرشاه", "leader_nader")
-    .row()
-    .text("🤝 کریم‌خان زند", "leader_karim")
-    .text("🏭 رضاشاه", "leader_rezashah")
-    .row()
-    .text("🕋 امام خمینی", "leader_khomeini")
-    .text("🕌 رهبر خامنه‌ای", "leader_khamenei");
-
+  userStates.delete(ctx.from.id);
   await ctx.reply(
     "🏛️ به بازی «بقای باستانی» خوش آمدی!\n\n" +
-    "تو باید یکی از پادشاهان یا رهبران تاریخ ایران رو انتخاب کنی.\n" +
-    "هر کدوم رو انتخاب کنی، مسیر مخصوص به خودش رو داری.\n\n" +
-    "👇 یکی رو انتخاب کن:",
-    { reply_markup: keyboard }
+    "یک دسته از پادشاهان یا رهبران تاریخ ایران رو انتخاب کن،\n" +
+    "بعد از اون، شخص مورد نظرت رو انتخاب کن:\n",
+    { reply_markup: getMainMenu() }
   );
 });
 
 // مدیریت کلیک روی دکمه‌ها
 bot.on("callback_query:data", async (ctx) => {
   const data = ctx.callbackQuery.data;
+  const userId = ctx.from.id;
+
+  // انتخاب دسته بندی
+  if (data.startsWith("cat_")) {
+    const categoryId = data.replace("cat_", "");
+    const category = categories[categoryId];
+    
+    if (category) {
+      await ctx.editMessageText(
+        `📜 دسته: **${category.name}**\n\n` +
+        `یکی از پادشاهان یا رهبران زیر رو انتخاب کن:`,
+        {
+          parse_mode: "Markdown",
+          reply_markup: getLeadersMenu(categoryId)
+        }
+      );
+    }
+  }
   
-  if (data.startsWith("leader_")) {
-    const leaderKey = data.replace("leader_", "");
-    const leaderName = leaders[leaderKey];
+  // انتخاب یک رهبر خاص
+  else if (data.startsWith("leader_")) {
+    const parts = data.split("_");
+    const categoryId = parts[1];
+    const leaderKey = parts[2];
+    const category = categories[categoryId];
+    const leaderName = category.leaders[leaderKey];
     
-    // ذخیره انتخاب کاربر
-    userChoices.set(ctx.from.id, leaderKey);
+    // ذخیره انتخاب نهایی
+    userStates.set(userId, { category: categoryId, leader: leaderKey });
     
-    // حذف کیبورد از پیام قبلی
+    // حذف کیبورد از پیام فعلی
     await ctx.editMessageReplyMarkup({ reply_markup: undefined });
     
-    // پاسخ با تایید انتخاب
+    // تایید نهایی
     await ctx.reply(
       `✅ تو **${leaderName}** رو به عنوان رهبر خود انتخاب کردی.\n\n` +
-      `🔧 الان نوبت مرحله اول بازی است.\n` +
-      `(فعلاً سناریوها اضافه نشده، اما به زودی کامل میشه)\n\n` +
+      `🔧 مرحله اول بازی به زودی میاد...\n` +
       `🔄 برای شروع مجدد، /start رو بزن.`,
       { parse_mode: "Markdown" }
     );
     
-    // برای دیباگ در ترمینال
-    console.log(`👤 کاربر ${ctx.from.id} (${ctx.from.first_name}) => ${leaderName}`);
+    console.log(`👤 ${ctx.from.first_name} => ${category.name} => ${leaderName}`);
   }
   
-  // بستن notification تلگرام
+  // بازگشت به دسته‌بندی از منوی رهبران
+  else if (data.startsWith("back_") && data !== "back_main") {
+    const categoryId = data.replace("back_", "");
+    await ctx.editMessageText(
+      "🏛️ یک دسته از رهبران تاریخ ایران رو انتخاب کن:",
+      { reply_markup: getMainMenu() }
+    );
+  }
+  
+  // بازگشت به منوی اصلی
+  else if (data === "back_main") {
+    await ctx.editMessageText(
+      "🏛️ منوی اصلی - یک دسته رو انتخاب کن:",
+      { reply_markup: getMainMenu() }
+    );
+  }
+  
   await ctx.answerCallbackQuery();
 });
 
-// دستور کمک
+// دستورات کمکی
 bot.command("help", async (ctx) => {
   await ctx.reply(
     "🎮 **راهنمای بازی بقای باستانی**\n\n" +
     "/start - شروع بازی و انتخاب رهبر\n" +
-    "/myleader - ببین کدوم رهبر رو انتخاب کردی\n" +
+    "/restart - شروع مجدد از اول\n" +
     "/help - همین راهنما\n\n" +
-    "💡 در آینده نزدیک: سناریوهای اختصاصی برای هر رهبر اضافه میشه.",
+    "📌 اول دسته رو انتخاب کن، بعد پادشاه یا رهبر مورد نظرت رو.",
     { parse_mode: "Markdown" }
   );
 });
 
-// ببین کدوم رهبر رو انتخاب کرده
-bot.command("myleader", async (ctx) => {
-  const selected = userChoices.get(ctx.from.id);
-  if (selected && leaders[selected]) {
-    await ctx.reply(`👑 تو قبلاً **${leaders[selected]}** رو انتخاب کردی.`, { parse_mode: "Markdown" });
-  } else {
-    await ctx.reply(`❌ هنوز هیچ رهبری انتخاب نکردی. با /start شروع کن.`);
-  }
+bot.command("restart", async (ctx) => {
+  userStates.delete(ctx.from.id);
+  await ctx.reply("🔄 شروع مجدد...", { reply_markup: getMainMenu() });
 });
 
 // استارت ربات
 bot.start();
-console.log("🚀 ربات بقای باستانی روشن شد...");
+console.log("🚀 ربات بقای باستانی (نسخه دسته‌بندی شده) روشن شد...");
