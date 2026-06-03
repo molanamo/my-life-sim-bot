@@ -1,14 +1,16 @@
-// این رو به آخر فایل اضافه کن، قبل از bot.start()
-bot.on("message:photo", async (ctx) => {
-  // آخرین (بزرگ‌ترین) سایز عکس رو می‌گیره
-  const photo = ctx.message.photo[ctx.message.photo.length - 1];
-  const fileId = photo.file_id;
-  
-  await ctx.reply(
-    `✅ file_id عکس تو:\n\n\`${fileId}\`\n\n` +
-    `این کد رو کپی کن و تو جای لینک عکس بذار.`,
-    { parse_mode: "Markdown" }
+const { Bot } = require("grammy");
+require("dotenv").config();
+
+const bot = new Bot(process.env.BOT_TOKEN);
+
+bot.command("start", async (ctx) => {
+  await ctx.replyWithPhoto(
+    "AgACAgQAAxkBAAEqCaRqH9FGE29Hqin99gjVu6QswkfyZgACYQ9rG4AP-VDGAAHphuNl148BAAMCAANzAAM7BA",
+    {
+      caption: "🏛️ به بازی بقای باستانی خوش آمدی!\n\nدر این بازی تو یکی از پادشاهان یا رهبران تاریخ ایران رو انتخاب می‌کنی و مسیر سرنوشت ایران رو رقم می‌زنی.\n\n🔄 برای شروع، /start رو بزن."
+    }
   );
-  
-  console.log("file_id جدید:", fileId);
 });
+
+bot.start();
+console.log("🤖 ربات روشن شد...");
