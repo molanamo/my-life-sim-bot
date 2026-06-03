@@ -8,79 +8,19 @@ const usersDB = new Map();
 // ==================== عکس‌های رهبران ====================
 const leaders = {
   // دوره باستان
-  cyrus: {
-    name: "کوروش بزرگ",
-    desc: "بنیانگذار هخامنشی، منشور حقوق بشر",
-    image: "AgACAgQAAxkBAAEqCuxqH_gzDC0lhnhq5XY5trPLrtNiKAACiQ5rG4APAVESIQfjCtTuagEAAwIAA3cAAzsE",
-    era: "ancient",
-    battleImage: "AgACAgQAAxkBAAEqDexqIC3VJle3eBKrpyP2iPCb2nSHdgAC8g5rG4APAVFruE7qyqYySgEAAwIAA3kAAzsE"
-  },
-  darius: {
-    name: "داریوش بزرگ",
-    desc: "سازنده تخت جمشید، سازماندهی اداری",
-    image: "AgACAgQAAxkBAAEqCwxqH_vHXf_othfTA2jTsuAZqqbuSQACkg5rG4APAVFF2KiazmU2oQEAAwIAA3kAAzsE",
-    era: "ancient",
-    battleImage: "AgACAgQAAxkBAAEqDgRqIC6pWLzAhSz62YlMEYu1BBJXcAAC9Q5rG4APAVFi2sJMMLDVlwEAAwIAA3kAAzsE"
-  },
-  anushirvan: {
-    name: "انوشیروان",
-    desc: "دادگر ساسانی، حامی علم و فلسفه",
-    image: "AgACAgQAAxkBAAEqCxBqH_xgAAGDky46hdN3TNPOpoLa7CAAApQOaxuADwFRz7glJ8phpNsBAAMCAAN5AAM7BA",
-    era: "ancient",
-    battleImage: "AgACAgQAAxkBAAEqDgxqIC84TrWNGA0_YAj8HnqqpititgAC9g5rG4APAVHJULBSG_V9cgEAAwIAA3kAAzsE"
-  },
+  cyrus: { name: "کوروش بزرگ", desc: "بنیانگذار هخامنشی، منشور حقوق بشر", image: "AgACAgQAAxkBAAEqCuxqH_gzDC0lhnhq5XY5trPLrtNiKAACiQ5rG4APAVESIQfjCtTuagEAAwIAA3cAAzsE", era: "ancient", battleImage: "AgACAgQAAxkBAAEqDexqIC3VJle3eBKrpyP2iPCb2nSHdgAC8g5rG4APAVFruE7qyqYySgEAAwIAA3kAAzsE" },
+  darius: { name: "داریوش بزرگ", desc: "سازنده تخت جمشید، سازماندهی اداری", image: "AgACAgQAAxkBAAEqCwxqH_vHXf_othfTA2jTsuAZqqbuSQACkg5rG4APAVFF2KiazmU2oQEAAwIAA3kAAzsE", era: "ancient", battleImage: "AgACAgQAAxkBAAEqDgRqIC6pWLzAhSz62YlMEYu1BBJXcAAC9Q5rG4APAVFi2sJMMLDVlwEAAwIAA3kAAzsE" },
+  anushirvan: { name: "انوشیروان", desc: "دادگر ساسانی، حامی علم و فلسفه", image: "AgACAgQAAxkBAAEqCxBqH_xgAAGDky46hdN3TNPOpoLa7CAAApQOaxuADwFRz7glJ8phpNsBAAMCAAN5AAM7BA", era: "ancient", battleImage: "AgACAgQAAxkBAAEqDgxqIC84TrWNGA0_YAj8HnqqpititgAC9g5rG4APAVHJULBSG_V9cgEAAwIAA3kAAzsE" },
   // دوره اسلامی
-  shahabbas: {
-    name: "شاه عباس کبیر",
-    desc: "صفوی، اصفهان نصف جهان",
-    image: "AgACAgQAAxkBAAEqC1ZqIAABw4hu6fz4rv1Sm5C2Wxg654IAApUOaxuADwFREeM5uPDykG0BAAMCAAN5AAM7BA",
-    era: "islamic",
-    battleImage: "AgACAgQAAxkBAAEqDg5qIC-FmcT5wcvNUS8KV76mh2R2cAAC9w5rG4APAVGvRzPXUAGvzgEAAwIAA3kAAzsE"
-  },
-  nader: {
-    name: "نادرشاه افشار",
-    desc: "فاتح هند، احیای مرزهای ایران",
-    image: "AgACAgQAAxkBAAEqC8BqIAqp_nwtXft1OGSIEp-AfmmTuwACpw5rG4APAVERR2QTdtSDlwEAAwIAA3kAAzsE",
-    era: "islamic",
-    battleImage: "AgACAgQAAxkBAAEqDhJqIC_JqhOlWXWY5bNFKEYODsErLgAC-A5rG4APAVFDa5CLbAKRpgEAAwIAA3kAAzsE"
-  },
-  karim: {
-    name: "کریم‌خان زند",
-    desc: "وکیل‌الرعایا، دوران آرامش",
-    image: "AgACAgQAAxkBAAEqDQpqICDyBdfDPIAlcnUqTvtg1bfXlwACyA5rG4APAVHI6esAAVBUeW0BAAMCAAN5AAM7BA",
-    era: "islamic",
-    battleImage: "AgACAgQAAxkBAAEqDg5qIC-FmcT5wcvNUS8KV76mh2R2cAAC9w5rG4APAVGvRzPXUAGvzgEAAwIAA3kAAzsE"
-  },
+  shahabbas: { name: "شاه عباس کبیر", desc: "صفوی، اصفهان نصف جهان", image: "AgACAgQAAxkBAAEqC1ZqIAABw4hu6fz4rv1Sm5C2Wxg654IAApUOaxuADwFREeM5uPDykG0BAAMCAAN5AAM7BA", era: "islamic", battleImage: "AgACAgQAAxkBAAEqDg5qIC-FmcT5wcvNUS8KV76mh2R2cAAC9w5rG4APAVGvRzPXUAGvzgEAAwIAA3kAAzsE" },
+  nader: { name: "نادرشاه افشار", desc: "فاتح هند، احیای مرزهای ایران", image: "AgACAgQAAxkBAAEqC8BqIAqp_nwtXft1OGSIEp-AfmmTuwACpw5rG4APAVERR2QTdtSDlwEAAwIAA3kAAzsE", era: "islamic", battleImage: "AgACAgQAAxkBAAEqDhJqIC_JqhOlWXWY5bNFKEYODsErLgAC-A5rG4APAVFDa5CLbAKRpgEAAwIAA3kAAzsE" },
+  karim: { name: "کریم‌خان زند", desc: "وکیل‌الرعایا، دوران آرامش", image: "AgACAgQAAxkBAAEqDQpqICDyBdfDPIAlcnUqTvtg1bfXlwACyA5rG4APAVHI6esAAVBUeW0BAAMCAAN5AAM7BA", era: "islamic", battleImage: "AgACAgQAAxkBAAEqDg5qIC-FmcT5wcvNUS8KV76mh2R2cAAC9w5rG4APAVGvRzPXUAGvzgEAAwIAA3kAAzsE" },
   // دوره معاصر
-  rezashah: {
-    name: "رضاشاه پهلوی",
-    desc: "بنیانگذار ارتش مدرن، راه‌سازی",
-    image: "AgACAgQAAxkBAAEqDRRqICGe82zWxY2HygESUHruXYt-pwAC1w5rG4APAVEE1NreIhRuWQEAAwIAA3kAAzsE",
-    era: "modern",
-    battleImage: "AgACAgQAAxkBAAEqDhxqIDAr_kFEEVk6PpR6-6MQ8xtobQAC_A5rG4APAVFXBwkTZaZBUgEAAwIAA3gAAzsE"
-  },
-  mohammadreza: {
-    name: "محمدرضا پهلوی",
-    desc: "انقلاب سفید، توسعه اقتصادی",
-    image: "AgACAgQAAxkBAAEqDSBqICI_SreoP_nMRvgKJ_MB9q4CnQAC2A5rG4APAVHq3LzEIHc2lwEAAwIAA3kAAzsE",
-    era: "modern",
-    battleImage: "AgACAgQAAxkBAAEqDhxqIDAr_kFEEVk6PpR6-6MQ8xtobQAC_A5rG4APAVFXBwkTZaZBUgEAAwIAA3gAAzsE"
-  },
+  rezashah: { name: "رضاشاه پهلوی", desc: "بنیانگذار ارتش مدرن، راه‌سازی", image: "AgACAgQAAxkBAAEqDRRqICGe82zWxY2HygESUHruXYt-pwAC1w5rG4APAVEE1NreIhRuWQEAAwIAA3kAAzsE", era: "modern", battleImage: "AgACAgQAAxkBAAEqDhxqIDAr_kFEEVk6PpR6-6MQ8xtobQAC_A5rG4APAVFXBwkTZaZBUgEAAwIAA3gAAzsE" },
+  mohammadreza: { name: "محمدرضا پهلوی", desc: "انقلاب سفید، توسعه اقتصادی", image: "AgACAgQAAxkBAAEqDSBqICI_SreoP_nMRvgKJ_MB9q4CnQAC2A5rG4APAVHq3LzEIHc2lwEAAwIAA3kAAzsE", era: "modern", battleImage: "AgACAgQAAxkBAAEqDhxqIDAr_kFEEVk6PpR6-6MQ8xtobQAC_A5rG4APAVFXBwkTZaZBUgEAAwIAA3gAAzsE" },
   // دوره جمهوری اسلامی
-  khomeini: {
-    name: "امام خمینی",
-    desc: "رهبر انقلاب اسلامی، دفاع مقدس",
-    image: "AgACAgQAAxkBAAEqDSVqICKpjXkKp6VNQ5cFJXfaBxJ6SQAC2Q5rG4APAVFwaaT8pT6IowEAAwIAA3cAAzsE",
-    era: "khomeini",
-    battleImage: "AgACAgQAAxkBAAEqDiZqIDCc9bGzQWtIa_nd9kU4bYlLZAAC_g5rG4APAVFhExSQa7SOBAEAAwIAA3kAAzsE"
-  },
-  khamenei: {
-    name: "آیت‌الله خامنه‌ای",
-    desc: "رهبر کنونی ایران",
-    image: "AgACAgQAAxkBAAEqDSpqICL4y8wH9x-j28C2AAFizyn8n7AAAtoOaxuADwFRayCfRQAB1p5AAQADAgADdwADOwQ",
-    era: "khamenei",
-    battleImage: "CgACAgQAAxkBAAEqDpBqIDYupm_2tWylUzv4N0qgCCCqLwACmSsAAts6AAFRSXGwyWxF4MU7BA"
-  }
+  khomeini: { name: "امام خمینی", desc: "رهبر انقلاب اسلامی، دفاع مقدس", image: "AgACAgQAAxkBAAEqDSVqICKpjXkKp6VNQ5cFJXfaBxJ6SQAC2Q5rG4APAVFwaaT8pT6IowEAAwIAA3cAAzsE", era: "khomeini", battleImage: "AgACAgQAAxkBAAEqDiZqIDCc9bGzQWtIa_nd9kU4bYlLZAAC_g5rG4APAVFhExSQa7SOBAEAAwIAA3kAAzsE" },
+  khamenei: { name: "آیت‌الله خامنه‌ای", desc: "رهبر کنونی ایران", image: "AgACAgQAAxkBAAEqDSpqICL4y8wH9x-j28C2AAFizyn8n7AAAtoOaxuADwFRayCfRQAB1p5AAQADAgADdwADOwQ", era: "khamenei", battleImage: "CgACAgQAAxkBAAEqDpBqIDYupm_2tWylUzv4N0qgCCCqLwACmSsAAts6AAFRSXGwyWxF4MU7BA" }
 };
 
 // ==================== عکس‌های دسته‌بندی ====================
@@ -147,6 +87,13 @@ const eraNames = {
   khamenei: "موشکی و پهبادی"
 };
 
+// ==================== گیف‌های متحرک ====================
+const animations = {
+  readyToFight: "CgACAgQAAxkBAAEqETVqIGusPLj-Qq0nd73vMUkiRiwY0wACTwYAArMmNVBb8-ES6JPGHzsE",
+  cyrusAnimation: "CgACAgQAAxkBAAEqEUpqIG2RakeSSSNpKkC-3UfiGpoEYwACGQMAAt5HJVNbjZO7dqLofTsE",
+  missileAnimation: "CgACAgQAAxkBAAEqDpBqIDYupm_2tWylUzv4N0qgCCCqLwACmSsAAts6AAFRSXGwyWxF4MU7BA"
+};
+
 // ==================== منوی اصلی ====================
 bot.command("start", async (ctx) => {
   const keyboard = new InlineKeyboard()
@@ -193,11 +140,13 @@ async function showCategory(ctx, categoryId) {
   }
   keyboard.row().text("🔙 بازگشت به منوی اصلی", "back_main");
 
+  const caption = `📜 **${title}**\n\n✨ یکی از پادشاهان یا رهبران زیر رو انتخاب کن:\n\n` +
+    leadersList.map(k => `• **${leaders[k].name}**\n   ${leaders[k].desc}`).join("\n");
+
   await ctx.editMessageMedia({
     type: "photo",
     media: image,
-    caption: `📜 **${title}**\n\n✨ یکی از پادشاهان یا رهبران زیر رو انتخاب کن:\n\n` +
-      leadersList.map(k => `• **${leaders[k].name}**\n   ${leaders[k].desc}`).join("\n"),
+    caption: caption,
     parse_mode: "Markdown"
   }, { reply_markup: keyboard });
 }
@@ -205,10 +154,12 @@ async function showCategory(ctx, categoryId) {
 // ==================== نمایش جزئیات رهبر ====================
 async function showLeaderDetail(ctx, leaderKey) {
   const leader = leaders[leaderKey];
+  let backCategory = leader.era;
+  if (backCategory === "khomeini" || backCategory === "khamenei") backCategory = "republic";
 
   const keyboard = new InlineKeyboard()
     .text("✅ انتخاب این رهبر", `select_${leaderKey}`)
-    .text("🔙 بازگشت", `back_cat_${leader.era === "khomeini" || leader.era === "khamenei" ? "republic" : leader.era}`);
+    .text("🔙 بازگشت", `back_cat_${backCategory}`);
 
   await ctx.editMessageMedia({
     type: "photo",
@@ -315,12 +266,8 @@ async function startBattle(ctx) {
     `💰 سکه فعلی: ${user.gold}\n` +
     `⚔️ قدرت نظامی: ${user.military}`;
 
-  // نمایش عکس یا گیف جنگ متناسب با دوره
-  if (user.era === "khamenei") {
-    await ctx.replyWithAnimation(leader.battleImage, { caption: battleCaption, parse_mode: "Markdown" });
-  } else {
-    await ctx.replyWithPhoto(leader.battleImage, { caption: battleCaption, parse_mode: "Markdown" });
-  }
+  // نمایش انیمیشن جنگ
+  await ctx.replyWithAnimation(animations.readyToFight, { caption: battleCaption, parse_mode: "Markdown" });
 
   const keyboard = new InlineKeyboard()
     .text("🛒 فروشگاه", "open_shop")
@@ -360,17 +307,14 @@ bot.on("callback_query:data", async (ctx) => {
   try {
     await ctx.answerCallbackQuery();
 
-    // دسته‌بندی
     if (data.startsWith("cat_")) {
       const categoryId = data.replace("cat_", "");
       await showCategory(ctx, categoryId);
     }
-    // نمایش جزئیات رهبر
     else if (data.startsWith("temp_")) {
       const leaderKey = data.replace("temp_", "");
       await showLeaderDetail(ctx, leaderKey);
     }
-    // انتخاب رهبر
     else if (data.startsWith("select_")) {
       const leaderKey = data.replace("select_", "");
       const leader = leaders[leaderKey];
@@ -388,13 +332,10 @@ bot.on("callback_query:data", async (ctx) => {
       await ctx.editMessageReplyMarkup({ reply_markup: undefined });
       await showGameMenu(ctx, leaderKey);
     }
-    // بازگشت به دسته
     else if (data.startsWith("back_cat_")) {
       let categoryId = data.replace("back_cat_", "");
-      if (categoryId === "republic") categoryId = "republic";
       await showCategory(ctx, categoryId);
     }
-    // بازگشت به منوی اصلی
     else if (data === "back_main") {
       const keyboard = new InlineKeyboard()
         .text("🏛️ پادشاهان باستان", "cat_ancient")
@@ -410,19 +351,15 @@ bot.on("callback_query:data", async (ctx) => {
         parse_mode: "Markdown"
       }, { reply_markup: keyboard });
     }
-    // فروشگاه
     else if (data === "open_shop") {
       await showShop(ctx);
     }
-    // جنگ
     else if (data === "battle") {
       await startBattle(ctx);
     }
-    // وضعیت
     else if (data === "my_status") {
       await showStatus(ctx);
     }
-    // تغییر رهبر
     else if (data === "change_leader") {
       const keyboard = new InlineKeyboard()
         .text("🏛️ پادشاهان باستان", "cat_ancient")
@@ -436,7 +373,6 @@ bot.on("callback_query:data", async (ctx) => {
         reply_markup: keyboard
       });
     }
-    // بازگشت به بازی
     else if (data === "back_to_game") {
       const user = usersDB.get(ctx.from.id);
       if (user) {
@@ -445,7 +381,6 @@ bot.on("callback_query:data", async (ctx) => {
         await ctx.reply("❌ خطا! لطفاً /start رو بزن.");
       }
     }
-    // خرید سلاح
     else if (data.startsWith("buy_")) {
       const itemId = data.replace("buy_", "");
       const user = usersDB.get(ctx.from.id);
@@ -463,7 +398,11 @@ bot.on("callback_query:data", async (ctx) => {
         user.weapon = item;
         user.military += item.power;
         usersDB.set(ctx.from.id, user);
-        await ctx.reply(`✅ **${item.name}** خریداری شد!\n💰 باقی‌مانده: ${user.gold}\n⚔️ قدرت نظامی: ${user.military}`);
+        
+        await ctx.replyWithAnimation(animations.cyrusAnimation, {
+          caption: `✅ **${item.name}** خریداری شد!\n💰 باقی‌مانده: ${user.gold}\n⚔️ قدرت نظامی: ${user.military}`,
+          parse_mode: "Markdown"
+        });
         await showShop(ctx);
       } else {
         await ctx.reply(`❌ سکه کافی نیست! نیاز به ${item.price - user.gold} سکه بیشتر داری.`);
@@ -488,7 +427,8 @@ bot.command("help", async (ctx) => {
     "• خرید سلاح متناسب با دوره\n" +
     "• جنگ با دشمنان تاریخی\n" +
     "• کسب سکه و تجربه\n" +
-    "• ارتقا سطح و قدرت نظامی",
+    "• ارتقا سطح و قدرت نظامی\n" +
+    "• انیمیشن‌های جذاب برای خرید و جنگ",
     { parse_mode: "Markdown" }
   );
 });
@@ -510,5 +450,10 @@ bot.command("restart", async (ctx) => {
 });
 
 // ==================== استارت ربات ====================
-bot.start();
-console.log("🎮 بازی بقای باستانی با تمام امکانات روشن شد...");
+if (process.env.RAILWAY_ENV === "true" || process.env.PORT) {
+  bot.start();
+  console.log("🎮 بازی بقای باستانی روی Railway روشن شد...");
+} else {
+  bot.start();
+  console.log("🎮 بازی بقای باستانی روشن شد...");
+}
