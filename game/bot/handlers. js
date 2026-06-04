@@ -1,0 +1,450 @@
+// هندلرهای callback بازی بقای فرمانروا
+const { photos, gifs } = require("../assets");
+const { kings, eras } = require("../data/kings");
+const { queens } = require("../data/queens");
+const { weapons } = require("../data/weapons");
+const { foods } = require("../data/foods");
+const { locations, getAvailableLocations } = require("../data/locations");
+const { getBossByDay } = require("../data/enemies");
+const { getRandomEvent } = require("../data/events");
+const { createPlayer, getPlayer, savePlayer, isAlive, endDay } = require("../game/player");
+const { gatherResource, hunt, cookFood, rest, party } = require("../game/actions");
+const { battle, battleBoss, attackPlayer, revenge, getRevengeList, getAttackLog } = require("../game/battle");
+const { buyItem, sellResource, buyResource, getShopItems } = require("../game/market");
+const { marryQueen, divorceQueen, getPlayerQueens, getAvailableQueens } = require("../game/harem");
+const { upgradeShelter } = require("../game/shelter");
+const { getGlassBorder, formatNumber } = require("../utils/helpers");
+const CONFIG = require("../utils/config");
+const { mainMenu, gameMenu, backButton, battleMenu, shopMenu } = require("./menus");
+const { getStatusText, gatherResultText, battleResultText, bossResultText, eventText, pvpResultText, partyResultText } = require("./display");
+
+/**
+ * هندلر اصلی callback
+ */
+async function handleCallback(ctx) {
+  const data = ctx.callbackQuery.data;
+  const userId = ctx.from.id;
+
+  // ========== انتخاب دوره ==========
+  if (data.startsWith("era_")) {
+    const eraMap = { ancient: "باستان", islamic: "اسلامی", modern: "مدرن", revolution: "انقلاب" };
+    const era = eraMap[data.replace("era_", "")];
+    if (!era) return;
+    
+    const kingIds = eras[era];
+    const keyboard = { inline_keyboard: [] };
+    kingIds.forEach(kId => {
+      keyboard.inline_keyboard.push([{ text: kings[kId].name, callback_data: `select_${kId}` }]);
+    });
+    keyboard.inline_keyboard.push([{ text: "🔙 برگشت", callback_data: "back_start" }]);
+
+    await ctx.replyWithPhoto(photos.shir_khorshid, {
+      caption: `👑 **دوره ${era}**\n\nیه پادشاه انتخاب کن:`,
+      parse_mode: "Markdown",
+      reply_markup: keyboard,
+    });
+    return;
+  }
+
+  // ========== انتخاب پادشاه ==========
+  if (data.startsWith("select_")) {
+    const kingId = data.replace("select_", "");
+    const player = createPlayer(userId, ctx.from.first_name, kingId);
+    if (!player) return ctx.reply("❌ خطا!");
+
+    const king = kings[kingId];
+    await ctx.replyWithPhoto(king.photo, {
+      caption: `${getGlassBorder()}\n✅ **${king.name}** برگزیده شد!\n${getGlassBorder()}\n📖 ${king.desc}\n\n${getStatusText(player)}`,
+      parse_mode: "Markdown",
+      reply_markup: gameMenu(),
+    });
+    return;
+  }
+
+  // ========== برگشت‌ها ==========
+  if (data === "back_start") {
+    await ctx.replyWithPhoto(photos.shir_khorshid, {
+      caption: `${getGlassBorder()}\n🏰 **بقای فرمانروا** 🏰\n${getGlassBorder()}\n\n📜 یه دوره انتخاب کن:`,
+      parse_mode: "Markdown",
+      reply_markup: mainMenu(),
+    });
+    return;
+  }
+
+  if (data === "back_to_game") {
+    const player = getPlayer(userId);
+    if (!player) return ctx.reply("❌ /start رو بزن.");
+    const king = kings[player.kingId];
+    await ctx.replyWithPhoto(king.photo, {
+      caption: getStatusText(player),
+      parse_mode: "Markdown",
+      reply_markup: gameMenu(),
+    });
+    return;
+  }
+
+  // ========== چک زنده بودن ==========
+  const player = getPlayer(userId);
+  if (!player || !player.alive) {
+    await ctx.reply("❌ بازی تموم شد! /start رو بزن.", { reply_markup: mainMenu() });
+    return;
+  }
+
+  // ========== منوی جمع‌آوری ==========
+  if (data === "gather") {
+    const locs = getAvailableLocations();
+    const keyboard = { inline_keyboard: [] };
+    locs.forEach(loc => {
+      keyboard.inline_keyboard.push([{ text: `${loc.name} (خطر: ${loc.danger}٪)`, callback_data: `gather_${loc.id}` }]);
+    });
+    keyboard.inline_keyboard.push([{ text: "🔙 بازگشت", callback_data: "back_to_game" }]);
+
+    await ctx.replyWithPhoto(photos.forest, {
+      caption: "🌲 کجا می‌خوای منابع جمع کنی؟",
+      reply_markup: keyboard,
+    });
+    return;
+  }
+
+  // ========== اجرای جمع‌آوری ==========
+  if (data.startsWith("gather_")) {
+    const locId = data.replace("gather_", "");
+    const result = gatherResource(userId, locId);
+    await ctx.replyWithPhoto(photos[locId] || photos.forest, {
+      caption: gatherResultText(result),
+      parse_mode: "Markdown",
+      reply_markup: gameMenu(),
+    });
+    return;
+  }
+
+  // ========== شکار ==========
+  if (data === "hunt") {
+    const result = hunt(userId);
+    await ctx.replyWithPhoto(photos.forest, {
+      caption: result.ok ? 
+        (result.success ? `🏹 شکار موفق!\n🍖 +${result.food} غذا\n💰 +${result.gold} سکه` : 
+        (result.attacked ? "🐺 حیوان وحشی بهت حمله کرد!" : "🏹 چیزی پیدا نکردی...")) :
+        result.msg,
+      parse_mode: "Markdown",
+      reply_markup: gameMenu(),
+    });
+    return;
+  }
+
+  // ========== منوی نبرد ==========
+  if (data === "battle_menu") {
+    await ctx.replyWithPhoto(photos.sword, {
+      caption: "⚔️ یه دشمن انتخاب کن:",
+      reply_markup: battleMenu(),
+    });
+    return;
+  }
+
+  // ========== نبرد با دشمن ==========
+  if (data.startsWith("battle_")) {
+    const enemyId = data.replace("battle_", "");
+    const result = battle(userId, enemyId);
+    await ctx.replyWithPhoto(photos.sword, {
+      caption: battleResultText(result),
+      parse_mode: "Markdown",
+      reply_markup: gameMenu(),
+    });
+    return;
+  }
+
+  // ========== نبرد با باس ==========
+  if (data === "boss_fight") {
+    const result = battleBoss(userId);
+    const boss = getBossByDay(player.day);
+    const photo = result.bossPhoto || photos.devil;
+    const gif = result.bossGif;
+
+    if (gif && result.ok) {
+      await ctx.replyWithAnimation(gif, {
+        caption: bossResultText(result),
+        parse_mode: "Markdown",
+        reply_markup: gameMenu(),
+      });
+    } else {
+      await ctx.replyWithPhoto(photo, {
+        caption: bossResultText(result),
+        parse_mode: "Markdown",
+        reply_markup: gameMenu(),
+      });
+    }
+    return;
+  }
+
+  // ========== بازار ==========
+  if (data === "shop") {
+    await ctx.replyWithPhoto(photos.bazaar, {
+      caption: `🛒 **بازار**\n💰 سکه: ${formatNumber(player.gold)}\n\nچی می‌خوای؟`,
+      parse_mode: "Markdown",
+      reply_markup: shopMenu(),
+    });
+    return;
+  }
+
+  if (data === "shop_weapons") {
+    const items = getShopItems().weapons;
+    const keyboard = { inline_keyboard: [] };
+    items.forEach(w => {
+      keyboard.inline_keyboard.push([{ text: `${w.name} - ${w.price}💰`, callback_data: `buy_weapon_${w.id}` }]);
+    });
+    keyboard.inline_keyboard.push([{ text: "🔙 بازار", callback_data: "shop" }]);
+    
+    await ctx.replyWithPhoto(photos.sword, {
+      caption: "🗡️ **سلاح‌ها**\n\n" + items.map(w => `• ${w.name}: ${w.desc}\n   💰 ${w.price} | ⚔️ قدرت: +${w.power}`).join("\n\n"),
+      parse_mode: "Markdown",
+      reply_markup: keyboard,
+    });
+    return;
+  }
+
+  if (data === "shop_armors") {
+    const items = getShopItems().armors;
+    const keyboard = { inline_keyboard: [] };
+    items.forEach(a => {
+      keyboard.inline_keyboard.push([{ text: `${a.name} - ${a.price}💰`, callback_data: `buy_armor_${a.id}` }]);
+    });
+    keyboard.inline_keyboard.push([{ text: "🔙 بازار", callback_data: "shop" }]);
+
+    await ctx.replyWithPhoto(photos.leather_armor, {
+      caption: "🛡️ **زره‌ها**\n\n" + items.map(a => `• ${a.name}: ${a.desc}\n   💰 ${a.price} | 🛡️ دفاع: +${a.defense}`).join("\n\n"),
+      parse_mode: "Markdown",
+      reply_markup: keyboard,
+    });
+    return;
+  }
+
+  if (data === "shop_foods") {
+    const items = getShopItems().foods;
+    const keyboard = { inline_keyboard: [] };
+    items.forEach(f => {
+      keyboard.inline_keyboard.push([{ text: `${f.name} - ${f.price}💰`, callback_data: `buy_food_${f.id}` }]);
+    });
+    keyboard.inline_keyboard.push([{ text: "🔙 بازار", callback_data: "shop" }]);
+
+    await ctx.replyWithPhoto(photos.bread, {
+      caption: "🍖 **غذاها**\n\n" + items.map(f => `• ${f.name}: ${f.desc}\n   💰 ${f.price} | 🍖 سیری: +${f.hunger} | ❤️ درمان: +${f.health || 0}`).join("\n\n"),
+      parse_mode: "Markdown",
+      reply_markup: keyboard,
+    });
+    return;
+  }
+
+  // ========== خرید آیتم ==========
+  if (data.startsWith("buy_")) {
+    const parts = data.split("_");
+    const category = parts[1]; // weapon, armor, food
+    const itemId = parts.slice(2).join("_");
+    const result = buyItem(userId, itemId, category);
+    await ctx.reply(result.ok ? `✅ **${result.item}** خریداری شد! (${result.price}💰)` : result.msg, {
+      parse_mode: "Markdown",
+      reply_markup: gameMenu(),
+    });
+    return;
+  }
+
+  // ========== حرمسرا ==========
+  if (data === "harem") {
+    const myQueens = getPlayerQueens(userId);
+    const available = getAvailableQueens(userId);
+    const keyboard = { inline_keyboard: [] };
+
+    if (available.length > 0) {
+      available.forEach(q => {
+        keyboard.inline_keyboard.push([{ text: `${q.name} - ${q.cost}💰 (${q.bonus})`, callback_data: `marry_${q.id}` }]);
+      });
+    }
+    if (myQueens.length > 0) {
+      keyboard.inline_keyboard.push([{ text: "📋 ملکه‌های من", callback_data: "my_queens" }]);
+    }
+    keyboard.inline_keyboard.push([{ text: "🔙 بازگشت", callback_data: "back_to_game" }]);
+
+    await ctx.replyWithPhoto(photos.atousa, {
+      caption: `👸 **حرمسرا**\n💰 سکه: ${formatNumber(player.gold)}\n👸 ملکه‌های فعلی: ${myQueens.length}\n\n${available.length > 0 ? "ملکه‌های قابل ازدواج:" : "همه ملکه‌ها توی حرمسرات هستن!"}`,
+      parse_mode: "Markdown",
+      reply_markup: keyboard,
+    });
+    return;
+  }
+
+  if (data.startsWith("marry_")) {
+    const queenId = data.replace("marry_", "");
+    const result = marryQueen(userId, queenId);
+    await ctx.reply(result.ok ? `✅ با **${result.queen}** ازدواج کردی!\n${result.bonus}` : result.msg, {
+      parse_mode: "Markdown",
+      reply_markup: gameMenu(),
+    });
+    return;
+  }
+
+  if (data === "my_queens") {
+    const myQueens = getPlayerQueens(userId);
+    const keyboard = { inline_keyboard: [] };
+    myQueens.forEach(q => {
+      keyboard.inline_keyboard.push([{ text: `❌ طلاق ${q.name}`, callback_data: `divorce_${q.id}` }]);
+    });
+    keyboard.inline_keyboard.push([{ text: "🔙 حرمسرا", callback_data: "harem" }]);
+
+    await ctx.replyWithPhoto(photos.atousa, {
+      caption: "👸 **ملکه‌های من**\n\n" + myQueens.map(q => `• ${q.name}: ${q.bonus}`).join("\n"),
+      parse_mode: "Markdown",
+      reply_markup: keyboard,
+    });
+    return;
+  }
+
+  if (data.startsWith("divorce_")) {
+    const queenId = data.replace("divorce_", "");
+    const result = divorceQueen(userId, queenId);
+    await ctx.reply(result.ok ? `💔 ${result.queen} طلاق گرفت... ${result.refund}💰 برگشت.` : result.msg, {
+      parse_mode: "Markdown",
+      reply_markup: gameMenu(),
+    });
+    return;
+  }
+
+  // ========== آشپزی ==========
+  if (data === "cook") {
+    const foodList = Object.values(foods);
+    const keyboard = { inline_keyboard: [] };
+    foodList.forEach(f => {
+      const cost = f.craft ? Object.entries(f.craft).map(([k, v]) => `${v} ${k}`).join(" + ") : "رایگان";
+      keyboard.inline_keyboard.push([{ text: `${f.name} (${cost})`, callback_data: `cook_${f.id}` }]);
+    });
+    keyboard.inline_keyboard.push([{ text: "🔙 بازگشت", callback_data: "back_to_game" }]);
+
+    await ctx.replyWithPhoto(photos.kebab, {
+      caption: "🍳 **آشپزخانه**\n\nچی می‌خوای بپزی؟",
+      parse_mode: "Markdown",
+      reply_markup: keyboard,
+    });
+    return;
+  }
+
+  if (data.startsWith("cook_")) {
+    const foodId = data.replace("cook_", "");
+    const result = cookFood(userId, foodId);
+    await ctx.reply(result.ok ? `🍳 **${result.food.name}** پخته شد!\n🍖 +${result.food.hunger} غذا` : result.msg, {
+      parse_mode: "Markdown",
+      reply_markup: gameMenu(),
+    });
+    return;
+  }
+
+  // ========== استراحت ==========
+  if (data === "rest") {
+    const result = rest(userId);
+    await ctx.reply(`💤 استراحت کردی...\n❤️ +${result.heal} سلامت`, {
+      reply_markup: gameMenu(),
+    });
+    return;
+  }
+
+  // ========== عیاشی ==========
+  if (data === "party") {
+    const result = party(userId);
+    await ctx.replyWithPhoto(photos.kebab, {
+      caption: partyResultText(result),
+      parse_mode: "Markdown",
+      reply_markup: gameMenu(),
+    });
+    return;
+  }
+
+  // ========== ارتقا پناهگاه ==========
+  if (data === "upgrade_shelter") {
+    const result = upgradeShelter(userId);
+    if (result.ok) {
+      await ctx.reply(`🏗️ پناهگاه ارتقا یافت!\n${result.oldName} → ${result.newName}\n🛡️ دفاع: ${result.newDefense}٪`, {
+        reply_markup: gameMenu(),
+      });
+    } else {
+      await ctx.reply(result.msg, { reply_markup: gameMenu() });
+    }
+    return;
+  }
+
+  // ========== وضعیت ==========
+  if (data === "status") {
+    const king = kings[player.kingId];
+    await ctx.replyWithPhoto(king.photo, {
+      caption: getStatusText(player),
+      parse_mode: "Markdown",
+      reply_markup: gameMenu(),
+    });
+    return;
+  }
+
+  // ========== پایان روز ==========
+  if (data === "end_day") {
+    endDay(userId);
+    const updatedPlayer = getPlayer(userId);
+    const event = getRandomEvent();
+
+    // اعمال رویداد
+    for (const [key, val] of Object.entries(event.effect)) {
+      if (updatedPlayer[key] !== undefined) updatedPlayer[key] = Math.max(0, updatedPlayer[key] + val);
+    }
+    savePlayer(userId, updatedPlayer);
+
+    if (!updatedPlayer.alive) {
+      await ctx.replyWithPhoto(photos.forest, {
+        caption: `💀 **مردی!**\n\n${eventText(event)}\n\nسلامتی به صفر رسید. /start رو بزن.`,
+        parse_mode: "Markdown",
+      });
+      return;
+    }
+
+    const king = kings[updatedPlayer.kingId];
+    await ctx.replyWithPhoto(king.photo, {
+      caption: `${eventText(event)}\n\n${getStatusText(updatedPlayer)}`,
+      parse_mode: "Markdown",
+      reply_markup: gameMenu(),
+    });
+    return;
+  }
+
+  // ========== PvP ==========
+  if (data === "pvp_menu") {
+    await ctx.reply("⚔️ **نبرد با بازیکنان**\n\n" +
+      "/attack [user_id] - حمله به بازیکن\n" +
+      "/revenge [user_id] - انتقام گرفتن\n" +
+      "/revenge_list - لیست دشمنان\n" +
+      "/attack_log - تاریخچه حملات", {
+      parse_mode: "Markdown",
+      reply_markup: gameMenu(),
+    });
+    return;
+  }
+
+  // ========== لیدربورد ==========
+  if (data === "leaderboard") {
+    const allPlayers = Array.from(require("../game/player").players?.entries() || [])
+      .filter(([, p]) => p.alive)
+      .sort(([, a], [, b]) => b.gold - a.gold)
+      .slice(0, 10);
+
+    if (allPlayers.length === 0) {
+      await ctx.reply("📭 هنوز هیچ بازیکنی نیست!", { reply_markup: mainMenu() });
+      return;
+    }
+
+    const text = allPlayers.map(([, p], i) => {
+      const medal = ["🥇", "🥈", "🥉"][i] || "📌";
+      return `${medal} **${p.firstName}** (${p.kingName})\n   💰 ${formatNumber(p.gold)} | ⚔️ ${formatNumber(p.soldiers)} | 📅 روز ${p.day}`;
+    }).join("\n\n");
+
+    await ctx.replyWithPhoto(photos.shir_khorshid, {
+      caption: `${getGlassBorder()}\n🏆 **لیدربورد**\n${getGlassBorder()}\n\n${text}`,
+      parse_mode: "Markdown",
+      reply_markup: mainMenu(),
+    });
+    return;
+  }
+}
+
+module.exports = { handleCallback };
