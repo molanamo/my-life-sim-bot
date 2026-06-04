@@ -1,0 +1,133 @@
+// سیستم بازار - بقای فرمانروا
+const { getPlayer, savePlayer, addExp } = require("./player");
+const { weapons } = require("../data/weapons");
+const { foods } = require("../data/foods");
+
+/**
+ * خرید آیتم (سلاح، زره، غذا)
+ */
+function buyItem(userId, itemId, category) {
+  const player = getPlayer(userId);
+  if (!player) return { ok: false, msg: "❌ بازیکن پیدا نشد!" };
+
+  let item;
+  if (category === "weapon" || category === "armor") {
+    item = weapons[itemId];
+  } else if (category === "food") {
+    item = foods[itemId];
+  }
+
+  if (!item) return { ok: false, msg: "❌ آیتم پیدا نشد!" };
+
+  // چک پیش‌نیاز
+  if (item.required) {
+    const hasRequired = (category === "weapon" || category === "armor") 
+      ? player.weapon === item.required || player.armor === item.required
+      : false;
+    
+    if (!hasRequired) {
+      return { ok: false, msg: `❌ اول باید ${item.requiredName} رو بخری!` };
+    }
+  }
+
+  // چک پول
+  if (player.gold < item.price) {
+    return { ok: false, msg: `❌ پول کافی نداری! نیاز: ${item.price} سکه` };
+  }
+
+  // خرید
+  player.gold -= item.price;
+
+  if (category === "weapon") {
+    if (player.weapon && item.required) {
+      // فروش سلاح قبلی با نصف قیمت
+      const oldWeapon = weapons[player.weapon];
+      if (oldWeapon) player.gold += Math.floor(oldWeapon.price / 2);
+    }
+    player.weapon = itemId;
+  } else if (category === "armor") {
+    if (player.armor && item.required) {
+      const oldArmor = weapons[player.armor];
+      if (oldArmor) player.gold += Math.floor(oldArmor.price / 2);
+    }
+    player.armor = itemId;
+  } else if (category === "food") {
+    player.food += item.hunger;
+    player.health = Math.min(player.maxHealth, player.health + (item.health || 0));
+  }
+
+  addExp(userId, 5);
+  savePlayer(userId, player);
+
+  return { ok: true, item: item.name, price: item.price };
+}
+
+/**
+ * فروش منابع
+ */
+function sellResource(userId, resource, amount) {
+  const player = getPlayer(userId);
+  if (!player) return { ok: false, msg: "❌ بازیکن پیدا نشد!" };
+
+  const prices = {
+    wood: 2,
+    stone: 3,
+    iron: 5,
+    food: 4,
+  };
+
+  if (!prices[resource]) return { ok: false, msg: "❌ این منبع قابل فروش نیست!" };
+  if ((player[resource] || 0) < amount) return { ok: false, msg: `❌ ${resource} کافی نداری!` };
+
+  const totalPrice = amount * prices[resource];
+  player[resource] -= amount;
+  player.gold += totalPrice;
+  player.totalGoldEarned += totalPrice;
+
+  savePlayer(userId, player);
+  return { ok: true, resource, amount, gold: totalPrice };
+}
+
+/**
+ * خرید منابع با سکه
+ */
+function buyResource(userId, resource, amount) {
+  const player = getPlayer(userId);
+  if (!player) return { ok: false, msg: "❌ بازیکن پیدا نشد!" };
+
+  const prices = {
+    wood: 3,
+    stone: 5,
+    iron: 8,
+    food: 6,
+  };
+
+  if (!prices[resource]) return { ok: false, msg: "❌ این منبع قابل خرید نیست!" };
+
+  const totalPrice = amount * prices[resource];
+  if (player.gold < totalPrice) return { ok: false, msg: `❌ سکه کافی نداری! نیاز: ${totalPrice}` };
+
+  player.gold -= totalPrice;
+  player[resource] = (player[resource] || 0) + amount;
+
+  savePlayer(userId, player);
+  return { ok: true, resource, amount, gold: totalPrice };
+}
+
+/**
+ * گرفتن لیست قابل خرید
+ */
+function getShopItems() {
+  return {
+    weapons: Object.values(weapons).filter(w => w.type === "weapon"),
+    armors: Object.values(weapons).filter(w => w.type === "armor"),
+    foods: Object.values(foods),
+  };
+}
+
+module.exports = {
+  buyItem,
+  sellResource,
+  buyResource,
+  getShopItems,
+};
