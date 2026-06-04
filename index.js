@@ -17,26 +17,52 @@ function getMainMenu() {
     .text("🕌 جمهوری اسلامی", "cat_republic");
 }
 
-function getBackMenu() {
-  return new InlineKeyboard().text("🔙 بازگشت", "back_main");
-}
-
+// ==================== عکس‌های رهبران ====================
 const leaders = {
-  // هخامنشیان
-  cyrus: { name: "کوروش بزرگ", desc: "بنیادگزار هخامنشی", era: "ancient" },
-  darius: { name: "داریوش بزرگ", desc: "سازنده پارسه", era: "ancient" },
-  anushirvan: { name: "انوشیروان", desc: "دادگستر ساسانی", era: "ancient" },
-  // صفویان
-  shahabbas: { name: "شاه عباس", desc: "صفوی بزرگ", era: "islamic" },
-  nader: { name: "نادرشاه", desc: "فاتح هند", era: "islamic" },
-  karim: { name: "کریم‌خان", desc: "وکیل‌الرعایا", era: "islamic" },
-  // پهلویان
-  rezashah: { name: "رضاشاه", desc: "بنیادگزار ارتش نوین", era: "modern" },
-  mohammadreza: { name: "محمدرضا", desc: "پیشاهنگ سپید", era: "modern" },
-  // جمهوری اسلامی
-  khomeini: { name: "امام خمینی", desc: "رهبر انقلاب", era: "republic" },
-  khamenei: { name: "آیت‌الله خامنه‌ای", desc: "رهبر فرزانه", era: "republic" }
+  cyrus: { name: "کوروش بزرگ", desc: "بنیادگزار هخامنشی", image: "AgACAgQAAxkBAAEqCuxqH_gzDC0lhnhq5XY5trPLrtNiKAACiQ5rG4APAVESIQfjCtTuagEAAwIAA3cAAzsE", era: "ancient" },
+  darius: { name: "داریوش بزرگ", desc: "سازنده پارسه", image: "AgACAgQAAxkBAAEqCwxqH_vHXf_othfTA2jTsuAZqqbuSQACkg5rG4APAVFF2KiazmU2oQEAAwIAA3kAAzsE", era: "ancient" },
+  anushirvan: { name: "انوشیروان", desc: "دادگستر ساسانی", image: "AgACAgQAAxkBAAEqCxBqH_xgAAGDky46hdN3TNPOpoLa7CAAApQOaxuADwFRz7glJ8phpNsBAAMCAAN5AAM7BA", era: "ancient" },
+  shahabbas: { name: "شاه عباس", desc: "صفوی بزرگ", image: "AgACAgQAAxkBAAEqC1ZqIAABw4hu6fz4rv1Sm5C2Wxg654IAApUOaxuADwFREeM5uPDykG0BAAMCAAN5AAM7BA", era: "islamic" },
+  nader: { name: "نادرشاه", desc: "فاتح هند", image: "AgACAgQAAxkBAAEqC8BqIAqp_nwtXft1OGSIEp-AfmmTuwACpw5rG4APAVERR2QTdtSDlwEAAwIAA3kAAzsE", era: "islamic" },
+  karim: { name: "کریم‌خان", desc: "وکیل‌الرعایا", image: "AgACAgQAAxkBAAEqDQpqICDyBdfDPIAlcnUqTvtg1bfXlwACyA5rG4APAVHI6esAAVBUeW0BAAMCAAN5AAM7BA", era: "islamic" },
+  rezashah: { name: "رضاشاه", desc: "بنیادگزار ارتش نوین", image: "AgACAgQAAxkBAAEqDRRqICGe82zWxY2HygESUHruXYt-pwAC1w5rG4APAVEE1NreIhRuWQEAAwIAA3kAAzsE", era: "modern" },
+  mohammadreza: { name: "محمدرضا", desc: "پیشاهنگ سپید", image: "AgACAgQAAxkBAAEqDSBqICI_SreoP_nMRvgKJ_MB9q4CnQAC2A5rG4APAVHq3LzEIHc2lwEAAwIAA3kAAzsE", era: "modern" },
+  khomeini: { name: "امام خمینی", desc: "رهبر انقلاب", image: "AgACAgQAAxkBAAEqDSVqICKpjXkKp6VNQ5cFJXfaBxJ6SQAC2Q5rG4APAVFwaaT8pT6IowEAAwIAA3cAAzsE", era: "republic" },
+  khamenei: { name: "آیت‌الله خامنه‌ای", desc: "رهبر فرزانه", image: "AgACAgQAAxkBAAEqDSpqICL4y8wH9x-j28C2AAFizyn8n7AAAtoOaxuADwFRayCfRQAB1p5AAQADAgADdwADOwQ", era: "republic" }
 };
+
+// ==================== سلاح‌های هر دوره ====================
+const weaponsByEra = {
+  ancient: [
+    { id: "sword", name: "⚔️ شمشیر مفرغین", price: 100, power: 5 },
+    { id: "bow", name: "🏹 کمان پهلوی", price: 150, power: 8 },
+    { id: "spear", name: "🔱 نیزه بلند", price: 200, power: 12 }
+  ],
+  islamic: [
+    { id: "damascus", name: "🗡️ شمشیر دمشقی", price: 250, power: 15 },
+    { id: "armor", name: "🛡️ زره زنجیرین", price: 350, power: 12 },
+    { id: "musket", name: "🔫 تفنگ فتیله‌ای", price: 500, power: 25 }
+  ],
+  modern: [
+    { id: "bruno", name: "🔫 تفنگ برنو", price: 400, power: 20 },
+    { id: "maxim", name: "💣 مسلسل ماکسیم", price: 700, power: 35 },
+    { id: "fighter", name: "✈️ جنگنده آسمانی", price: 2500, power: 90 }
+  ],
+  republic: [
+    { id: "rpg", name: "💥 آرپی‌جی ۷", price: 500, power: 30 },
+    { id: "t72", name: "🚜 تانک T-72", price: 3000, power: 100 },
+    { id: "missile", name: "🚀 موشک شهاب", price: 2000, power: 80 }
+  ]
+};
+
+// ==================== انیمیشن‌ها ====================
+const animations = {
+  victory: "CgACAgQAAxkBAAEqEw1qIJDV8z7vf7hG_oP0l4aaTPm7ZQACgCMAAvQVAVEjsoZnsyyDgTsE",
+  defeat: "CgACAgQAAxkBAAEqEu1qII15onal3AqvYITzkqdm5MI00gACeyMAAvQVAVF1fh97_aRKYDsE"
+};
+
+// ==================== دشمنان ====================
+const enemies = ["سپاه دشمن", "شورشیان", "مهاجمان", "ارتش متجاوز", "دشمن کهن"];
 
 bot.command("start", async (ctx) => {
   await ctx.reply(
@@ -49,7 +75,7 @@ bot.on("callback_query:data", async (ctx) => {
   const data = ctx.callbackQuery.data;
   await ctx.answerCallbackQuery();
 
-  // ==================== دسته هخامنشیان ====================
+  // ==================== نمایش دسته‌ها ====================
   if (data === "cat_ancient") {
     const keyboard = new InlineKeyboard()
       .text("کوروش بزرگ", "select_cyrus")
@@ -58,13 +84,8 @@ bot.on("callback_query:data", async (ctx) => {
       .text("انوشیروان", "select_anushirvan")
       .row()
       .text("🔙 بازگشت", "back_main");
-    
-    await ctx.editMessageText(
-      `🏛️ **شاهان هخامنشی و ساسانی**\n\nیکی از شاهان را برگزین:`,
-      { parse_mode: "Markdown", reply_markup: keyboard }
-    );
+    await ctx.editMessageText(`🏛️ **شاهان هخامنشی و ساسانی**\n\nیکی از شاهان را برگزین:`, { parse_mode: "Markdown", reply_markup: keyboard });
   }
-  // ==================== دسته صفویان ====================
   else if (data === "cat_islamic") {
     const keyboard = new InlineKeyboard()
       .text("شاه عباس", "select_shahabbas")
@@ -73,209 +94,127 @@ bot.on("callback_query:data", async (ctx) => {
       .text("کریم‌خان", "select_karim")
       .row()
       .text("🔙 بازگشت", "back_main");
-    
-    await ctx.editMessageText(
-      `⚔️ **شاهان صفوی و افشار**\n\nیکی از شاهان را برگزین:`,
-      { parse_mode: "Markdown", reply_markup: keyboard }
-    );
+    await ctx.editMessageText(`⚔️ **شاهان صفوی و افشار**\n\nیکی از شاهان را برگزین:`, { parse_mode: "Markdown", reply_markup: keyboard });
   }
-  // ==================== دسته پهلویان ====================
   else if (data === "cat_modern") {
     const keyboard = new InlineKeyboard()
       .text("رضاشاه", "select_rezashah")
       .text("محمدرضا", "select_mohammadreza")
       .row()
       .text("🔙 بازگشت", "back_main");
-    
-    await ctx.editMessageText(
-      `🏭 **شاهان پهلوی**\n\nیکی از شاهان را برگزین:`,
-      { parse_mode: "Markdown", reply_markup: keyboard }
-    );
+    await ctx.editMessageText(`🏭 **شاهان پهلوی**\n\nیکی از شاهان را برگزین:`, { parse_mode: "Markdown", reply_markup: keyboard });
   }
-  // ==================== دسته جمهوری اسلامی ====================
   else if (data === "cat_republic") {
     const keyboard = new InlineKeyboard()
       .text("امام خمینی", "select_khomeini")
       .text("آیت‌الله خامنه‌ای", "select_khamenei")
       .row()
       .text("🔙 بازگشت", "back_main");
-    
-    await ctx.editMessageText(
-      `🕌 **رهبران جمهوری اسلامی**\n\nیکی از رهبران را برگزین:`,
-      { parse_mode: "Markdown", reply_markup: keyboard }
-    );
+    await ctx.editMessageText(`🕌 **رهبران جمهوری اسلامی**\n\nیکی از رهبران را برگزین:`, { parse_mode: "Markdown", reply_markup: keyboard });
   }
-  // ==================== انتخاب رهبران ====================
-  else if (data === "select_cyrus") {
-    usersDB.set(ctx.from.id, { leader: "cyrus", leaderName: "کوروش بزرگ", era: "ancient", gold: 500, exp: 0, military: 50, weapon: null, battleCount: 0 });
+
+  // ==================== انتخاب رهبر ====================
+  else if (data.startsWith("select_")) {
+    const leaderKey = data.replace("select_", "");
+    const leader = leaders[leaderKey];
+    usersDB.set(ctx.from.id, {
+      leader: leaderKey, leaderName: leader.name, era: leader.era,
+      gold: 500, exp: 0, military: 50, weapon: null, battleCount: 0
+    });
     const keyboard = new InlineKeyboard()
       .text("🪞 بازارچه", "shop")
       .text("⚔️ میدان رزم", "battle")
       .row()
+      .text("📊 دفترچه", "status")
       .text("🔙 منوی اصلی", "back_main");
-    await ctx.editMessageText(
-      `${getGlassBorder()}\n✅ **کوروش بزرگ** برگزیده شد!\n${getGlassBorder()}\n\n💰 دینار: ۵۰۰\n⚔️ توان رزمی: ۵۰`,
-      { parse_mode: "Markdown", reply_markup: keyboard }
-    );
+    await ctx.replyWithPhoto(leader.image, {
+      caption: `${getGlassBorder()}\n✅ **${leader.name}** برگزیده شد!\n${getGlassBorder()}\n\n💰 دینار: ۵۰۰\n⚔️ توان رزمی: ۵۰`,
+      parse_mode: "Markdown",
+      reply_markup: keyboard
+    });
   }
-  else if (data === "select_darius") {
-    usersDB.set(ctx.from.id, { leader: "darius", leaderName: "داریوش بزرگ", era: "ancient", gold: 500, exp: 0, military: 50, weapon: null, battleCount: 0 });
-    const keyboard = new InlineKeyboard()
-      .text("🪞 بازارچه", "shop")
-      .text("⚔️ میدان رزم", "battle")
-      .row()
-      .text("🔙 منوی اصلی", "back_main");
-    await ctx.editMessageText(
-      `${getGlassBorder()}\n✅ **داریوش بزرگ** برگزیده شد!\n${getGlassBorder()}\n\n💰 دینار: ۵۰۰\n⚔️ توان رزمی: ۵۰`,
-      { parse_mode: "Markdown", reply_markup: keyboard }
-    );
-  }
-  else if (data === "select_anushirvan") {
-    usersDB.set(ctx.from.id, { leader: "anushirvan", leaderName: "انوشیروان", era: "ancient", gold: 500, exp: 0, military: 50, weapon: null, battleCount: 0 });
-    const keyboard = new InlineKeyboard()
-      .text("🪞 بازارچه", "shop")
-      .text("⚔️ میدان رزم", "battle")
-      .row()
-      .text("🔙 منوی اصلی", "back_main");
-    await ctx.editMessageText(
-      `${getGlassBorder()}\n✅ **انوشیروان** برگزیده شد!\n${getGlassBorder()}\n\n💰 دینار: ۵۰۰\n⚔️ توان رزمی: ۵۰`,
-      { parse_mode: "Markdown", reply_markup: keyboard }
-    );
-  }
-  else if (data === "select_shahabbas") {
-    usersDB.set(ctx.from.id, { leader: "shahabbas", leaderName: "شاه عباس", era: "islamic", gold: 500, exp: 0, military: 50, weapon: null, battleCount: 0 });
-    const keyboard = new InlineKeyboard()
-      .text("🪞 بازارچه", "shop")
-      .text("⚔️ میدان رزم", "battle")
-      .row()
-      .text("🔙 منوی اصلی", "back_main");
-    await ctx.editMessageText(
-      `${getGlassBorder()}\n✅ **شاه عباس** برگزیده شد!\n${getGlassBorder()}\n\n💰 دینار: ۵۰۰\n⚔️ توان رزمی: ۵۰`,
-      { parse_mode: "Markdown", reply_markup: keyboard }
-    );
-  }
-  else if (data === "select_nader") {
-    usersDB.set(ctx.from.id, { leader: "nader", leaderName: "نادرشاه", era: "islamic", gold: 500, exp: 0, military: 50, weapon: null, battleCount: 0 });
-    const keyboard = new InlineKeyboard()
-      .text("🪞 بازارچه", "shop")
-      .text("⚔️ میدان رزم", "battle")
-      .row()
-      .text("🔙 منوی اصلی", "back_main");
-    await ctx.editMessageText(
-      `${getGlassBorder()}\n✅ **نادرشاه** برگزیده شد!\n${getGlassBorder()}\n\n💰 دینار: ۵۰۰\n⚔️ توان رزمی: ۵۰`,
-      { parse_mode: "Markdown", reply_markup: keyboard }
-    );
-  }
-  else if (data === "select_karim") {
-    usersDB.set(ctx.from.id, { leader: "karim", leaderName: "کریم‌خان", era: "islamic", gold: 500, exp: 0, military: 50, weapon: null, battleCount: 0 });
-    const keyboard = new InlineKeyboard()
-      .text("🪞 بازارچه", "shop")
-      .text("⚔️ میدان رزم", "battle")
-      .row()
-      .text("🔙 منوی اصلی", "back_main");
-    await ctx.editMessageText(
-      `${getGlassBorder()}\n✅ **کریم‌خان** برگزیده شد!\n${getGlassBorder()}\n\n💰 دینار: ۵۰۰\n⚔️ توان رزمی: ۵۰`,
-      { parse_mode: "Markdown", reply_markup: keyboard }
-    );
-  }
-  else if (data === "select_rezashah") {
-    usersDB.set(ctx.from.id, { leader: "rezashah", leaderName: "رضاشاه", era: "modern", gold: 500, exp: 0, military: 50, weapon: null, battleCount: 0 });
-    const keyboard = new InlineKeyboard()
-      .text("🪞 بازارچه", "shop")
-      .text("⚔️ میدان رزم", "battle")
-      .row()
-      .text("🔙 منوی اصلی", "back_main");
-    await ctx.editMessageText(
-      `${getGlassBorder()}\n✅ **رضاشاه** برگزیده شد!\n${getGlassBorder()}\n\n💰 دینار: ۵۰۰\n⚔️ توان رزمی: ۵۰`,
-      { parse_mode: "Markdown", reply_markup: keyboard }
-    );
-  }
-  else if (data === "select_mohammadreza") {
-    usersDB.set(ctx.from.id, { leader: "mohammadreza", leaderName: "محمدرضا", era: "modern", gold: 500, exp: 0, military: 50, weapon: null, battleCount: 0 });
-    const keyboard = new InlineKeyboard()
-      .text("🪞 بازارچه", "shop")
-      .text("⚔️ میدان رزم", "battle")
-      .row()
-      .text("🔙 منوی اصلی", "back_main");
-    await ctx.editMessageText(
-      `${getGlassBorder()}\n✅ **محمدرضا** برگزیده شد!\n${getGlassBorder()}\n\n💰 دینار: ۵۰۰\n⚔️ توان رزمی: ۵۰`,
-      { parse_mode: "Markdown", reply_markup: keyboard }
-    );
-  }
-  else if (data === "select_khomeini") {
-    usersDB.set(ctx.from.id, { leader: "khomeini", leaderName: "امام خمینی", era: "republic", gold: 500, exp: 0, military: 50, weapon: null, battleCount: 0 });
-    const keyboard = new InlineKeyboard()
-      .text("🪞 بازارچه", "shop")
-      .text("⚔️ میدان رزم", "battle")
-      .row()
-      .text("🔙 منوی اصلی", "back_main");
-    await ctx.editMessageText(
-      `${getGlassBorder()}\n✅ **امام خمینی** برگزیده شد!\n${getGlassBorder()}\n\n💰 دینار: ۵۰۰\n⚔️ توان رزمی: ۵۰`,
-      { parse_mode: "Markdown", reply_markup: keyboard }
-    );
-  }
-  else if (data === "select_khamenei") {
-    usersDB.set(ctx.from.id, { leader: "khamenei", leaderName: "آیت‌الله خامنه‌ای", era: "republic", gold: 500, exp: 0, military: 50, weapon: null, battleCount: 0 });
-    const keyboard = new InlineKeyboard()
-      .text("🪞 بازارچه", "shop")
-      .text("⚔️ میدان رزم", "battle")
-      .row()
-      .text("🔙 منوی اصلی", "back_main");
-    await ctx.editMessageText(
-      `${getGlassBorder()}\n✅ **آیت‌الله خامنه‌ای** برگزیده شد!\n${getGlassBorder()}\n\n💰 دینار: ۵۰۰\n⚔️ توان رزمی: ۵۰`,
-      { parse_mode: "Markdown", reply_markup: keyboard }
-    );
-  }
-  // ==================== بازارچه و جنگ ====================
+
+  // ==================== فروشگاه ====================
   else if (data === "shop") {
     const user = usersDB.get(ctx.from.id);
-    if (!user) {
-      await ctx.editMessageText("❌ ابتدا یک رهبر انتخاب کن!", { reply_markup: getBackMenu() });
-      return;
-    }
-    await ctx.editMessageText(
-      `🪞 **بازارچه شیشه‌ای**\n\n💰 دینار: ${user.gold}\n⚔️ توان: ${user.military}\n\n• شمشیر مفرغین - ۱۰۰💰 (قدرت +۵)`,
-      { parse_mode: "Markdown", reply_markup: new InlineKeyboard().text("🔙 بازگشت", "back_to_game") }
+    if (!user) { await ctx.reply("❌ ابتدا یک رهبر انتخاب کن!"); return; }
+    const weapons = weaponsByEra[user.era];
+    const keyboard = new InlineKeyboard();
+    weapons.forEach(w => keyboard.text(`${w.name} - ${w.price}💰`, `buy_${w.id}`));
+    keyboard.row().text("🔙 بازگشت", "back_to_game");
+    await ctx.reply(
+      `🪞 **بازارچه شیشه‌ای**\n\n💰 دینار: ${user.gold}\n⚔️ توان: ${user.military}\n\n${weapons.map(w => `${w.name} - ${w.price}💰 (قدرت +${w.power})`).join("\n")}`,
+      { parse_mode: "Markdown", reply_markup: keyboard }
     );
   }
+
+  // ==================== خرید سلاح ====================
+  else if (data.startsWith("buy_")) {
+    const user = usersDB.get(ctx.from.id);
+    const weaponId = data.replace("buy_", "");
+    const weapon = weaponsByEra[user.era].find(w => w.id === weaponId);
+    if (user.gold >= weapon.price) {
+      user.gold -= weapon.price;
+      if (user.weapon) user.military -= user.weapon.power;
+      user.weapon = weapon;
+      user.military += weapon.power;
+      usersDB.set(ctx.from.id, user);
+      await ctx.reply(`✅ ${weapon.name} خریداری شد!\n💰 دینار: ${user.gold}\n⚔️ توان: ${user.military}`);
+    } else {
+      await ctx.reply(`❌ دینار کافی نیست! نیاز به ${weapon.price - user.gold} دینار بیشتر.`);
+    }
+  }
+
+  // ==================== جنگ ====================
   else if (data === "battle") {
     const user = usersDB.get(ctx.from.id);
-    if (!user) {
-      await ctx.editMessageText("❌ ابتدا یک رهبر انتخاب کن!", { reply_markup: getBackMenu() });
-      return;
-    }
-    const enemies = ["سپاه دشمن", "شورشیان", "مهاجمان", "ارتش متجاوز"];
+    if (!user) return;
     const enemy = enemies[Math.floor(Math.random() * enemies.length)];
-    const playerPower = user.military;
+    const playerPower = user.military + (user.weapon?.power || 0);
     const isWin = playerPower + (Math.random() * 30 - 10) > 50;
-    const reward = isWin ? 200 : 20;
-    user.gold += reward;
+    const reward = isWin ? { gold: 200, exp: 30 } : { gold: 20, exp: 5 };
+    user.gold += reward.gold;
+    user.exp += reward.exp;
     usersDB.set(ctx.from.id, user);
-    
-    await ctx.editMessageText(
-      `${isWin ? "🎉 پیروزی بزرگ!" : "💔 شکست ننگین!"}\n\n⚔️ نبرد با ${enemy}\n💰 +${reward} دینار\n💰 دینار فعلی: ${user.gold}`,
-      { parse_mode: "Markdown", reply_markup: new InlineKeyboard().text("🔙 بازگشت", "back_to_game") }
-    );
+    const anim = isWin ? animations.victory : animations.defeat;
+    await ctx.replyWithAnimation(anim, {
+      caption: `${isWin ? "🎉 پیروزی بزرگ!" : "💔 شکست ننگین!"}\n\n⚔️ نبرد با ${enemy}\n💰 +${reward.gold} دینار\n⭐ +${reward.exp} تجربه\n💰 دینار: ${user.gold}\n⚔️ توان: ${user.military}`,
+      parse_mode: "Markdown",
+      reply_markup: new InlineKeyboard().text("⚔️ جنگ دوباره", "battle").text("🪞 بازارچه", "shop").row().text("🔙 بازگشت", "back_to_game")
+    });
   }
+
+  // ==================== وضعیت ====================
+  else if (data === "status") {
+    const user = usersDB.get(ctx.from.id);
+    if (!user) return;
+    const leader = leaders[user.leader];
+    await ctx.replyWithPhoto(leader.image, {
+      caption: `${getGlassBorder()}\n📊 **دفترچه وضعیت**\n${getGlassBorder()}\n\n👑 نام: ${user.leaderName}\n💰 دینار: ${user.gold}\n⭐ تجربه: ${user.exp}\n⚔️ توان: ${user.military}\n🗡️ خود: ${user.weapon?.name || "ندارد"}`,
+      parse_mode: "Markdown",
+      reply_markup: new InlineKeyboard().text("🔙 بازگشت", "back_to_game")
+    });
+  }
+
+  // ==================== بازگشت ====================
   else if (data === "back_to_game") {
     const user = usersDB.get(ctx.from.id);
-    if (!user) {
-      await ctx.editMessageText("❌ خطا! /start رو بزن.", { reply_markup: getMainMenu() });
-      return;
-    }
+    if (!user) { await ctx.reply("❌ خطا! /start رو بزن."); return; }
+    const leader = leaders[user.leader];
     const keyboard = new InlineKeyboard()
       .text("🪞 بازارچه", "shop")
       .text("⚔️ میدان رزم", "battle")
       .row()
+      .text("📊 دفترچه", "status")
       .text("🔙 منوی اصلی", "back_main");
-    
-    await ctx.editMessageText(
-      `${getGlassBorder()}\n✅ **${user.leaderName}**\n${getGlassBorder()}\n\n💰 دینار: ${user.gold}\n⚔️ توان: ${user.military}`,
-      { parse_mode: "Markdown", reply_markup: keyboard }
-    );
+    await ctx.replyWithPhoto(leader.image, {
+      caption: `${getGlassBorder()}\n✅ **${user.leaderName}**\n${getGlassBorder()}\n\n💰 دینار: ${user.gold}\n⚔️ توان: ${user.military}\n🗡️ خود: ${user.weapon?.name || "ندارد"}`,
+      parse_mode: "Markdown",
+      reply_markup: keyboard
+    });
   }
   else if (data === "back_main") {
-    await ctx.editMessageText(
+    await ctx.reply(
       `${getGlassBorder()}\n🪞 ⭐ فروغ جاودان ⭐ 🪞\n${getGlassBorder()}\n\n📜 یک دسته از شاهان را برگزین:`,
       { parse_mode: "Markdown", reply_markup: getMainMenu() }
     );
@@ -283,4 +222,4 @@ bot.on("callback_query:data", async (ctx) => {
 });
 
 bot.start();
-console.log("🎮 نسخه کامل با ۱۰ رهبر و همه دسته‌ها روشن شد...");
+console.log("🎮 قدم بعدی - عکس رهبران و سیستم خرید سلاح اضافه شد...");
