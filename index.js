@@ -4,34 +4,46 @@ const { photos } = require("./assets");
 const { mainMenu, gameMenu } = require("./bot/menus");
 const { handleCallback } = require("./bot/handlers");
 const { showAdminPanel, handleAdminCallback, handleAdminMessage } = require("./bot/admin");
-const { getPlayer, isAlive, getRevengeList, getAttackLog } = require("./game/player");
+const { getPlayer, getRevengeList, getAttackLog } = require("./game/player");
 const { attackPlayer, revenge } = require("./game/battle");
 const { getStatusText, pvpResultText } = require("./bot/display");
 const { getGlassBorder } = require("./utils/helpers");
 const { kings } = require("./data/kings");
 
 const bot = new Bot(process.env.BOT_TOKEN);
-const ADMINS = process.env.ADMINS ? process.env.ADMINS.split(',').map(Number) : [];
+const ADMINS = process.env.ADMINS ? process.env.ADMINS.split(",").map(Number) : [];
 
 // ==================== دستور /start ====================
 bot.command("start", async (ctx) => {
-  const player = getPlayer(ctx.from.id);
+  try {
+    const player = getPlayer(ctx.from.id);
 
-  if (player && player.alive) {
-    const king = kings[player.kingId];
-    await ctx.replyWithPhoto(king.photo, {
-      caption: getStatusText(player),
+    if (player && player.alive) {
+      const king = kings[player.kingId];
+      if (king && king.photo) {
+        await ctx.replyWithPhoto(king.photo, {
+          caption: getStatusText(player),
+          parse_mode: "Markdown",
+          reply_markup: gameMenu(),
+        });
+      } else {
+        await ctx.reply(getStatusText(player), {
+          parse_mode: "Markdown",
+          reply_markup: gameMenu(),
+        });
+      }
+      return;
+    }
+
+    await ctx.replyWithPhoto(photos.shir_khorshid, {
+      caption: `${getGlassBorder()}\n🏰 **بقای فرمانروا** 🏰\n${getGlassBorder()}\n\nاز هیچ شروع کن، امپراتوری بساز، ۳۰ روز زنده بمون!\n\n📜 یه دوره انتخاب کن:`,
       parse_mode: "Markdown",
-      reply_markup: gameMenu(),
+      reply_markup: mainMenu(),
     });
-    return;
+  } catch (err) {
+    console.error("Error in start:", err.message);
+    await ctx.reply("❌ خطا! دوباره /start رو بزن.");
   }
-
-  await ctx.replyWithPhoto(photos.shir_khorshid, {
-    caption: `${getGlassBorder()}\n🏰 **بقای فرمانروا** 🏰\n${getGlassBorder()}\n\nاز هیچ شروع کن، امپراتوری بساز، ۳۰ روز زنده بمون!\n\n📜 یه دوره انتخاب کن:`,
-    parse_mode: "Markdown",
-    reply_markup: mainMenu(),
-  });
 });
 
 // ==================== پنل ادمین ====================
@@ -102,24 +114,25 @@ bot.command("attack_log", async (ctx) => {
 
 // ==================== هندلر callback ها ====================
 bot.on("callback_query:data", async (ctx) => {
-  const data = ctx.callbackQuery.data;
-  await ctx.answerCallbackQuery().catch(() => {});
+  try {
+    const data = ctx.callbackQuery.data;
+    await ctx.answerCallbackQuery().catch(() => {});
 
-  // هندلر ادمین
-  if (data.startsWith("admin_") && ADMINS.includes(ctx.from.id)) {
-    await handleAdminCallback(ctx);
-    return;
+    if (data.startsWith("admin_") && ADMINS.includes(ctx.from.id)) {
+      await handleAdminCallback(ctx);
+      return;
+    }
+
+    await handleCallback(ctx);
+  } catch (err) {
+    console.error("Callback error:", err.message);
   }
-
-  // هندلر اصلی بازی
-  await handleCallback(ctx);
 });
 
 // ==================== هندلر پیام‌های ادمین ====================
 bot.on("message:text", async (ctx) => {
   if (!ADMINS.includes(ctx.from.id)) return;
-  const handled = await handleAdminMessage(ctx);
-  if (handled) return;
+  await handleAdminMessage(ctx);
 });
 
 // ==================== مدیریت خطا ====================
@@ -129,8 +142,5 @@ bot.catch((err) => {
 
 // ==================== شروع ربات ====================
 console.log("🏰 بقای فرمانروا - در حال اجرا...");
-console.log("👑 شاه خود را انتخاب کن و امپراتوری بساز!");
-console.log("⚔️ PvP فعال | 🔥 انتقام فعال | 🎉 عیاشی فعال");
-console.log("👮 پنل ادمین: /admin");
 
 bot.start();
