@@ -1,7 +1,7 @@
 {
   "name": "pars-game",
   "version": "1.0.0",
-  "description": "بازی بقای فرمانروا",
+  "description": "بازی بقاای فرمانروا",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
