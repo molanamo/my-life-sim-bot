@@ -1,223 +1,56 @@
-const { Bot, InlineKeyboard } = require("grammy");
+const { Bot } = require("grammy");
 
 const bot = new Bot(process.env.BOT_TOKEN);
 
-const usersDB = new Map();
-
-function getGlassBorder() {
-  return "✨⚜️✨⚜️✨⚜️✨⚜️✨⚜️✨";
-}
-
-// پادشاهان
-const kings = {
-  cyrus: { name: "کوروش بزرگ", desc: "بنیادگزار هخامنشی", era: "ancient" },
-  darius: { name: "داریوش بزرگ", desc: "سازنده پارسه", era: "ancient" },
-  anushirvan: { name: "انوشیروان", desc: "دادگستر ساسانی", era: "ancient" }
-};
-
-// حرمسراها (ملکه‌های هر پادشاه)
-const harams = {
-  cyrus: {
-    queens: [
-      { name: "آتوسا", desc: "دختر کوروش، ملکه بزرگ" },
-      { name: "کاساندان", desc: "همسر محبوب کوروش" }
-    ],
-    specialItem: "💎 تاج مروارید"
-  },
-  darius: {
-    queens: [
-      { name: "آتوسا", desc: "دختر کوروش، همسر داریوش" },
-      { name: "پارمیس", desc: "دختر بردیا" }
-    ],
-    specialItem: "🏺 جام زرین"
-  },
-  anushirvan: {
-    queens: [
-      { name: "شیرین", desc: "همسر محبوب انوشیروان" }
-    ],
-    specialItem: "📜 فرمان عدالت"
-  }
-};
-
-function getMainMenu() {
-  return new InlineKeyboard()
-    .text("🏛️ هخامنشیان", "cat_ancient")
-    .text("⚔️ صفویان", "cat_islamic")
-    .row()
-    .text("🏭 پهلویان", "cat_modern")
-    .text("🕌 جمهوری اسلامی", "cat_republic");
-}
-
-function getGameMenu(kingName) {
-  return new InlineKeyboard()
-    .text("🪞 بازارچه", "shop")
-    .text("⚔️ میدان رزم", "battle")
-    .row()
-    .text("👸 حرمسرا", "haram")
-    .text("🔙 منوی اصلی", "back_main");
-}
+const allImages = [
+  // پادشاهان
+  { name: "کوروش بزرگ", fileId: "AgACAgQAAxkBAAEqCuxqH_gzDC0lhnhq5XY5trPLrtNiKAACiQ5rG4APAVESIQfjCtTuagEAAwIAA3kAAzsE" },
+  { name: "داریوش بزرگ", fileId: "AgACAgQAAxkBAAEqCwxqH_vHXf_othfTA2jTsuAZqqbuSQACkg5rG4APAVFF2KiazmU2oQEAAwIAA3kAAzsE" },
+  { name: "انوشیروان", fileId: "AgACAgQAAxkBAAEqCxBqH_xgAAGDky46hdN3TNPOpoLa7CAAApQOaxuADwFRz7glJ8phpNsBAAMCAAN5AAM7BA" },
+  { name: "شاه عباس", fileId: "AgACAgQAAxkBAAEqC1ZqIAABw4hu6fz4rv1Sm5C2Wxg654IAApUOaxuADwFREeM5uPDykG0BAAMCAAN5AAM7BA" },
+  { name: "نادرشاه", fileId: "AgACAgQAAxkBAAEqC8BqIAqp_nwtXft1OGSIEp-AfmmTuwACpw5rG4APAVERR2QTdtSDlwEAAwIAA3kAAzsE" },
+  { name: "کریم‌خان", fileId: "AgACAgQAAxkBAAEqDQpqICDyBdfDPIAlcnUqTvtg1bfXlwACyA5rG4APAVHI6esAAVBUeW0BAAMCAAN5AAM7BA" },
+  { name: "رضاشاه", fileId: "AgACAgQAAxkBAAEqDRRqICGe82zWxY2HygESUHruXYt-pwAC1w5rG4APAVEE1NreIhRuWQEAAwIAA3kAAzsE" },
+  { name: "محمدرضا", fileId: "AgACAgQAAxkBAAEqDSBqICI_SreoP_nMRvgKJ_MB9q4CnQAC2A5rG4APAVHq3LzEIHc2lwEAAwIAA3kAAzsE" },
+  { name: "امام خمینی", fileId: "AgACAgQAAxkBAAEqDSVqICKpjXkKp6VNQ5cFJXfaBxJ6SQAC2Q5rG4APAVFwaaT8pT6IowEAAwIAA3cAAzsE" },
+  { name: "آیت‌الله خامنه‌ای", fileId: "AgACAgQAAxkBAAEqDSpqICL4y8wH9x-j28C2AAFizyn8n7AAAtoOaxuADwFRayCfRQAB1p5AAQADAgADdwADOwQ" },
+  // ملکه‌ها
+  { name: "آتوسا", fileId: "AgACAgQAAxkBAAEqF_VqIUiXDNrgihg0fmG12Gs01PrJ8QACxA1rG_JGCVFD_JpmxUMtsgEAAwIAA3kAAzsE" },
+  { name: "کاساندان", fileId: "AgACAgQAAxkBAAEqF_ZqIUiXmwzuK0xxiuZqsSA9keytaAACxQ1rG_JGCVENMXkMV5UfAQEAAwIAA3kAAzsE" },
+  { name: "پارمیس", fileId: "AgACAgQAAxkBAAEqF_dqIUiXZp0UrzV7tpEwjxIHJwL0ZwACxg1rG_JGCVEm2_xq5oJQjwEAAwIAA3gAAzsE" },
+  { name: "آرتونیس", fileId: "AgACAgQAAxkBAAEqF_lqIUiXoX-Xe4NVgsZbLXA7KmRQtgACxw1rG_JGCVEigD-9RqTJpgEAAwIAA3kAAzsE" },
+  { name: "شیرین", fileId: "AgACAgQAAxkBAAEqF_pqIUiX5hgu2spv5cqpQNhwkzoZWQACyA1rG_JGCVFjP_brzFcJeAEAAwIAA3kAAzsE" },
+  { name: "ملک جهان", fileId: "AgACAgQAAxkBAAEqF_xqIUiXpjy1R-LudoyFGrJD2qEu3QACyg1rG_JGCVGeTGCNTHEaQQEAAwIAA3kAAzsE" },
+  { name: "تاج الملوک", fileId: "AgACAgQAAxkBAAEqF_5qIUiXE2lOOvP0_IkqR5oCoPpBhAACyw1rG_JGCVHtjb_Kyi9t2AEAAwIAA3kAAzsE" },
+  { name: "عصمت دولتشاهی", fileId: "AgACAgQAAxkBAAEqGAABaiFIl4W-9FJFZnQ4C2lkvXQnxmEAAs0NaxvyRglRrLHcR39hxqUBAAMCAAN5AAM7BA" },
+  { name: "خدیجه ثقفی", fileId: "AgACAgQAAxkBAAEqGAJqIUiXDDIfX1SQmNRuQnojI3TFzgACzg1rG_JGCVFOZ9bATwodkAEAAwIAA3kAAzsE" },
+  { name: "منصوره خجسته", fileId: "AgACAgQAAxkBAAEqGANqIUiXm9OB_AYLRM7ZqoWuB9_ykwAC0g1rG_JGCVF5zXNH_Dm_ewEAAwIAA3gAAzsE" }
+];
 
 bot.command("start", async (ctx) => {
-  await ctx.reply(
-    `${getGlassBorder()}\n🪞 ⭐ فروغ جاودان ⭐ 🪞\n${getGlassBorder()}\n\n📜 یک دسته از شاهان را برگزین:`,
-    { parse_mode: "Markdown", reply_markup: getMainMenu() }
-  );
+  let working = 0;
+  let failed = 0;
+  let failedNames = [];
+
+  for (const item of allImages) {
+    try {
+      await ctx.replyWithPhoto(item.fileId, { caption: `✅ ${item.name}` });
+      working++;
+    } catch (e) {
+      failed++;
+      failedNames.push(item.name);
+      await ctx.reply(`❌ ${item.name} - عکس خراب است`);
+    }
+    await new Promise(resolve => setTimeout(resolve, 300));
+  }
+
+  await ctx.reply(`\n📊 نتیجه نهایی:\n✅ کار می‌کند: ${working}\n❌ خراب: ${failed}\n\nنام خراب‌ها: ${failedNames.join(", ") || "هیچکدام"}`);
 });
 
-bot.on("callback_query:data", async (ctx) => {
-  const data = ctx.callbackQuery.data;
-  await ctx.answerCallbackQuery();
-
-  // ========== دسته هخامنشیان ==========
-  if (data === "cat_ancient") {
-    const keyboard = new InlineKeyboard()
-      .text("کوروش بزرگ", "select_cyrus")
-      .text("داریوش بزرگ", "select_darius")
-      .row()
-      .text("انوشیروان", "select_anushirvan")
-      .row()
-      .text("🔙 بازگشت", "back_main");
-    
-    await ctx.editMessageText(
-      `🏛️ **شاهان هخامنشی و ساسانی**\n\nیکی از شاهان را برگزین:`,
-      { parse_mode: "Markdown", reply_markup: keyboard }
-    );
-  }
-  // صفویان (فعلاً خالی)
-  else if (data === "cat_islamic") {
-    await ctx.editMessageText(`⚔️ **شاهان صفوی**\n\nدر حال ساخت...`, { reply_markup: new InlineKeyboard().text("🔙 بازگشت", "back_main") });
-  }
-  // پهلویان (فعلاً خالی)
-  else if (data === "cat_modern") {
-    await ctx.editMessageText(`🏭 **شاهان پهلوی**\n\nدر حال ساخت...`, { reply_markup: new InlineKeyboard().text("🔙 بازگشت", "back_main") });
-  }
-  // جمهوری اسلامی (فعلاً خالی)
-  else if (data === "cat_republic") {
-    await ctx.editMessageText(`🕌 **رهبران جمهوری اسلامی**\n\nدر حال ساخت...`, { reply_markup: new InlineKeyboard().text("🔙 بازگشت", "back_main") });
-  }
-
-  // ========== انتخاب پادشاه ==========
-  else if (data === "select_cyrus") {
-    const king = kings.cyrus;
-    usersDB.set(ctx.from.id, { king: "cyrus", kingName: king.name, gold: 500, military: 50 });
-    
-    await ctx.editMessageText(
-      `${getGlassBorder()}\n✅ **${king.name}** برگزیده شد!\n${getGlassBorder()}\n\n💰 دینار: ۵۰۰\n⚔️ توان رزمی: ۵۰\n\n👸 برای ورود به حرمسرا از منوی زیر استفاده کن:`,
-      { parse_mode: "Markdown", reply_markup: getGameMenu(king.name) }
-    );
-  }
-  else if (data === "select_darius") {
-    const king = kings.darius;
-    usersDB.set(ctx.from.id, { king: "darius", kingName: king.name, gold: 500, military: 50 });
-    
-    await ctx.editMessageText(
-      `${getGlassBorder()}\n✅ **${king.name}** برگزیده شد!\n${getGlassBorder()}\n\n💰 دینار: ۵۰۰\n⚔️ توان رزمی: ۵۰\n\n👸 برای ورود به حرمسرا از منوی زیر استفاده کن:`,
-      { parse_mode: "Markdown", reply_markup: getGameMenu(king.name) }
-    );
-  }
-  else if (data === "select_anushirvan") {
-    const king = kings.anushirvan;
-    usersDB.set(ctx.from.id, { king: "anushirvan", kingName: king.name, gold: 500, military: 50 });
-    
-    await ctx.editMessageText(
-      `${getGlassBorder()}\n✅ **${king.name}** برگزیده شد!\n${getGlassBorder()}\n\n💰 دینار: ۵۰۰\n⚔️ توان رزمی: ۵۰\n\n👸 برای ورود به حرمسرا از منوی زیر استفاده کن:`,
-      { parse_mode: "Markdown", reply_markup: getGameMenu(king.name) }
-    );
-  }
-
-  // ========== حرمسرا ==========
-  else if (data === "haram") {
-    const user = usersDB.get(ctx.from.id);
-    if (!user) {
-      await ctx.reply("❌ ابتدا یک پادشاه انتخاب کن!");
-      return;
-    }
-    
-    const haram = harams[user.king];
-    if (!haram) {
-      await ctx.reply("❌ حرمسرایی برای این پادشاه یافت نشد.");
-      return;
-    }
-    
-    const keyboard = new InlineKeyboard();
-    haram.queens.forEach((q, index) => {
-      keyboard.text(`${q.name}`, `queen_${user.king}_${index}`);
-    });
-    keyboard.row().text("🔙 بازگشت", "back_to_game");
-    
-    await ctx.editMessageText(
-      `👸 **حرمسرای ${user.kingName}**\n\n🎁 آیتم ویژه: ${haram.specialItem}\n\n👩 ملکه‌ها:\n${haram.queens.map(q => `• ${q.name}: ${q.desc}`).join("\n")}`,
-      { parse_mode: "Markdown", reply_markup: keyboard }
-    );
-  }
-  
-  // ========== انتخاب ملکه ==========
-  else if (data.startsWith("queen_")) {
-    const parts = data.split("_");
-    const kingId = parts[1];
-    const queenIndex = parseInt(parts[2]);
-    const haram = harams[kingId];
-    const queen = haram.queens[queenIndex];
-    
-    await ctx.editMessageText(
-      `👸 **${queen.name}**\n\n📖 ${queen.desc}\n\n💝 وفادار به ${kingId === "cyrus" ? "کوروش بزرگ" : kingId === "darius" ? "داریوش بزرگ" : "انوشیروان"}\n\n🔧 آیتم ویژه حرمسرا: ${haram.specialItem}`,
-      { parse_mode: "Markdown", reply_markup: new InlineKeyboard().text("🔙 بازگشت به حرمسرا", "haram") }
-    );
-  }
-
-  // ========== بازارچه (ساده) ==========
-  else if (data === "shop") {
-    const user = usersDB.get(ctx.from.id);
-    if (!user) return;
-    
-    await ctx.editMessageText(
-      `🪞 **بازارچه شیشه‌ای**\n\n💰 دینار: ${user.gold}\n⚔️ توان: ${user.military}\n\n• شمشیر مفرغین - ۱۰۰💰 (قدرت +۵)`,
-      { reply_markup: new InlineKeyboard().text("🔙 بازگشت", "back_to_game") }
-    );
-  }
-
-  // ========== جنگ (ساده) ==========
-  else if (data === "battle") {
-    const user = usersDB.get(ctx.from.id);
-    const enemies = ["سپاه دشمن", "شورشیان", "مهاجمان"];
-    const enemy = enemies[Math.floor(Math.random() * enemies.length)];
-    const isWin = Math.random() > 0.5;
-    const reward = isWin ? 200 : 20;
-    
-    user.gold += reward;
-    usersDB.set(ctx.from.id, user);
-    
-    await ctx.editMessageText(
-      `${isWin ? "🎉 پیروزی بزرگ!" : "💔 شکست ننگین!"}\n\n⚔️ نبرد با ${enemy}\n💰 +${reward} دینار\n💰 دینار: ${user.gold}`,
-      { reply_markup: new InlineKeyboard().text("⚔️ جنگ دوباره", "battle").text("🪞 بازارچه", "shop").row().text("🔙 بازگشت", "back_to_game") }
-    );
-  }
-
-  // ========== بازگشت به بازی ==========
-  else if (data === "back_to_game") {
-    const user = usersDB.get(ctx.from.id);
-    if (!user) return;
-    
-    await ctx.editMessageText(
-      `${getGlassBorder()}\n✅ **${user.kingName}**\n${getGlassBorder()}\n\n💰 دینار: ${user.gold}\n⚔️ توان: ${user.military}`,
-      { parse_mode: "Markdown", reply_markup: getGameMenu(user.kingName) }
-    );
-  }
-
-  // ========== بازگشت به منوی اصلی ==========
-  else if (data === "back_main") {
-    await ctx.editMessageText(
-      `${getGlassBorder()}\n🪞 ⭐ فروغ جاودان ⭐ 🪞\n${getGlassBorder()}\n\n📜 یک دسته از شاهان را برگزین:`,
-      { parse_mode: "Markdown", reply_markup: getMainMenu() }
-    );
-  }
-});
-
-// استارت ربات
 if (process.env.RAILWAY_ENV === "true") {
-  bot.start({ allowed_updates: ["message", "callback_query"] });
+  bot.start({ allowed_updates: ["message"] });
 } else {
   bot.start();
 }
 
-console.log("🎮 نسخه تستی - حرمسرا و ملکه‌ها روشن شد...");
+console.log("📸 تست همه عکس‌های پادشاهان و ملکه‌ها...");
