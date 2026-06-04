@@ -1,0 +1,162 @@
+// رویدادهای تصادفی شبانه - بقای فرمانروا
+
+const events = [
+  {
+    id: "famine",
+    name: "🌾 قحطی بزرگ",
+    desc: "آفات به مزارع حمله کردن، غذا کم شده!",
+    effect: { food: -5 },
+    type: "bad",
+  },
+  {
+    id: "treasure",
+    name: "💎 کشف گنج",
+    desc: "یه صندوق پر از سکه توی خرابه‌ها پیدا کردی!",
+    effect: { gold: 150 },
+    type: "good",
+  },
+  {
+    id: "alliance",
+    name: "🤝 اتحاد جدید",
+    desc: "یه قبیله محلی بهت پیوستن، سرباز جدید داری!",
+    effect: { soldiers: 5 },
+    type: "good",
+  },
+  {
+    id: "storm",
+    name: "🌪️ طوفان سهمگین",
+    desc: "طوفان شدید چوب و سنگ رو با خودش برد!",
+    effect: { wood: -10, stone: -5 },
+    type: "bad",
+  },
+  {
+    id: "night_raid",
+    name: "⚡ حمله شبانه",
+    desc: "دشمن غافلگیرت کرد، خسارت خوردی!",
+    effect: { health: -20, soldiers: -3 },
+    type: "bad",
+  },
+  {
+    id: "festival",
+    name: "🎉 جشن بزرگ",
+    desc: "مردم جشن گرفتن، کلی غذا و سکه جمع شد!",
+    effect: { gold: 80, food: 5 },
+    type: "good",
+  },
+  {
+    id: "disease",
+    name: "🦠 بیماری همه‌گیر",
+    desc: "بیماری بین سربازات پیچیده، سلامتی کم شد!",
+    effect: { health: -25 },
+    type: "bad",
+  },
+  {
+    id: "gold_vein",
+    name: "⛏️ رگه طلا",
+    desc: "معدن‌چی‌ها یه رگه طلای درشت پیدا کردن!",
+    effect: { gold: 300, iron: 10 },
+    type: "good",
+  },
+  {
+    id: "wild_horse",
+    name: "🐎 اسب وحشی",
+    desc: "یه اسب وحشی رو اهلی کردی، غذا و سرباز داری!",
+    effect: { food: 5, soldiers: 2 },
+    type: "good",
+  },
+  {
+    id: "caravan",
+    name: "📦 کاروان تجاری",
+    desc: "یه کاروان از راه رسید، کلی منابع آوردن!",
+    effect: { gold: 100, wood: 15, stone: 10, food: 3 },
+    type: "good",
+  },
+  {
+    id: "fire",
+    name: "🔥 آتش‌سوزی",
+    desc: "انبار چوب آتش گرفت، کلی منابع از دست رفته!",
+    effect: { wood: -20, food: -5 },
+    type: "bad",
+  },
+  {
+    id: "meteor",
+    name: "☄️ شهاب‌سنگ",
+    desc: "شهاب‌سنگ آهنی نزدیک کمپ فرود اومد!",
+    effect: { iron: 25, stone: 15 },
+    type: "good",
+  },
+  {
+    id: "peace",
+    name: "🕊️ صلح موقت",
+    desc: "امروز همه جا آرومه، هیچ خطری تهدیدت نمی‌کنه.",
+    effect: { health: 10 },
+    type: "neutral",
+  },
+  {
+    id: "flood",
+    name: "💧 سیل ویرانگر",
+    desc: "سیل اومد و کلی چیز رو با خودش برد!",
+    effect: { wood: -8, stone: -8, food: -4 },
+    type: "bad",
+  },
+  {
+    id: "farmer",
+    name: "👨‍🌾 کشاورز ماهر",
+    desc: "یه کشاورز حرفه‌ای بهت پیوست، غذا زیاد شد!",
+    effect: { food: 10 },
+    type: "good",
+  },
+  {
+    id: "spy",
+    name: "🕵️ جاسوس دشمن",
+    desc: "جاسوس دشمن دستگیر شد، اطلاعات مهمی لو داد!",
+    effect: { gold: 50, soldiers: 1 },
+    type: "good",
+  },
+  {
+    id: "earthquake",
+    name: "🌍 زلزله",
+    desc: "زمین لرزید، بخشی از پناهگاه آسیب دید!",
+    effect: { stone: -10, iron: -3 },
+    type: "bad",
+  },
+  {
+    id: "merchant",
+    name: "🧳 تاجر ثروتمند",
+    desc: "تاجر معروف از شهر اومده، کلی سکه داری!",
+    effect: { gold: 200 },
+    type: "good",
+  },
+  {
+    id: "wolf_pack",
+    name: "🐺 گلّه گرگ",
+    desc: "گلّه گرگ به انبار غذا حمله کردن!",
+    effect: { food: -8, soldiers: -1 },
+    type: "bad",
+  },
+  {
+    id: "rainbow",
+    name: "🌈 رنگین‌کمان شانس",
+    desc: "بعد از بارون رنگین‌کمان اومد، یه روز فوق‌العاده!",
+    effect: { gold: 60, food: 3, health: 5 },
+    type: "good",
+  },
+];
+
+/**
+ * انتخاب یه رویداد تصادفی
+ */
+function getRandomEvent() {
+  return events[Math.floor(Math.random() * events.length)];
+}
+
+/**
+ * رویداد بر اساس نوع (good/bad/neutral)
+ */
+function getEventByType(type) {
+  const filtered = events.filter(e => e.type === type);
+  if (filtered.length === 0) return getRandomEvent();
+  return filtered[Math.floor(Math.random() * filtered.length)];
+}
+
+module.exports = { events, getRandomEvent, getEventByType };
