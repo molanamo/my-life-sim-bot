@@ -195,7 +195,6 @@ async function triggerRandomEvent(ctx) {
   user.gold = Math.max(0, user.gold + goldChange);
   user.military = Math.max(0, user.military + militaryChange);
   
-  // به‌روزرسانی مأموریت‌های wealth بعد از تغییر طلا
   updateMissionProgress(ctx.from.id, "wealth");
   
   usersDB.set(ctx.from.id, user);
@@ -223,8 +222,6 @@ function updateMissionProgress(userId, type, amount = 1) {
   const user = usersDB.get(userId);
   if (!user || !user.dailyMissions) return;
   
-  let updated = false;
-  
   user.dailyMissions = user.dailyMissions.map(m => {
     if (m.completed) return m;
     
@@ -234,12 +231,10 @@ function updateMissionProgress(userId, type, amount = 1) {
       if (completed && !m.completed) {
         user.gold += m.rewardGold * inflationRates[user.era];
         user.exp += m.rewardExp;
-        updated = true;
       }
       return { ...m, progress: newProgress, completed };
     }
     
-    // برای مأموریت‌های wealth همیشه چک می‌شه
     if (type === "wealth" && m.type === "wealth") {
       const baseGold = user.gold / inflationRates[user.era];
       const newProgress = Math.min(baseGold, m.target);
@@ -247,7 +242,6 @@ function updateMissionProgress(userId, type, amount = 1) {
       if (completed && !m.completed) {
         user.gold += m.rewardGold * inflationRates[user.era];
         user.exp += m.rewardExp;
-        updated = true;
       }
       return { ...m, progress: newProgress, completed };
     }
@@ -255,24 +249,20 @@ function updateMissionProgress(userId, type, amount = 1) {
     return m;
   });
   
-  // چک مأموریت‌های level
-  if (type !== "level") {
-    const level = Math.floor(user.exp / 100) + 1;
-    user.dailyMissions = user.dailyMissions.map(m => {
-      if (m.completed) return m;
-      if (m.type === "level") {
-        const newProgress = Math.min(level, m.target);
-        const completed = newProgress >= m.target;
-        if (completed && !m.completed) {
-          user.gold += m.rewardGold * inflationRates[user.era];
-          user.exp += m.rewardExp;
-          updated = true;
-        }
-        return { ...m, progress: newProgress, completed };
+  const level = Math.floor(user.exp / 100) + 1;
+  user.dailyMissions = user.dailyMissions.map(m => {
+    if (m.completed) return m;
+    if (m.type === "level") {
+      const newProgress = Math.min(level, m.target);
+      const completed = newProgress >= m.target;
+      if (completed && !m.completed) {
+        user.gold += m.rewardGold * inflationRates[user.era];
+        user.exp += m.rewardExp;
       }
-      return m;
-    });
-  }
+      return { ...m, progress: newProgress, completed };
+    }
+    return m;
+  });
   
   usersDB.set(userId, user);
 }
@@ -318,7 +308,6 @@ async function showStatus(ctx) {
     const goldDisplay = formatGold(user.gold, user.era);
     const level = Math.floor(user.exp / 100) + 1;
     
-    // به‌روزرسانی مأموریت‌های wealth موقع نمایش وضعیت
     updateMissionProgress(ctx.from.id, "wealth");
     
     await ctx.replyWithPhoto(king.image, {
@@ -338,7 +327,7 @@ async function showMissions(ctx) {
     if (!user) return;
     
     resetDailyMissions(ctx.from.id);
-    updateMissionProgress(ctx.from.id, "wealth"); // آپدیت مأموریت‌های ثروت
+    updateMissionProgress(ctx.from.id, "wealth");
     
     const text = user.dailyMissions.map(m => 
       `${m.completed ? "✅" : "⏳"} **${m.name}**\n   📊 ${Math.floor(m.progress)}/${m.target} | 🎁 ${m.rewardGold}💰 + ${m.rewardExp}⭐`
@@ -376,19 +365,10 @@ async function showAlliances(ctx) {
     
     const goldDisplay = formatGold(user.gold, user.era);
     
-    if (!hasAvailableAlliances) {
-      await ctx.replyWithPhoto(mainMenuImage, {
-        caption: `🤝 **پیمان‌بندی**\n\n🎉 تو با همه متحدان موجود پیمان بسته‌ای!\n\n💰 تومان: ${goldDisplay}\n⚔️ توان: ${user.military}`,
-        parse_mode: "Markdown",
-        reply_markup: keyboard
-      });
-      return;
-    }
-    
     await ctx.replyWithPhoto(mainMenuImage, {
       caption: `🤝 **پیمان‌بندی**\n\n💰 تومان: ${goldDisplay}\n⚔️ توان: ${user.military}\n\n${alliancesList.map(a => 
         `• ${a.emoji} ${a.name}: +${a.militaryBonus} توان, +${Math.floor(a.goldBonus * 100)}% درآمد\n   ${userAlliances.includes(a.id) ? "✅ فعال" : `💰 هزینه: ${formatPrice(a.cost, user.era)}`}`
-      ).join("\n\n")}`,
+      ).join("\n\n")}${!hasAvailableAlliances ? "\n\n🎉 تو با همه متحدان پیمان بسته‌ای!" : ""}`,
       parse_mode: "Markdown",
       reply_markup: keyboard
     });
@@ -408,19 +388,17 @@ async function createAlliance(ctx, allianceId) {
     
     const finalCost = alliance.cost * inflationRates[user.era];
     
+    if (user.alliances?.includes(allianceId)) {
+      await ctx.reply("❌ این پیمان قبلاً بسته شده!", { reply_markup: getBackToGameMenu() });
+      return;
+    }
+    
     if (user.gold >= finalCost) {
       user.gold -= finalCost;
       user.alliances = user.alliances || [];
-      
-      if (user.alliances.includes(allianceId)) {
-        await ctx.reply("❌ این پیمان قبلاً بسته شده!", { reply_markup: getBackToGameMenu() });
-        return;
-      }
-      
       user.alliances.push(allianceId);
       user.military += alliance.militaryBonus;
       
-      // جایزه نقدی اولیه (یک‌بار)
       const bonusGold = Math.floor(user.gold * alliance.goldBonus);
       user.gold += bonusGold;
       
@@ -664,8 +642,9 @@ bot.on("callback_query:data", async (ctx) => {
   try {
     const data = ctx.callbackQuery.data;
     const userId = ctx.from.id;
-    await ctx.answerCallbackQuery();
+    await ctx.answerCallbackQuery().catch(() => {});
 
+    // منوهای انتخاب شاه با پیام جدید به جای editMessageMedia
     if (data === "cat_ancient") {
       const keyboard = new InlineKeyboard()
         .text("کوروش بزرگ", "select_cyrus")
@@ -674,10 +653,12 @@ bot.on("callback_query:data", async (ctx) => {
         .text("انوشیروان", "select_anushirvan")
         .row()
         .text("🔙 منوی اصلی", "back_main");
-      await ctx.editMessageMedia(
-        { type: "photo", media: mainMenuImage, caption: "🏛️ **شاهان هخامنشی و ساسانی**\n\nیکی از شاهان را برگزین:", parse_mode: "Markdown" },
-        { reply_markup: keyboard }
-      ).catch(() => {});
+      await ctx.replyWithPhoto(mainMenuImage, {
+        caption: "🏛️ **شاهان هخامنشی و ساسانی**\n\nیکی از شاهان را برگزین:",
+        parse_mode: "Markdown",
+        reply_markup: keyboard
+      });
+      return;
     }
     else if (data === "cat_islamic") {
       const keyboard = new InlineKeyboard()
@@ -687,10 +668,12 @@ bot.on("callback_query:data", async (ctx) => {
         .text("کریم‌خان", "select_karim")
         .row()
         .text("🔙 منوی اصلی", "back_main");
-      await ctx.editMessageMedia(
-        { type: "photo", media: mainMenuImage, caption: "⚔️ **شاهان صفوی و افشار**\n\nیکی از شاهان را برگزین:", parse_mode: "Markdown" },
-        { reply_markup: keyboard }
-      ).catch(() => {});
+      await ctx.replyWithPhoto(mainMenuImage, {
+        caption: "⚔️ **شاهان صفوی و افشار**\n\nیکی از شاهان را برگزین:",
+        parse_mode: "Markdown",
+        reply_markup: keyboard
+      });
+      return;
     }
     else if (data === "cat_modern") {
       const keyboard = new InlineKeyboard()
@@ -698,10 +681,12 @@ bot.on("callback_query:data", async (ctx) => {
         .text("محمدرضا", "select_mohammadreza")
         .row()
         .text("🔙 منوی اصلی", "back_main");
-      await ctx.editMessageMedia(
-        { type: "photo", media: mainMenuImage, caption: "🏭 **شاهان پهلوی**\n\nیکی از شاهان را برگزین:", parse_mode: "Markdown" },
-        { reply_markup: keyboard }
-      ).catch(() => {});
+      await ctx.replyWithPhoto(mainMenuImage, {
+        caption: "🏭 **شاهان پهلوی**\n\nیکی از شاهان را برگزین:",
+        parse_mode: "Markdown",
+        reply_markup: keyboard
+      });
+      return;
     }
     else if (data === "cat_republic") {
       const keyboard = new InlineKeyboard()
@@ -709,10 +694,12 @@ bot.on("callback_query:data", async (ctx) => {
         .text("آیت‌الله خامنه‌ای", "select_khamenei")
         .row()
         .text("🔙 منوی اصلی", "back_main");
-      await ctx.editMessageMedia(
-        { type: "photo", media: mainMenuImage, caption: "🕌 **رهبران جمهوری اسلامی**\n\nیکی از رهبران را برگزین:", parse_mode: "Markdown" },
-        { reply_markup: keyboard }
-      ).catch(() => {});
+      await ctx.replyWithPhoto(mainMenuImage, {
+        caption: "🕌 **رهبران جمهوری اسلامی**\n\nیکی از رهبران را برگزین:",
+        parse_mode: "Markdown",
+        reply_markup: keyboard
+      });
+      return;
     }
 
     else if (data.startsWith("select_")) {
@@ -742,6 +729,7 @@ bot.on("callback_query:data", async (ctx) => {
         parse_mode: "Markdown",
         reply_markup: getGameMenu()
       });
+      return;
     }
 
     else if (data === "haram") {
@@ -772,6 +760,7 @@ bot.on("callback_query:data", async (ctx) => {
         parse_mode: "Markdown",
         reply_markup: keyboard
       });
+      return;
     }
 
     else if (data.startsWith("queen_")) {
@@ -786,6 +775,7 @@ bot.on("callback_query:data", async (ctx) => {
         parse_mode: "Markdown",
         reply_markup: getBackToGameMenu()
       });
+      return;
     }
 
     else if (data === "shop") {
@@ -809,6 +799,7 @@ bot.on("callback_query:data", async (ctx) => {
         parse_mode: "Markdown",
         reply_markup: keyboard
       });
+      return;
     }
 
     else if (data.startsWith("buy_")) {
@@ -841,6 +832,7 @@ bot.on("callback_query:data", async (ctx) => {
         const needDisplay = formatGold(need, user.era);
         await ctx.reply(`❌ تومان کافی نیست! نیاز به ${needDisplay} بیشتر.`, { reply_markup: getBackToGameMenu() });
       }
+      return;
     }
 
     else if (data === "battle") {
@@ -874,37 +866,48 @@ bot.on("callback_query:data", async (ctx) => {
           .text("⚔️ جنگ دوباره", "battle")
           .text("🔙 بازگشت به بازی", "back_to_game")
       });
+      return;
     }
 
     else if (data === "craft") {
       await showCraft(ctx);
+      return;
     }
     else if (data.startsWith("craft_")) {
       await craftWeapon(ctx, data.replace("craft_", ""));
+      return;
     }
     else if (data === "alliance") {
       await showAlliances(ctx);
+      return;
     }
     else if (data.startsWith("ally_")) {
       await createAlliance(ctx, data.replace("ally_", ""));
+      return;
     }
     else if (data === "random_event") {
       await triggerRandomEvent(ctx);
+      return;
     }
     else if (data === "missions") {
       await showMissions(ctx);
+      return;
     }
     else if (data === "library") {
       await showLibrary(ctx);
+      return;
     }
     else if (data.startsWith("buy_book_")) {
       await buyBook(ctx, parseInt(data.replace("buy_book_", "")));
+      return;
     }
     else if (data === "status") {
       await showStatus(ctx);
+      return;
     }
     else if (data === "leaderboard") {
       await showLeaderboard(ctx);
+      return;
     }
 
     else if (data === "back_to_game") {
@@ -922,6 +925,7 @@ bot.on("callback_query:data", async (ctx) => {
         parse_mode: "Markdown",
         reply_markup: getGameMenu()
       });
+      return;
     }
 
     else if (data === "back_main") {
@@ -930,15 +934,18 @@ bot.on("callback_query:data", async (ctx) => {
         parse_mode: "Markdown",
         reply_markup: getMainMenu()
       });
+      return;
     }
 
     else if (data === "admin_give_gold" && ADMINS.includes(userId)) {
       await ctx.editMessageText("👑 ایدی کاربر و مقدار سکه رو بفرست (مثال: 123456789 1000)");
       usersDB.set(`admin_${userId}_action`, "waiting_for_gold");
+      return;
     }
     else if (data === "admin_full_upgrade" && ADMINS.includes(userId)) {
       await ctx.editMessageText("👑 ایدی کاربر رو بفرست تا فول شود:");
       usersDB.set(`admin_${userId}_action`, "waiting_for_full");
+      return;
     }
     else if (data === "admin_list_users" && ADMINS.includes(userId)) {
       const list = Array.from(usersDB.entries())
@@ -946,9 +953,11 @@ bot.on("callback_query:data", async (ctx) => {
         .map(([id, d]) => `${d.realName || d.kingName} - ${id}`)
         .join("\n");
       await ctx.editMessageText(`📊 لیست کاربران:\n${list || "هیچ"}`, { reply_markup: new InlineKeyboard().text("🔙 بستن", "admin_close") });
+      return;
     }
     else if (data === "admin_close" && ADMINS.includes(userId)) {
       await ctx.deleteMessage().catch(() => {});
+      return;
     }
   } catch (err) {
     console.error('Error in callback_query:', err);
@@ -1006,7 +1015,6 @@ bot.on("message:text", async (ctx) => {
   }
 });
 
-// مدیریت خطاهای کلی
 bot.catch((err) => {
   console.error('Bot error:', err);
 });
@@ -1017,4 +1025,4 @@ if (process.env.RAILWAY_ENV === "true") {
   bot.start();
 }
 
-console.log("🎮 بازی بقای باستانی - نسخه نهایی فوق پیشرفته با تمام امکانات و دکمه‌های برگشت حرفه‌ای روشن شد...");
+console.log("🎮 بازی بقای باستانی - نسخه اصلاح شده نهایی روشن شد...");
