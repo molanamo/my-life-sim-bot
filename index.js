@@ -32,7 +32,7 @@ const P = {
   glassBorder: "✨⚜️✨⚜️✨⚜️✨⚜️✨⚜️✨"
 };
 
-// ==================== عکس‌های رهبران (حفظ شده) ====================
+// ==================== عکس‌های رهبران ====================
 const leaders = {
   cyrus: { name: "کوروش بزرگ", desc: "بنیادگزار هخامنشی، بردارنده منشور آزادگی", image: "AgACAgQAAxkBAAEqCuxqH_gzDC0lhnhq5XY5trPLrtNiKAACiQ5rG4APAVESIQfjCtTuagEAAwIAA3cAAzsE", era: "ancient", battleImage: "AgACAgQAAxkBAAEqDexqIC3VJle3eBKrpyP2iPCb2nSHdgAC8g5rG4APAVFruE7qyqYySgEAAwIAA3kAAzsE" },
   darius: { name: "داریوش بزرگ", desc: "سازنده پارسه، سامان‌دهنده کشور", image: "AgACAgQAAxkBAAEqCwxqH_vHXf_othfTA2jTsuAZqqbuSQACkg5rG4APAVFF2KiazmU2oQEAAwIAA3kAAzsE", era: "ancient", battleImage: "AgACAgQAAxkBAAEqDgRqIC6pWLzAhSz62YlMEYu1BBJXcAAC9Q5rG4APAVFi2sJMMLDVlwEAAwIAA3kAAzsE" },
@@ -54,8 +54,23 @@ const categoryImages = {
   republic: "AgACAgQAAxkBAAEqDXxqICU_YmcR261F414EcCku6vMMCAAC5A5rG4APAVEmgDq8PfldMwEAAwIAA3gAAzsE"
 };
 
-// ==================== عکس نقشه ====================
+// ==================== عکس نقشه و استان‌ها ====================
 const mapImage = "AgACAgQAAxkBAAEqEn1qIIS1Cpu26NucbgH1ankioQm-9AACHRBrG4APAVHcgdJ7gFsdyAEAAwIAA3gAAzsE";
+const provinceImages = {
+  tehran: "AgACAgQAAxkBAAEqFoVqISn_y2htCWJDDJhrs54w2IH9gwACdg1rG_JGCVFC0NbBvtxdnQEAAwIAA3kAAzsE",
+  isfahan: "AgACAgQAAxkBAAEqFoNqISmO6C6SVlh4HHsGxiTXFAZ4agACdQ1rG_JGCVFPriQVMd4H8gEAAwIAA3kAAzsE",
+  shiraz: "AgACAgQAAxkBAAEqFodqISonjCvmbKmawsmFCzAV-A7hCwACdw1rG_JGCVHEOM2EpM4tHgEAAwIAA3kAAzsE",
+  tabriz: "AgACAgQAAxkBAAEqFolqISpFeZBcuCBSdC58r1-DKWFAuwACeA1rG_JGCVHqypz389Ai7gEAAwIAA3kAAzsE",
+  bandar: "AgACAgQAAxkBAAEqFotqISppW_Bk6gZttLBsV1iWiXyAJQACeQ1rG_JGCVHCmE29MS_O4QEAAwIAA3gAAzsE",
+  mashhad: "AgACAgQAAxkBAAEqFpdqISq6GooN7KQHs0yD73_lGgvjmQACeg1rG_JGCVG-VBRXdHCwdgEAAwIAA3gAAzsE"
+};
+
+// ==================== پس‌زمینه‌ها ====================
+const backgrounds = {
+  leaderboard: "AgACAgQAAxkBAAEqFttqIS9-dWgs8A1BaGYw4XZyEnyEvwACgw1rG_JGCVE1oaMxdv66cQEAAwIAA3kAAzsE",
+  mission: "AgACAgQAAxkBAAEqFtxqIS9-DUetczzuUDDPSUx8dWrxBgAChA1rG_JGCVFEZMfvymt8xgEAAwIAA3cAAzsE",
+  shop: "AgACAgQAAxkBAAEqFt1qIS9-K3ULXnCVBEB8KnU7fsdqQQAChQ1rG_JGCVEMmjqUItG-zgEAAwIAA3kAAzsE"
+};
 
 // ==================== انیمیشن‌ها ====================
 const animations = {
@@ -65,10 +80,19 @@ const animations = {
   explosion: "CgACAgQAAxkBAAEqEo9qIIXeZFa4e4pPIR67chxvh9D2XwACbwMAAlhtBFOyrDZljZRTyjsE",
   levelUp: "CgACAgQAAxkBAAEqErVqIIjJ-bv5gGzhZo8th5sZ3n1dhwACdSMAAvQVAVEMU_-bjeLRCjsE",
   defeat: "CgACAgQAAxkBAAEqEu1qII15onal3AqvYITzkqdm5MI00gACeyMAAvQVAVF1fh97_aRKYDsE",
-  victory: "CgACAgQAAxkBAAEqEw1qIJDV8z7vf7hG_oP0l4aaTPm7ZQACgCMAAvQVAVEjsoZnsyyDgTsE"
+  victory: "CgACAgQAAxkBAAEqEw1qIJDV8z7vf7hG_oP0l4aaTPm7ZQACgCMAAvQVAVEjsoZnsyyDgTsE",
+  khorramshahr: "CgACAgQAAxkBAAEqFitqISFPsrBbj35mi9V6eTBjYwi0ogAClxwAAr8OCFHP6gFbAvivDzsE"
 };
 
-// ==================== نام دوره‌ها به پارسی ====================
+// ==================== اتحادها ====================
+const alliances = [
+  { id: "russia", name: "روسیه", leader: "پوتین", cost: 500, militaryBonus: 30, goldBonus: 20, image: "AgACAgQAAxkBAAEqFqNqIS0fd92Bw8d7VBy7qWbZPwhrgwACfQ1rG_JGCVFDW7TnUnWLQwEAAwIAA3kAAzsE" },
+  { id: "china", name: "چین", leader: "شی جین پینگ", cost: 600, militaryBonus: 40, goldBonus: 30, image: "AgACAgQAAxkBAAEqFqRqIS0fgiiBMoyilLWMQxx_nXtXIgACfg1rG_JGCVGFBdwZIw4ljQEAAwIAA3gAAzsE" },
+  { id: "yemen", name: "یمن", leader: "حوثی", cost: 400, militaryBonus: 25, goldBonus: 15, image: "AgACAgQAAxkBAAEqFqVqIS0fjjjULm5MkISJT1QSsNI2fwACgA1rG_JGCVGe0QRisKs8gwEAAwIAA3gAAzsE" },
+  { id: "lebanon", name: "لبنان", leader: "شیخ نعیم قاسم", cost: 450, militaryBonus: 25, goldBonus: 15, image: "AgACAgQAAxkBAAEqFqZqIS0fP2DkoVY32P8gk1ifFYR3wwACgQ1rG_JGCVGZ8h5GO7jxmwEAAwIAA3kAAzsE" }
+];
+
+// ==================== نام دوره‌ها ====================
 const eraNames = {
   ancient: "هخامنشی و ساسانی",
   islamic: "صفوی و افشار",
@@ -117,44 +141,19 @@ const weaponsByEra = {
 
 // ==================== ساخت سلاح ====================
 const craftRecipes = {
-  ancient: [
-    { id: "iron_sword", name: "شمشیر آهنین", power: 20, price: 200, requiredItem: "sword", requiredItemName: "شمشیر مفرغین", desc: "خود آهنین و برنده‌تر" },
-    { id: "composite_bow", name: "کمان مرکب", power: 25, price: 300, requiredItem: "bow", requiredItemName: "کمان پهلوی", desc: "کمان چندلایه" }
-  ],
-  islamic: [
-    { id: "upgrade_musket", name: "تفنگ سرپر", power: 40, price: 400, requiredItem: "musket", requiredItemName: "تفنگ فتیله‌ای", desc: "تفنگ با دقت بالا" },
-    { id: "big_cannon", name: "توپ بزرگ", power: 60, price: 500, requiredItem: "cannon", requiredItemName: "توپ جنگی", desc: "توپ سنگین" }
-  ],
-  modern: [
-    { id: "heavy_maxim", name: "مسلسل سنگین", power: 50, price: 600, requiredItem: "maxim", requiredItemName: "مسلسل ماکسیم", desc: "مسلسل سنگین" }
-  ],
-  khomeini: [
-    { id: "fateh_missile", name: "موشک فاتح", power: 80, price: 800, requiredItem: "collage", requiredItemName: "کلاژ", desc: "موشک کوتاه برد" }
-  ],
   khamenei: [
-    { id: "nuclear_missile", name: "موشک هسته‌ای عماد", power: 300, price: 1000, requiredItem: "shahab3", requiredItemName: "موشک شهاب ۳", desc: "قابلیت حمل کلاهک هسته‌ای" },
-    { id: "shahad136", name: "شاهد ۱۳۶", power: 250, price: 1500, requiredItem: "mohajer", requiredItemName: "پهباد مهاجر", desc: "پهباد شناور" },
-    { id: "bavar_advance", name: "باور ۳۷۳ پیشرفته", power: 400, price: 2000, requiredItem: "bavar", requiredItemName: "باور ۳۷۳", desc: "پدافند هوایی" },
-    { id: "icbm", name: "موشک قاره‌پیما آرش", power: 500, price: 3000, requiredItem: "khorramshahr", requiredItemName: "موشک خرمشهر", desc: "برد ۱۰۰۰۰ کیلومتر" }
+    { id: "khorramshahr_missile", name: "🔥 موشک خرمشهر 🔥", power: 750, price: 8000, requiredItem: "shahab3", requiredItemName: "موشک شهاب ۳", desc: "موشک بالستیک دوربرد - بازدارندگی کامل", craftTime: 180, specialAnimation: animations.khorramshahr }
   ]
 };
 
 // ==================== NPCها ====================
 const npcList = [
   { name: "سردار بابک", power: 45, era: "ancient", desc: "شورشی مازندران" },
-  { name: "مهرداد شورشی", power: 38, era: "ancient", desc: "فرماندار یاغی" },
-  { name: "اسپهبد خسرو", power: 52, era: "ancient", desc: "نیروهای ساسانی" },
-  { name: "والی هرات", power: 48, era: "islamic", desc: "حاکم یاغی شرق" },
-  { name: "خان ازبک", power: 55, era: "islamic", desc: "تهاجم از شمال شرق" },
-  { name: "ژنرال روس", power: 60, era: "modern", desc: "نیروهای تزاری" },
-  { name: "کلنل انگلیسی", power: 58, era: "modern", desc: "نفوذ جنوب" },
   { name: "صدام حسین", power: 75, era: "khomeini", desc: "ارتش بعث عراق" },
-  { name: "مسعود رجوی", power: 50, era: "khomeini", desc: "منافقین" },
-  { name: "داعش", power: 65, era: "khamenei", desc: "تروریست‌های تکفیری" },
   { name: "آمریکا", power: 85, era: "khamenei", desc: "نیروهای بیگانه" },
   { name: "اسرائیل", power: 80, era: "khamenei", desc: "رژیم صهیونیستی" },
   { name: "چنگیز مغول", power: 90, era: "ancient", desc: "تهاجم مغول" },
-  { name: "تیمور لنگ", power: 88, era: "islamic", desc: "تهاجم تیموری" }
+  { name: "داعش", power: 65, era: "khamenei", desc: "تروریست‌های تکفیری" }
 ];
 
 // ==================== مأموریت‌ها ====================
@@ -171,24 +170,16 @@ const randomEvents = [
   { name: "🌾 قحطی بزرگ", effect: { gold: -150, military: -10 }, desc: "قحطی دینار و توان را کاست" },
   { name: "💎 یافتن گنج", effect: { gold: 500, military: 0 }, desc: "گنجی یافتی! دینار بسیار به چنگ آوردی" },
   { name: "🤝 پیمان با همسایگان", effect: { gold: 50, military: 30 }, desc: "پیمان نوین توان رزمی را افزود" },
-  { name: "🌪️ طوفان سخت", effect: { gold: -80, military: -15 }, desc: "طوفان به بناها آسیب رساند" },
   { name: "🎓 دوران زرین دانش", effect: { gold: 100, military: 20 }, desc: "پیشرفت دانش، دینار و توان را فزونی بخشید" }
 ];
 
 // ==================== استان‌ها ====================
 const provinces = [
-  { id: "tehran", name: "تهران", baseIncome: 100, controlled: false, militaryNeeded: 50, owner: null },
-  { id: "isfahan", name: "اصفهان", baseIncome: 80, controlled: false, militaryNeeded: 40, owner: null },
-  { id: "shiraz", name: "شیراز", baseIncome: 70, controlled: false, militaryNeeded: 35, owner: null },
-  { id: "tabriz", name: "تبریز", baseIncome: 60, controlled: false, militaryNeeded: 30, owner: null },
-  { id: "mashhad", name: "مشهد", baseIncome: 90, controlled: false, militaryNeeded: 45, owner: null }
-];
-
-// ==================== اتحادها ====================
-const alliances = [
-  { id: "russia", name: "روسیه", cost: 500, militaryBonus: 30, goldBonus: 20, desc: "پیمان با همسایه شمالی" },
-  { id: "china", name: "چین", cost: 600, militaryBonus: 40, goldBonus: 30, desc: "بازرگان خاوری" },
-  { id: "germany", name: "آلمان", cost: 800, militaryBonus: 50, goldBonus: 40, desc: "فناوری پیشرفته" }
+  { id: "tehran", name: "تهران", image: provinceImages.tehran, baseIncome: 100, controlled: false, militaryNeeded: 50, owner: null },
+  { id: "isfahan", name: "اصفهان", image: provinceImages.isfahan, baseIncome: 80, controlled: false, militaryNeeded: 40, owner: null },
+  { id: "shiraz", name: "شیراز", image: provinceImages.shiraz, baseIncome: 70, controlled: false, militaryNeeded: 35, owner: null },
+  { id: "tabriz", name: "تبریز", image: provinceImages.tabriz, baseIncome: 60, controlled: false, militaryNeeded: 30, owner: null },
+  { id: "mashhad", name: "مشهد", image: provinceImages.mashhad, baseIncome: 90, controlled: false, militaryNeeded: 45, owner: null }
 ];
 
 // ==================== توابع کمکی ====================
@@ -197,65 +188,8 @@ function getRandomNPC(era) {
   return filtered.length ? filtered[Math.floor(Math.random() * filtered.length)] : { name: "دشمن ناشناس", power: 50, era: era, desc: "نیروی مهاجم" };
 }
 
-function getLevel(exp) {
-  return Math.floor(exp / 100) + 1;
-}
+function getLevel(exp) { return Math.floor(exp / 100) + 1; }
 
-// ==================== سیستم شانس برد بالا تا لول ۵ ====================
-function calculateBattleResult(user, enemyPower) {
-  const playerPower = user.military + (user.weapon?.power || 0);
-  const level = getLevel(user.exp);
-  
-  let winChance = 0.5;
-  if (level <= 5) winChance = 0.75;
-  else if (level <= 10) winChance = 0.6;
-  
-  const isWin = Math.random() < winChance;
-  let adjustedEnemyPower = isWin ? Math.floor(enemyPower * 0.7) : Math.floor(enemyPower * 1.3);
-  const finalResult = playerPower + (Math.random() * 30 - 10) > adjustedEnemyPower;
-  
-  return { isWin: finalResult, adjustedEnemyPower };
-}
-
-// ==================== بیگ مکس خفن ====================
-async function applyBigMax(user, ctx) {
-  const oldLevel = getLevel(user.exp - 100);
-  const newLevel = getLevel(user.exp);
-  
-  if (newLevel > oldLevel) {
-    const bonus = {
-      gold: 5000,
-      military: 200,
-      exp: 500,
-      weapon: { id: `bigmax_${newLevel}`, name: `🔥 خود بیگ مکس سطح ${newLevel} 🔥`, power: 100 * newLevel }
-    };
-    
-    user.gold += bonus.gold;
-    user.military += bonus.military;
-    user.exp += bonus.exp;
-    
-    if (!user.weapon || user.weapon.power < bonus.weapon.power) {
-      user.weapon = bonus.weapon;
-    }
-    
-    const bigMaxFrame = `
-${P.glassBorder}
-🔥🌟🌟🌟 **بیگ مکس خفن** 🌟🌟🌟🔥
-⚡ **لول آپ افسانه‌ای** ⚡
-💰 +${bonus.gold} دینار
-⚔️ +${bonus.military} توان رزمی
-⭐ +${bonus.exp} تجربه
-🗡️ ${bonus.weapon.name}
-🔥🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🔥
-${P.glassBorder}
-`;
-    await ctx.replyWithAnimation(animations.levelUp, { caption: bigMaxFrame, parse_mode: "Markdown" });
-    return true;
-  }
-  return false;
-}
-
-// ==================== توابع کمکی مأموریت ====================
 function resetDailyMissions(userId) {
   const user = usersDB.get(userId);
   if (user && (!user.lastMissionReset || Date.now() - user.lastMissionReset > 24 * 60 * 60 * 1000)) {
@@ -273,10 +207,7 @@ function updateMissionProgress(userId, type, amount = 1) {
     if (m.type === type) {
       const newProgress = Math.min(m.progress + amount, m.target);
       const completed = newProgress >= m.target;
-      if (completed && !m.completed) {
-        user.gold += m.rewardGold;
-        user.exp += m.rewardExp;
-      }
+      if (completed && !m.completed) { user.gold += m.rewardGold; user.exp += m.rewardExp; }
       return { ...m, progress: newProgress, completed };
     }
     if (type === "wealth" && m.type === "wealth") {
@@ -288,7 +219,22 @@ function updateMissionProgress(userId, type, amount = 1) {
   usersDB.set(userId, user);
 }
 
-// ==================== منوی اصلی شیشه‌ای ====================
+async function applyBigMax(user, ctx) {
+  const oldLevel = getLevel(user.exp - 100);
+  const newLevel = getLevel(user.exp);
+  if (newLevel > oldLevel) {
+    const bonus = { gold: 5000, military: 200, exp: 500, weapon: { id: `bigmax_${newLevel}`, name: `🔥 خود بیگ مکس سطح ${newLevel} 🔥`, power: 100 * newLevel } };
+    user.gold += bonus.gold;
+    user.military += bonus.military;
+    user.exp += bonus.exp;
+    if (!user.weapon || user.weapon.power < bonus.weapon.power) user.weapon = bonus.weapon;
+    await ctx.replyWithAnimation(animations.levelUp, { caption: `${P.glassBorder}\n🔥🌟🌟🌟 بیگ مکس خفن 🌟🌟🌟🔥\n💰 +${bonus.gold} دینار\n⚔️ +${bonus.military} توان\n⭐ +${bonus.exp} تجربه\n${P.glassBorder}`, parse_mode: "Markdown" });
+    return true;
+  }
+  return false;
+}
+
+// ==================== منوی اصلی ====================
 bot.command("start", async (ctx) => {
   const keyboard = new InlineKeyboard()
     .text("🏛️ هخامنشیان", "cat_ancient")
@@ -297,19 +243,11 @@ bot.command("start", async (ctx) => {
     .text("🏭 پهلویان", "cat_modern")
     .text("🕌 جمهوری اسلامی", "cat_republic");
 
-  const glassWelcome = `
-${P.glassBorder}
-🪞 **${P.welcome}** 🪞
-${P.glassBorder}
-
-**به بازی «بقای باستانی» خوش آمدی، ای سرور گرامی!**
-
-در این جایگاه، تو یکی از **ده فرمانروای بزرگ ایران‌زمین** خواهی شد.
-با **خرید خودها** و **پیکار با دشمنان**، نام خود را در **نامه سروران** جاودانه کن.
-
-📜 **یک دسته از شاهان را برگزین:**
-`;
-  await ctx.replyWithPhoto(categoryImages.ancient, { caption: glassWelcome, parse_mode: "Markdown", reply_markup: keyboard });
+  await ctx.replyWithPhoto(categoryImages.ancient, {
+    caption: `${P.glassBorder}\n🪞 **${P.welcome}** 🪞\n${P.glassBorder}\n\n📜 **یک دسته از شاهان را برگزین:**`,
+    parse_mode: "Markdown",
+    reply_markup: keyboard
+  });
 });
 
 // ==================== نمایش دسته ====================
@@ -340,7 +278,6 @@ async function showGameMenu(ctx, leaderKey) {
   const leader = leaders[leaderKey];
   const user = usersDB.get(ctx.from.id);
   const level = getLevel(user.exp);
-  
   const keyboard = new InlineKeyboard()
     .text(`🛒 ${P.shop}`, "open_shop")
     .text(`🔧 ${P.craft}`, "craft_menu")
@@ -359,25 +296,14 @@ async function showGameMenu(ctx, leaderKey) {
     .text(`🔄 تغییر رهبر`, "change_leader");
   if (ADMINS.includes(ctx.from.id)) keyboard.row().text("👑 پنل ادمین", "admin_panel_secret");
 
-  const menuText = `
-${P.glassBorder}
-🪞 **${user.realName || user.leaderName}** 🪞
-${P.glassBorder}
-
-👑 **${leader.name}**
-📜 ${eraNames[leader.era]}
-💰 ${P.gold}: ${user.gold}
-⚔️ ${P.power}: ${user.military}
-⭐ ${P.level}: ${level}
-🗡️ ${P.weapon}: ${user.weapon?.name || "ندارد"}
-
-${P.glassBorder}
-`;
-  await ctx.replyWithPhoto(leader.image, { caption: menuText, parse_mode: "Markdown", reply_markup: keyboard });
+  await ctx.replyWithPhoto(leader.image, {
+    caption: `${P.glassBorder}\n🪞 **${user.realName || user.leaderName}** 🪞\n${P.glassBorder}\n\n👑 **${leader.name}**\n📜 ${eraNames[leader.era]}\n💰 ${P.gold}: ${user.gold}\n⚔️ ${P.power}: ${user.military}\n⭐ ${P.level}: ${level}\n🗡️ ${P.weapon}: ${user.weapon?.name || "ندارد"}`,
+    parse_mode: "Markdown", reply_markup: keyboard
+  });
 }
 
-// ==================== فروشگاه شیشه‌ای ====================
-async function showGlassShop(ctx) {
+// ==================== فروشگاه ====================
+async function showShop(ctx) {
   const user = usersDB.get(ctx.from.id);
   if (!user) return;
   const weapons = weaponsByEra[user.era];
@@ -385,8 +311,10 @@ async function showGlassShop(ctx) {
   weapons.forEach(w => keyboard.text(`${w.name} - ${w.price}💰`, `buy_${w.id}`));
   keyboard.row().text(`🔙 ${P.back}`, "back_to_game");
 
-  const weaponsList = weapons.map(w => `┌─────────────────┐\n│ ⚔️ **${w.name}**\n│ 📖 ${w.desc}\n│ 💰 ${w.price} دینار\n│ 💪 توان: +${w.power}\n└─────────────────┘`).join("\n\n");
-  await ctx.reply(`🪞 **${P.shop}** 🪞\n\n💰 ${P.gold}: ${user.gold}\n⚔️ ${P.power}: ${user.military}\n\n${weaponsList}`, { parse_mode: "Markdown", reply_markup: keyboard });
+  await ctx.replyWithPhoto(backgrounds.shop, {
+    caption: `🪞 **${P.shop}** 🪞\n\n💰 ${P.gold}: ${user.gold}\n⚔️ ${P.power}: ${user.military}\n\n` + weapons.map(w => `• ${w.name} - ${w.price}💰 (قدرت +${w.power})\n   ${w.desc}`).join("\n"),
+    parse_mode: "Markdown", reply_markup: keyboard
+  });
 }
 
 // ==================== ساخت سلاح ====================
@@ -398,6 +326,7 @@ async function showCraftMenu(ctx) {
   const keyboard = new InlineKeyboard();
   recipes.forEach(r => keyboard.text(`${r.name} - ${r.price}💰`, `craft_${r.id}`));
   keyboard.row().text(`🔙 ${P.back}`, "back_to_game");
+
   await ctx.reply(`🔧 **${P.craft}**\n💰 ${P.gold}: ${user.gold}\n\n` + recipes.map(r => `• ${r.name} - ${r.price}💰 (توان +${r.power})\n   نیاز: ${r.requiredItemName}`).join("\n"), { parse_mode: "Markdown", reply_markup: keyboard });
 }
 
@@ -414,7 +343,8 @@ async function craftWeapon(ctx, recipeId) {
   user.military += recipe.power;
   usersDB.set(ctx.from.id, user);
   updateMissionProgress(ctx.from.id, "craft");
-  await ctx.replyWithAnimation(animations.levelUp, { caption: `✅ ${recipe.name} ساخته شد!\n💰 ${user.gold} دینار\n⚔️ ${user.military} توان`, parse_mode: "Markdown" });
+  const anim = recipe.specialAnimation || animations.levelUp;
+  await ctx.replyWithAnimation(anim, { caption: `✅ ${recipe.name} ساخته شد!\n💰 ${user.gold} دینار\n⚔️ ${user.military} توان`, parse_mode: "Markdown" });
   await applyBigMax(user, ctx);
 }
 
@@ -433,42 +363,30 @@ async function confirmBattle(ctx) {
   const pending = usersDB.get(ctx.from.id + "_pending");
   if (!user || !pending) return;
   const npc = pending.npc;
-  const { isWin, adjustedEnemyPower } = calculateBattleResult(user, npc.power);
+  const playerPower = user.military + (user.weapon?.power || 0);
+  const isWin = playerPower + (Math.random() * 30 - 10) > npc.power;
   const reward = isWin ? { gold: 300, exp: 50, military: 10 } : { gold: 30, exp: 5, military: -5 };
-  
   user.gold = Math.max(0, user.gold + reward.gold);
   user.exp += reward.exp;
   user.military = Math.max(0, user.military + reward.military);
-  if (isWin) user.stats = user.stats || { wins: 0 }; user.stats.wins = (user.stats.wins || 0) + 1;
   usersDB.set(ctx.from.id, user);
   usersDB.delete(ctx.from.id + "_pending");
   updateMissionProgress(ctx.from.id, "battle");
-  
   const anim = isWin ? animations.victory : animations.defeat;
   await ctx.replyWithAnimation(anim, { caption: `⚔️ **نبرد با ${npc.name}**\n${isWin ? "🎉 پیروزی!" : "💔 شکست!"}\n💰 ${reward.gold} دینار\n⭐ +${reward.exp} تجربه`, parse_mode: "Markdown" });
-  
-  const bigMaxApplied = await applyBigMax(user, ctx);
-  if (!bigMaxApplied) {
-    const keyboard = new InlineKeyboard().text(`🛒 ${P.shop}`, "open_shop").text(`⚔️ ${P.battle}`, "battle").text(`🔙 ${P.back}`, "back_to_game");
-    await ctx.reply("اداره پیکار:", { reply_markup: keyboard });
-  }
+  await applyBigMax(user, ctx);
+  const keyboard = new InlineKeyboard().text(`🛒 ${P.shop}`, "open_shop").text(`⚔️ ${P.battle}`, "battle").text(`🔙 ${P.back}`, "back_to_game");
+  await ctx.reply("اداره پیکار:", { reply_markup: keyboard });
 }
 
-async function cancelBattle(ctx) {
-  usersDB.delete(ctx.from.id + "_pending");
-  await ctx.reply(`🏃‍♂️ ${P.cancel}`);
-}
+async function cancelBattle(ctx) { usersDB.delete(ctx.from.id + "_pending"); await ctx.reply(`🏃‍♂️ ${P.cancel}`); }
 
 // ==================== وضعیت ====================
 async function showStatus(ctx) {
   const user = usersDB.get(ctx.from.id);
   if (!user) return;
   const level = getLevel(user.exp);
-  const nextExp = level * 100 - user.exp;
-  await ctx.replyWithPhoto(leaders[user.leader].image, {
-    caption: `📊 **${user.realName || user.leaderName}**\n\n💰 ${P.gold}: ${user.gold}\n⭐ ${P.level}: ${level}\n📈 تجربه: ${user.exp}/${level*100} (${nextExp} تا سطح بعد)\n⚔️ ${P.power}: ${user.military}\n🗡️ ${P.weapon}: ${user.weapon?.name || "ندارد"}`,
-    parse_mode: "Markdown", reply_markup: new InlineKeyboard().text(`🔙 ${P.back}`, "back_to_game")
-  });
+  await ctx.replyWithPhoto(leaders[user.leader].image, { caption: `📊 **${user.realName || user.leaderName}**\n\n💰 ${P.gold}: ${user.gold}\n⭐ ${P.level}: ${level}\n📈 تجربه: ${user.exp}/${level*100}\n⚔️ ${P.power}: ${user.military}\n🗡️ ${P.weapon}: ${user.weapon?.name || "ندارد"}`, parse_mode: "Markdown", reply_markup: new InlineKeyboard().text(`🔙 ${P.back}`, "back_to_game") });
 }
 
 // ==================== لیدربورد ====================
@@ -476,26 +394,67 @@ async function showLeaderboard(ctx) {
   const users = Array.from(usersDB.entries()).filter(([key]) => !String(key).includes("admin_") && !String(key).includes("pending"));
   const sorted = users.sort((a, b) => b[1].military - a[1].military).slice(0, 10);
   const text = sorted.map(([id, d], i) => `${i+1}. 👑 **${d.realName || d.leaderName}**\n   💰${d.gold} ⚔️${d.military}`).join("\n\n");
-  const keyboard = new InlineKeyboard().text("🔙 بازگشت", "back_to_game");
-  await ctx.reply(`🏆 **${P.leaderboard}**\n\n${text || "هیچ سروری یافت نشد"}`, { parse_mode: "Markdown", reply_markup: keyboard });
+  await ctx.replyWithPhoto(backgrounds.leaderboard, { caption: `🏆 **${P.leaderboard}**\n\n${text || "هیچ سروری یافت نشد"}`, parse_mode: "Markdown", reply_markup: new InlineKeyboard().text(`🔙 ${P.back}`, "back_to_game") });
 }
 
 // ==================== نقشه ====================
 async function showMap(ctx) {
   const user = usersDB.get(ctx.from.id);
   const userIncome = provinces.filter(p => p.owner === ctx.from.id).reduce((s, p) => s + p.baseIncome, 0);
+  const provinceList = provinces.map(p => `• **${p.name}** - ${p.owner === ctx.from.id ? "✅ فتح شده" : "❌ فتح نشده"} | درآمد: ${p.baseIncome}💰`).join("\n");
   const keyboard = new InlineKeyboard().text("⚔️ حمله", "attack_province").text("💰 مالیات", "collect_tax").row().text("🔙 بازگشت", "back_to_game");
-  await ctx.replyWithPhoto(mapImage, { caption: `🗺️ **${P.map}**\n💰 درآمد روزانه: ${userIncome} دینار\n⚔️ توان: ${user.military}`, parse_mode: "Markdown", reply_markup: keyboard });
+  await ctx.replyWithPhoto(mapImage, { caption: `🗺️ **${P.map}**\n\n${provinceList}\n\n💰 درآمد روزانه: ${userIncome} دینار\n⚔️ توان: ${user.military}`, parse_mode: "Markdown", reply_markup: keyboard });
+}
+
+async function attackProvince(ctx) {
+  const user = usersDB.get(ctx.from.id);
+  if (!user) return;
+  const available = provinces.filter(p => !p.controlled || p.owner === ctx.from.id);
+  if (available.length === 0) { await ctx.reply("❌ همه استان‌ها فتح شده‌اند!"); return; }
+  const keyboard = new InlineKeyboard();
+  available.forEach(p => keyboard.text(`${p.name} (نیاز ${p.militaryNeeded} توان)`, `conquer_${p.id}`));
+  keyboard.row().text("🔙 بازگشت", "back_to_game");
+  await ctx.reply("⚔️ **انتخاب استان برای حمله:**", { reply_markup: keyboard });
+}
+
+async function conquerProvince(ctx, provinceId) {
+  const user = usersDB.get(ctx.from.id);
+  if (!user) return;
+  const province = provinces.find(p => p.id === provinceId);
+  if (!province) return;
+  if (user.military < province.militaryNeeded) { await ctx.reply(`❌ توان کافی نیست! نیاز به ${province.militaryNeeded - user.military} توان بیشتر.`); return; }
+  province.controlled = true;
+  province.owner = ctx.from.id;
+  user.military -= 10;
+  usersDB.set(ctx.from.id, user);
+  await ctx.replyWithPhoto(province.image, { caption: `✅ **${province.name} فتح شد!**\n💰 درآمد روزانه +${province.baseIncome} دینار\n⚔️ توان -۱۰`, parse_mode: "Markdown" });
+}
+
+async function collectTax(ctx) {
+  const user = usersDB.get(ctx.from.id);
+  if (!user) return;
+  const lastTax = user.lastTax || 0;
+  if (Date.now() - lastTax < 24 * 60 * 60 * 1000) {
+    const hoursLeft = Math.ceil((24 * 60 * 60 * 1000 - (Date.now() - lastTax)) / (60 * 60 * 1000));
+    await ctx.reply(`⏳ مالیات فقط هر ۲۴ ساعت یکبار قابل دریافت است. ${hoursLeft} ساعت دیگر اقدام کن.`);
+    return;
+  }
+  const income = provinces.filter(p => p.owner === ctx.from.id).reduce((s, p) => s + p.baseIncome, 0);
+  user.gold += income;
+  user.lastTax = Date.now();
+  usersDB.set(ctx.from.id, user);
+  await ctx.reply(`💰 **مالیات دریافت شد!**\nدرآمد: ${income} دینار\n💰 سکه فعلی: ${user.gold}`);
 }
 
 // ==================== اتحادها ====================
 async function showAlliances(ctx) {
   const user = usersDB.get(ctx.from.id);
   const userAlliances = user.alliances || [];
+  const allianceList = alliances.map(a => `• **${a.name}** (${a.leader}) - ${userAlliances.includes(a.id) ? "✅ متحد" : `❌ هزینه: ${a.cost}💰 | پاداش: +${a.militaryBonus} توان`}`).join("\n");
   const keyboard = new InlineKeyboard();
-  alliances.forEach(a => { if (!userAlliances.includes(a.id)) keyboard.text(`اتحاد ${a.name} - ${a.cost}💰`, `ally_${a.id}`); });
+  alliances.forEach(a => { if (!userAlliances.includes(a.id)) keyboard.text(`اتحاد با ${a.name} - ${a.cost}💰`, `ally_${a.id}`); });
   keyboard.row().text("🔙 بازگشت", "back_to_game");
-  await ctx.reply(`🤝 **${P.alliance}**\n💰 ${P.gold}: ${user.gold}\n\n` + alliances.map(a => `• ${a.name}: +${a.militaryBonus} توان, +${a.goldBonus} دینار`).join("\n"), { parse_mode: "Markdown", reply_markup: keyboard });
+  await ctx.reply(`🤝 **${P.alliance}**\n💰 سکه: ${user.gold}\n\n${allianceList}`, { parse_mode: "Markdown", reply_markup: keyboard });
 }
 
 async function createAlliance(ctx, allianceId) {
@@ -508,15 +467,15 @@ async function createAlliance(ctx, allianceId) {
   user.military += alliance.militaryBonus;
   user.gold += alliance.goldBonus;
   usersDB.set(ctx.from.id, user);
-  await ctx.reply(`✅ پیمان با ${alliance.name} بسته شد!\n⚔️ +${alliance.militaryBonus} توان\n💰 +${alliance.goldBonus} دینار`);
+  await ctx.replyWithPhoto(alliance.image, { caption: `✅ پیمان با ${alliance.name} بسته شد!\n⚔️ +${alliance.militaryBonus} توان\n💰 +${alliance.goldBonus} دینار`, parse_mode: "Markdown" });
 }
 
 // ==================== مأموریت ====================
 async function showMissions(ctx) {
   const user = usersDB.get(ctx.from.id);
   resetDailyMissions(ctx.from.id);
-  const text = user.dailyMissions.map(m => `${m.completed ? "✅" : "⏳"} **${m.name}**\n   ${m.progress}/${m.target}`).join("\n\n");
-  await ctx.reply(`📋 **${P.mission}**\n\n${text}`, { parse_mode: "Markdown", reply_markup: new InlineKeyboard().text("🔙 بازگشت", "back_to_game") });
+  const text = user.dailyMissions.map(m => `${m.completed ? "✅" : "⏳"} **${m.name}**\n   ${m.progress}/${m.target} | پاداش: ${m.rewardGold}💰 + ${m.rewardExp}⭐`).join("\n\n");
+  await ctx.replyWithPhoto(backgrounds.mission, { caption: `📋 **${P.mission}**\n\n${text}`, parse_mode: "Markdown", reply_markup: new InlineKeyboard().text(`🔙 ${P.back}`, "back_to_game") });
 }
 
 // ==================== رویداد ====================
@@ -534,9 +493,11 @@ async function triggerRandomEvent(ctx) {
 // ==================== پنل ادمین ====================
 async function showAdminPanel(ctx) {
   const keyboard = new InlineKeyboard()
-    .text("🎁 هدیه گیف", "admin_give_gif").text("💰 هدیه سکه", "admin_give_gold")
-    .row().text("🏆 فول کردن", "admin_full_upgrade").text("🗑️ ریست", "admin_reset_user")
-    .row().text("📊 لیست کاربران", "admin_list_users").text("🔙 بستن", "admin_close");
+    .text("💰 هدیه سکه", "admin_give_gold")
+    .text("🏆 فول کردن", "admin_full_upgrade")
+    .row()
+    .text("📊 لیست کاربران", "admin_list_users")
+    .text("🔙 بستن", "admin_close");
   await ctx.reply("👑 **پنل ادمین**", { parse_mode: "Markdown", reply_markup: keyboard });
 }
 
@@ -551,9 +512,8 @@ bot.on("callback_query:data", async (ctx) => {
     else if (data.startsWith("select_")) {
       const leaderKey = data.replace("select_", "");
       const leader = leaders[leaderKey];
-      const realName = ctx.from.first_name || "کاربر";
       usersDB.set(ctx.from.id, {
-        leader: leaderKey, leaderName: leader.name, realName: realName, era: leader.era,
+        leader: leaderKey, leaderName: leader.name, realName: ctx.from.first_name, era: leader.era,
         gold: 500, exp: 0, military: 50, weapon: null, alliances: [], stats: {},
         dailyMissions: dailyMissions.map(m => ({ ...m, progress: 0, completed: false })),
         lastMissionReset: Date.now()
@@ -562,8 +522,11 @@ bot.on("callback_query:data", async (ctx) => {
       await showGameMenu(ctx, leaderKey);
     }
     else if (data.startsWith("back_cat_")) await showCategory(ctx, data.replace("back_cat_", ""));
-    else if (data === "back_main") await ctx.reply("بازگشت...");
-    else if (data === "open_shop") await showGlassShop(ctx);
+    else if (data === "back_main") {
+      const keyboard = new InlineKeyboard().text("🏛️ هخامنشیان", "cat_ancient").text("⚔️ صفویان", "cat_islamic").row().text("🏭 پهلویان", "cat_modern").text("🕌 جمهوری اسلامی", "cat_republic");
+      await ctx.editMessageMedia({ type: "photo", media: categoryImages.ancient, caption: `${P.glassBorder}\n🪞 **${P.welcome}** 🪞\n${P.glassBorder}\n\n📜 یک دسته از شاهان را برگزین:`, parse_mode: "Markdown" }, { reply_markup: keyboard });
+    }
+    else if (data === "open_shop") await showShop(ctx);
     else if (data === "craft_menu") await showCraftMenu(ctx);
     else if (data.startsWith("craft_")) await craftWeapon(ctx, data.replace("craft_", ""));
     else if (data === "battle") await requestBattle(ctx);
@@ -574,7 +537,11 @@ bot.on("callback_query:data", async (ctx) => {
     else if (data === "random_event") await triggerRandomEvent(ctx);
     else if (data === "show_leaderboard") await showLeaderboard(ctx);
     else if (data === "show_map") await showMap(ctx);
+    else if (data === "attack_province") await attackProvince(ctx);
+    else if (data.startsWith("conquer_")) await conquerProvince(ctx, data.replace("conquer_", ""));
+    else if (data === "collect_tax") await collectTax(ctx);
     else if (data === "show_alliances") await showAlliances(ctx);
+    else if (data.startsWith("ally_")) await createAlliance(ctx, data.replace("ally_", ""));
     else if (data === "back_to_game") { const u = usersDB.get(userId); if (u) await showGameMenu(ctx, u.leader); else await ctx.reply("/start"); }
     else if (data === "change_leader") await ctx.reply("🔄 /start رو بزن.");
     else if (data.startsWith("buy_")) {
@@ -587,18 +554,58 @@ bot.on("callback_query:data", async (ctx) => {
         user.military += item.power;
         usersDB.set(userId, user);
         updateMissionProgress(userId, "buy");
-        await ctx.replyWithAnimation(animations.cyrusAnimation, { caption: `✅ ${item.name} خریداری شد!\n💰 ${user.gold} دینار\n⚔️ ${user.military} توان` });
+        await ctx.replyWithAnimation(animations.cyrusAnimation, { caption: `✅ ${item.name} خریداری شد!\n💰 ${user.gold} دینار` });
         await applyBigMax(user, ctx);
       } else await ctx.reply("دینار کافی نیست!");
     }
-    else if (data.startsWith("ally_")) await createAlliance(ctx, data.replace("ally_", ""));
     else if (data === "admin_panel_secret" && ADMINS.includes(userId)) await showAdminPanel(ctx);
     else if (data === "admin_list_users" && ADMINS.includes(userId)) {
       const list = Array.from(usersDB.entries()).filter(([k]) => !String(k).includes("admin_")).map(([id, d]) => `${d.realName || d.leaderName} - ${id}`).join("\n");
       await ctx.editMessageText(`📊 لیست کاربران\n${list || "هیچ"}`);
     }
     else if (data === "admin_close") await ctx.deleteMessage();
+    else if (data === "admin_give_gold" && ADMINS.includes(userId)) {
+      usersDB.set(`admin_${userId}_action`, "waiting_for_gold");
+      await ctx.editMessageText("👑 ایدی کاربر و مقدار سکه رو بفرست (مثال: 123456789 1000)");
+    }
+    else if (data === "admin_full_upgrade" && ADMINS.includes(userId)) {
+      usersDB.set(`admin_${userId}_action`, "waiting_for_full");
+      await ctx.editMessageText("👑 ایدی کاربر رو بفرست تا فول شود:");
+    }
   } catch (e) { console.error(e); await ctx.reply("❌ خطا"); }
+});
+
+// ==================== دریافت پیام از ادمین ====================
+bot.on("message:text", async (ctx) => {
+  const userId = ctx.from.id;
+  if (!ADMINS.includes(userId)) return;
+  const action = usersDB.get(`admin_${userId}_action`);
+  if (!action) return;
+  const text = ctx.message.text;
+  if (action === "waiting_for_gold") {
+    const parts = text.split(" ");
+    const targetId = parseInt(parts[0]);
+    const amount = parseInt(parts[1]);
+    const target = usersDB.get(targetId);
+    if (target && !isNaN(amount)) {
+      target.gold += amount;
+      usersDB.set(targetId, target);
+      await ctx.reply(`✅ ${amount} سکه به کاربر ${targetId} اضافه شد. سکه فعلی: ${target.gold}`);
+    } else await ctx.reply("❌ فرمت اشتباه! مثال: 123456789 1000");
+    usersDB.delete(`admin_${userId}_action`);
+  } else if (action === "waiting_for_full") {
+    const targetId = parseInt(text);
+    const target = usersDB.get(targetId);
+    if (target) {
+      target.gold = 100000;
+      target.exp = 5000;
+      target.military = 1000;
+      target.weapon = { id: "ultimate", name: "سلاح نهایی", power: 500 };
+      usersDB.set(targetId, target);
+      await ctx.reply(`✅ کاربر ${targetId} فول شد!`);
+    } else await ctx.reply("❌ کاربر پیدا نشد!");
+    usersDB.delete(`admin_${userId}_action`);
+  }
 });
 
 // ==================== دستورات ====================
@@ -608,4 +615,4 @@ bot.command("admin_panel", async (ctx) => { if (ADMINS.includes(ctx.from.id)) aw
 
 // ==================== استارت ====================
 bot.start();
-console.log("🎮 بازی بقای باستانی - نسخه پارسی و شیشه‌ای روشن شد...");
+console.log("🎮 بازی بقای باستانی - نسخه کامل با تمام عکس‌ها روشن شد...");
