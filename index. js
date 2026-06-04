@@ -3,8 +3,8 @@ const { Bot } = require("grammy");
 const bot = new Bot(process.env.BOT_TOKEN);
 
 bot.command("start", async (ctx) => {
-  await ctx.reply("🏰 بقای فرمانروا روشنه!");
+  await ctx.reply("🏰 بقای فرمانروا روشنه! 🚀");
 });
 
 bot.start();
-console.log("ربات روشن شد");
+console.log("✅ ربات روشن شد");
