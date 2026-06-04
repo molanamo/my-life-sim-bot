@@ -1,4 +1,4 @@
-// لوکیشن‌ها - بقای فرمانروا
+// لوکییشن‌ها - بقای فرمانروا
 const { photos } = require("../assets");
 
 const locations = {
