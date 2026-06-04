@@ -1,10 +1,11 @@
-const { Bot } = require("grammy");
-
-const bot = new Bot(process.env.BOT_TOKEN);
-
-bot.command("start", async (ctx) => {
-  await ctx.reply("🏰 بقای فرمانروا روشنه! 🚀");
-});
-
-bot.start();
-console.log("✅ ربات روشن شد");
+{
+  "name": "pars-game",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "grammy": "^1.20.0"
+  }
+}
