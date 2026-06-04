@@ -1,0 +1,423 @@
+// سیستم نبرد - بقای فرمانروا (با PvP و انتقام)
+const { getPlayer, savePlayer, addExp } = require("./player");
+const { enemies, getBossByDay, getRandomEnemy } = require("../data/enemies");
+const { weapons } = require("../data/weapons");
+const { randomInt, chance } = require("../utils/helpers");
+
+/**
+ * محاسبه قدرت بازیکن
+ */
+function getPlayerPower(player) {
+  let power = player.soldiers * 2;
+  if (player.weapon) {
+    const weapon = weapons[player.weapon];
+    if (weapon) power += weapon.power;
+  }
+  if (player.armor) {
+    const armor = weapons[player.armor];
+    if (armor) power += Math.floor(armor.defense / 2);
+  }
+  power += player.level * 3;
+  return power;
+}
+
+// ============================================
+// 🔥 PvP - حمله به بازیکن دیگه
+// ============================================
+
+/**
+ * حمله به یه بازیکن دیگه
+ */
+function attackPlayer(attackerId, defenderId) {
+  const attacker = getPlayer(attackerId);
+  const defender = getPlayer(defenderId);
+
+  if (!attacker) return { ok: false, msg: "❌ مهاجم پیدا نشد!" };
+  if (!defender) return { ok: false, msg: "❌ بازیکن هدف پیدا نشد!" };
+  if (attackerId === defenderId) return { ok: false, msg: "❌ نمیتونی به خودت حمله کنی!" };
+  if (attacker.actionsLeft <= 0) return { ok: false, msg: "❌ اقدامات امروزت تموم شده!" };
+  if (!defender.alive) return { ok: false, msg: "❌ این بازیکن مرده!" };
+
+  const attackerPower = getPlayerPower(attacker) + randomInt(-10, 15);
+  const defenderPower = getPlayerPower(defender) + randomInt(-5, 10);
+
+  const result = {
+    win: attackerPower > defenderPower,
+    defenderName: defender.firstName,
+    defenderKing: defender.kingName,
+    stolen: {},
+    losses: {},
+    revengeAvailable: true,
+  };
+
+  attacker.actionsLeft--;
+
+  if (result.win) {
+    // 🎉 برد - دزدی از قربانی
+    const stealGold = Math.floor(defender.gold * 0.2);
+    const stealFood = Math.floor(defender.food * 0.15);
+    const stealIron = Math.floor(defender.iron * 0.1);
+
+    result.stolen = {
+      gold: stealGold,
+      food: stealFood,
+      iron: stealIron,
+    };
+
+    attacker.gold += stealGold;
+    attacker.food += stealFood;
+    attacker.iron += stealIron;
+
+    defender.gold -= stealGold;
+    defender.food -= stealFood;
+    defender.iron -= stealIron;
+    defender.health -= randomInt(5, 15);
+
+    // ثبت در لیست انتقام
+    if (!defender.revengeList) defender.revengeList = [];
+    defender.revengeList.push({
+      attackerId,
+      attackerName: attacker.firstName,
+      attackerKing: attacker.kingName,
+      day: defender.day,
+      stolen: { ...result.stolen },
+    });
+
+    // ثبت در تاریخچه مهاجم
+    if (!attacker.attackLog) attacker.attackLog = [];
+    attacker.attackLog.push({
+      targetId: defenderId,
+      targetName: defender.firstName,
+      targetKing: defender.kingName,
+      day: attacker.day,
+      stolen: { ...result.stolen },
+    });
+
+    attacker.battlesWon++;
+    addExp(attackerId, 15);
+    result.msg = `🎉 پیروز شدی!\n💰 دزدیدی: ${stealGold} سکه | 🍖 ${stealFood} غذا | ⛓️ ${stealIron} آهن`;
+  } else {
+    // 💀 باخت
+    const healthLoss = randomInt(10, 25);
+    const soldierLoss = randomInt(1, 4);
+
+    attacker.health -= healthLoss;
+    attacker.soldiers = Math.max(0, attacker.soldiers - soldierLoss);
+
+    result.losses = { health: healthLoss, soldiers: soldierLoss };
+
+    // قربانی میتونه انتقام بگیره
+    if (!defender.revengeList) defender.revengeList = [];
+    defender.revengeList.push({
+      attackerId,
+      attackerName: attacker.firstName,
+      attackerKing: attacker.kingName,
+      day: defender.day,
+      failed: true,
+    });
+
+    addExp(attackerId, 5);
+    result.msg = `💀 شکست خوردی!\n❤️ -${healthLoss} سلامت | ⚔️ -${soldierLoss} سرباز`;
+  }
+
+  // چک مرگ مدافع
+  if (defender.health <= 0) {
+    defender.alive = false;
+    defender.health = 0;
+  }
+
+  // چک مرگ مهاجم
+  if (attacker.health <= 0) {
+    attacker.alive = false;
+    attacker.health = 0;
+  }
+
+  savePlayer(attackerId, attacker);
+  savePlayer(defenderId, defender);
+
+  return { ok: true, ...result };
+}
+
+/**
+ * انتقام گرفتن از کسی که بهت حمله کرده
+ */
+function revenge(revengeTakerId, targetId) {
+  const revengeTaker = getPlayer(revengeTakerId);
+  const target = getPlayer(targetId);
+
+  if (!revengeTaker) return { ok: false, msg: "❌ بازیکن پیدا نشد!" };
+  if (!target) return { ok: false, msg: "❌ هدف پیدا نشد!" };
+  if (revengeTaker.actionsLeft <= 0) return { ok: false, msg: "❌ اقدامات امروزت تموم شده!" };
+
+  // چک اینکه آیا واقعاً حق انتقام داره
+  const revengeEntry = (revengeTaker.revengeList || []).find(r => r.attackerId === targetId);
+  if (!revengeEntry) {
+    return { ok: false, msg: "❌ این بازیکن بهت حمله نکرده که بخوای انتقام بگیری!" };
+  }
+
+  // قدرت انتقام (با بونوس ۳۰٪)
+  const revengePower = getPlayerPower(revengeTaker) + randomInt(0, 20);
+  const targetPower = getPlayerPower(target) + randomInt(-5, 10);
+
+  const result = {
+    win: revengePower > targetPower,
+    targetName: target.firstName,
+    targetKing: target.kingName,
+    isRevenge: true,
+    stolen: {},
+    losses: {},
+  };
+
+  revengeTaker.actionsLeft--;
+
+  if (result.win) {
+    // 🔥 انتقام موفق - دزدی دو برابر
+    const stealGold = Math.floor(target.gold * 0.4);
+    const stealFood = Math.floor(target.food * 0.3);
+    const stealIron = Math.floor(target.iron * 0.25);
+    const stealWood = Math.floor(target.wood * 0.2);
+    const stealStone = Math.floor(target.stone * 0.2);
+
+    result.stolen = {
+      gold: stealGold,
+      food: stealFood,
+      iron: stealIron,
+      wood: stealWood,
+      stone: stealStone,
+    };
+
+    revengeTaker.gold += stealGold;
+    revengeTaker.food += stealFood;
+    revengeTaker.iron += stealIron;
+    revengeTaker.wood += stealWood;
+    revengeTaker.stone += stealStone;
+
+    target.gold -= stealGold;
+    target.food -= stealFood;
+    target.iron -= stealIron;
+    target.wood -= stealWood;
+    target.stone -= stealStone;
+    target.health -= randomInt(10, 25);
+
+    // حذف از لیست انتقام
+    revengeTaker.revengeList = revengeTaker.revengeList.filter(r => r.attackerId !== targetId);
+
+    revengeTaker.battlesWon++;
+    addExp(revengeTakerId, 25);
+    result.msg = `🔥 انتقام سختی گرفتی!\n💰 دزدیدی: ${stealGold} سکه | 🍖 ${stealFood} غذا\n⛓️ ${stealIron} آهن | 🪵 ${stealWood} چوب | 🪨 ${stealStone} سنگ`;
+  } else {
+    const healthLoss = randomInt(15, 35);
+    const soldierLoss = randomInt(2, 6);
+
+    revengeTaker.health -= healthLoss;
+    revengeTaker.soldiers = Math.max(0, revengeTaker.soldiers - soldierLoss);
+
+    result.losses = { health: healthLoss, soldiers: soldierLoss };
+    addExp(revengeTakerId, 8);
+    result.msg = `💀 انتقامت失敗 شد!\n❤️ -${healthLoss} سلامت | ⚔️ -${soldierLoss} سرباز\nبرای انتقام دوباره برگرد!`;
+  }
+
+  if (revengeTaker.health <= 0) {
+    revengeTaker.alive = false;
+    revengeTaker.health = 0;
+  }
+
+  if (target.health <= 0) {
+    target.alive = false;
+    target.health = 0;
+  }
+
+  savePlayer(revengeTakerId, revengeTaker);
+  savePlayer(targetId, target);
+
+  return { ok: true, ...result };
+}
+
+/**
+ * گرفتن لیست انتقام
+ */
+function getRevengeList(userId) {
+  const player = getPlayer(userId);
+  if (!player || !player.revengeList) return [];
+  return player.revengeList;
+}
+
+/**
+ * گرفتن تاریخچه حملات
+ */
+function getAttackLog(userId) {
+  const player = getPlayer(userId);
+  if (!player || !player.attackLog) return [];
+  return player.attackLog.slice(-10).reverse(); // ۱۰ حمله آخر
+}
+
+// ============================================
+// ⚔️ نبرد با دشمن معمولی
+// ============================================
+
+function battle(userId, enemyId) {
+  const player = getPlayer(userId);
+  if (!player) return { ok: false, msg: "❌ بازیکن پیدا نشد!" };
+  if (player.actionsLeft <= 0) return { ok: false, msg: "❌ اقدامات امروزت تموم شده!" };
+
+  const enemy = enemyId ? enemies[enemyId] : getRandomEnemy(getPlayerPower(player));
+  if (!enemy) return { ok: false, msg: "❌ دشمن پیدا نشد!" };
+
+  const playerPower = getPlayerPower(player) + randomInt(-5, 10);
+  const enemyPower = enemy.power + randomInt(-3, 5);
+
+  const result = {
+    win: playerPower > enemyPower,
+    enemy: enemy.name,
+    rewards: {},
+    losses: {},
+  };
+
+  player.actionsLeft--;
+
+  if (result.win) {
+    result.rewards.gold = randomInt(enemy.reward.gold[0], enemy.reward.gold[1]);
+    result.rewards.exp = enemy.reward.exp;
+    
+    player.gold += result.rewards.gold;
+    player.totalGoldEarned += result.rewards.gold;
+    player.battlesWon++;
+    addExp(userId, result.rewards.exp);
+
+    if (enemy.lootTable) {
+      for (const loot of enemy.lootTable) {
+        if (chance(loot.chance)) {
+          const amount = Array.isArray(loot.amount) ? randomInt(loot.amount[0], loot.amount[1]) : loot.amount;
+          if (loot.item === "gold") player.gold += amount;
+          else if (loot.item === "food") player.food += amount;
+          else if (loot.item === "iron") player.iron += amount;
+          else if (loot.item === "stone") player.stone += amount;
+          else if (loot.item === "wood") player.wood += amount;
+          else {
+            result.rewards.item = weapons[loot.item]?.name || loot.item;
+            if (!player.weapon && weapons[loot.item]?.type === "weapon") player.weapon = loot.item;
+            if (!player.armor && weapons[loot.item]?.type === "armor") player.armor = loot.item;
+          }
+        }
+      }
+    }
+  } else {
+    const healthLoss = randomInt(10, 30);
+    const soldierLoss = randomInt(1, 3);
+    
+    player.health -= healthLoss;
+    player.soldiers = Math.max(0, player.soldiers - soldierLoss);
+    
+    result.losses.health = healthLoss;
+    result.losses.soldiers = soldierLoss;
+    addExp(userId, 3);
+  }
+
+  if (player.health <= 0) {
+    player.alive = false;
+    player.health = 0;
+  }
+
+  savePlayer(userId, player);
+  return { ok: true, ...result };
+}
+
+// ============================================
+// 👹 نبرد با باس
+// ============================================
+
+function battleBoss(userId) {
+  const player = getPlayer(userId);
+  if (!player) return { ok: false, msg: "❌ بازیکن پیدا نشد!" };
+  if (player.bossDefeatedToday) return { ok: false, msg: "❌ امروز باس رو شکست دادی!" };
+
+  const boss = getBossByDay(player.day);
+  if (!boss) return { ok: false, msg: "❌ امروز باسی وجود نداره!" };
+
+  const playerPower = getPlayerPower(player);
+  const result = {
+    win: false,
+    boss: boss.name,
+    rewards: {},
+    losses: {},
+    bossPhoto: boss.photo,
+    bossGif: boss.gif,
+  };
+
+  let playerHP = 3;
+  let bossHP = boss.health;
+
+  for (let round = 1; round <= 5; round++) {
+    if (bossHP <= 0 || playerHP <= 0) break;
+    
+    const playerAttack = playerPower + randomInt(-10, 15);
+    const bossAttack = boss.power + randomInt(-5, 10);
+
+    if (playerAttack > bossAttack) {
+      bossHP--;
+      if (boss.specialAttack && chance(30)) {
+        playerHP--;
+        result.specialUsed = boss.specialAttack;
+      }
+    } else {
+      playerHP--;
+    }
+  }
+
+  result.win = bossHP <= 0 && playerHP > 0;
+  result.playerHP = playerHP;
+  result.bossHP = bossHP;
+
+  if (result.win) {
+    result.rewards.gold = boss.reward.gold;
+    result.rewards.exp = boss.reward.exp;
+    result.rewards.item = boss.dropItem?.name;
+
+    player.gold += boss.reward.gold;
+    player.totalGoldEarned += boss.reward.gold;
+    player.bossesDefeated++;
+    player.bossDefeatedToday = true;
+    addExp(userId, boss.reward.exp);
+
+    if (boss.dropItem) {
+      const item = weapons[boss.dropItem.item];
+      if (item) {
+        if (item.type === "weapon") player.weapon = boss.dropItem.item;
+        if (item.type === "armor") player.armor = boss.dropItem.item;
+      }
+    }
+
+    if (boss.isFinal) {
+      result.gameOver = true;
+      result.isVictory = true;
+    }
+  } else {
+    const healthLoss = randomInt(30, 60);
+    const soldierLoss = randomInt(5, 15);
+    
+    player.health -= healthLoss;
+    player.soldiers = Math.max(0, player.soldiers - soldierLoss);
+    
+    result.losses.health = healthLoss;
+    result.losses.soldiers = soldierLoss;
+    addExp(userId, 20);
+  }
+
+  if (player.health <= 0) {
+    player.alive = false;
+    player.health = 0;
+  }
+
+  savePlayer(userId, player);
+  return { ok: true, ...result };
+}
+
+module.exports = {
+  getPlayerPower,
+  battle,
+  battleBoss,
+  attackPlayer,
+  revenge,
+  getRevengeList,
+  getAttackLog,
+};
