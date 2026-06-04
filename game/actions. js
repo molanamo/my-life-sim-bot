@@ -1,0 +1,197 @@
+// اکشن‌های روزانه - بقای فرمانروا
+const { getPlayer, savePlayer, addExp } = require("./player");
+const { locations, getLocation } = require("../data/locations");
+const { foods } = require("../data/foods");
+const { getRandomEnemy } = require("../data/enemies");
+const { randomInt, pickRandom, chance } = require("../utils/helpers");
+const CONFIG = require("../utils/config");
+
+/**
+ * جمع‌آوری منابع از لوکیشن
+ */
+function gatherResource(userId, locationId) {
+  const player = getPlayer(userId);
+  if (!player) return { ok: false, msg: "❌ بازیکن پیدا نشد!" };
+  if (player.actionsLeft <= 0) return { ok: false, msg: "❌ اقدامات امروزت تموم شده!" };
+
+  const location = getLocation(locationId);
+  const result = { gold: 0, wood: 0, stone: 0, iron: 0, food: 0, enemy: null, special: null };
+
+  for (const [res, data] of Object.entries(location.resources)) {
+    if (data.chance && chance(data.chance)) {
+      const amount = randomInt(data.min, data.max);
+      result[res] = amount;
+    }
+  }
+
+  player.gold += result.gold;
+  player.wood += result.wood;
+  player.stone += result.stone;
+  player.iron += result.iron;
+  player.food += result.food;
+
+  if (location.danger > 0 && chance(location.danger)) {
+    const enemy = getRandomEnemy(player.soldiers);
+    result.enemy = enemy;
+  }
+
+  if (location.specialEvent && chance(location.specialEvent.chance)) {
+    result.special = location.specialEvent;
+    for (const [key, val] of Object.entries(location.specialEvent.effect)) {
+      if (player[key] !== undefined) player[key] += val;
+    }
+  }
+
+  player.actionsLeft--;
+  player.totalGoldEarned += result.gold;
+  addExp(userId, 5);
+  savePlayer(userId, player);
+
+  return { ok: true, location, result };
+}
+
+/**
+ * شکار برای غذا
+ */
+function hunt(userId) {
+  const player = getPlayer(userId);
+  if (!player) return { ok: false, msg: "❌ بازیکن پیدا نشد!" };
+  if (player.actionsLeft <= 0) return { ok: false, msg: "❌ اقدامات امروزت تموم شده!" };
+
+  const success = chance(60 + player.soldiers);
+  
+  if (success) {
+    const foodGain = randomInt(2, 6);
+    const goldGain = randomInt(0, 20);
+    player.food += foodGain;
+    player.gold += goldGain;
+    player.actionsLeft--;
+    player.totalGoldEarned += goldGain;
+    addExp(userId, 8);
+    savePlayer(userId, player);
+    return { ok: true, success: true, food: foodGain, gold: goldGain };
+  } else {
+    if (chance(30)) {
+      player.health -= randomInt(5, 15);
+      player.actionsLeft--;
+      savePlayer(userId, player);
+      return { ok: true, success: false, attacked: true, damage: true };
+    }
+    player.actionsLeft--;
+    savePlayer(userId, player);
+    return { ok: true, success: false, attacked: false };
+  }
+}
+
+/**
+ * ساخت غذا
+ */
+function cookFood(userId, foodId) {
+  const player = getPlayer(userId);
+  if (!player) return { ok: false, msg: "❌ بازیکن پیدا نشد!" };
+  if (player.actionsLeft <= 0) return { ok: false, msg: "❌ اقدامات امروزت تموم شده!" };
+
+  const food = foods[foodId];
+  if (!food) return { ok: false, msg: "❌ این غذا وجود نداره!" };
+
+  if (food.craft) {
+    for (const [res, amount] of Object.entries(food.craft)) {
+      if ((player[res] || 0) < amount) {
+        return { ok: false, msg: `❌ ${res} کافی نداری! نیاز: ${amount}` };
+      }
+    }
+    for (const [res, amount] of Object.entries(food.craft)) {
+      player[res] -= amount;
+    }
+  }
+
+  player.food += food.hunger;
+  player.health = Math.min(player.maxHealth, player.health + (food.health || 0));
+  player.actionsLeft--;
+  addExp(userId, 10);
+  savePlayer(userId, player);
+
+  return { ok: true, food };
+}
+
+/**
+ * استراحت و درمان
+ */
+function rest(userId) {
+  const player = getPlayer(userId);
+  if (!player) return { ok: false, msg: "❌ بازیکن پیدا نشد!" };
+  if (player.actionsLeft <= 0) return { ok: false, msg: "❌ اقدامات امروزت تموم شده!" };
+
+  const healAmount = 10 + (CONFIG.SHELTER[player.shelterLevel]?.healRate || 1) * 3;
+  player.health = Math.min(player.maxHealth, player.health + healAmount);
+  player.actionsLeft--;
+  addExp(userId, 3);
+  savePlayer(userId, player);
+
+  return { ok: true, heal: healAmount, type: "rest" };
+}
+
+/**
+ * 🎉 عیاشی و خوش‌گذرونی
+ */
+function party(userId) {
+  const player = getPlayer(userId);
+  if (!player) return { ok: false, msg: "❌ بازیکن پیدا نشد!" };
+  if (player.actionsLeft <= 0) return { ok: false, msg: "❌ اقدامات امروزت تموم شده!" };
+  if (player.gold < 100) return { ok: false, msg: "❌ حداقل ۱۰۰ سکه برای عیاشی لازم داری!" };
+
+  // هزینه عیاشی
+  const cost = randomInt(50, 150);
+  player.gold -= Math.min(cost, player.gold);
+  player.actionsLeft--;
+
+  // اتفاقات عیاشی
+  const partyEvents = [
+    { msg: "🍷 مجلس شراب به پا کردی! سربازا مست شدن و فردا خواب می‌مونن...", health: -5, soldiers: -1, food: 5 },
+    { msg: "💃 رقاص‌ها رو آوردی، کلی کیف کردی! ملکه‌ها حسودیشون شد...", health: 10, gold: -30, mood: "queens_jealous" },
+    { msg: "🎵 مطرب‌ها آواز خوندن، دلت شاد شد! سربازا روحیه گرفتن...", health: 15, soldiers: 2, food: 3 },
+    { msg: "🍖 یه ضیافت بزرگ راه انداختی، همه خوردن و خندیدن!", food: 10, health: 5, gold: -20 },
+    { msg: "🛁 رفتن حموم خزینه و دلاک آوردی، خستگی از تنت در رفت!", health: 25, gold: -40 },
+    { msg: "🐎 مسابقه اسب‌سواری گذاشتی، شرط‌بندی کردی و بردی!", gold: 80, soldiers: 1 },
+    { msg: "🎪 جشن نوروزی به پا کردی، همه شاد شدن و برکت اومد!", food: 8, gold: 30, health: 10 },
+    { msg: "🤹 دلقک‌های دربار رو صدا کردی، از خنده روده‌بر شدی!", health: 8, food: 2 },
+    { msg: "🦁 شیرهای تربیت‌شده رو آوردی، همه ترسیدن و تو خندیدی!", soldiers: 1, health: 3 },
+    { msg: "🍕 پیتزا سفارش دادی با پپسی! (عه این دوره نبود که...)", health: -10, gold: -50, food: 3 },
+    { msg: "🪕 چنگ و عود نواختن، تو و ملکه‌ها تا صبح رقصیدین!", health: 5, gold: -20, queens: "happy" },
+    { msg: "💨 قلیون کشیدی و پک عمیق زدی، سرت گیج رفت...", health: -8, food: 5 },
+    { msg: "🎯 مسابقه تیراندازی گذاشتی، همه سربازا کلی خوش گذروندن!", soldiers: 3, health: 5, gold: -30 },
+    { msg: "📿 عارف دوره‌گرد اومد و برات دعا کرد، آرامش پیدا کردی!", health: 20 },
+  ];
+
+  const event = pickRandom(partyEvents);
+
+  // اعمال اثرات
+  if (event.health) player.health = Math.min(player.maxHealth, Math.max(0, player.health + event.health));
+  if (event.food) player.food += event.food;
+  if (event.gold) player.gold = Math.max(0, player.gold + event.gold);
+  if (event.soldiers) player.soldiers = Math.max(0, player.soldiers + event.soldiers);
+
+  addExp(userId, 15);
+  savePlayer(userId, player);
+
+  return {
+    ok: true,
+    type: "party",
+    cost,
+    event: event.msg,
+    effects: {
+      health: event.health || 0,
+      food: event.food || 0,
+      gold: event.gold || 0,
+      soldiers: event.soldiers || 0,
+    },
+  };
+}
+
+module.exports = {
+  gatherResource,
+  hunt,
+  cookFood,
+  rest,
+  party,
+};
