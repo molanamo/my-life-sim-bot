@@ -57,6 +57,10 @@ function createPlayer(userId, firstName, kingId) {
     bossesDefeated: 0,
     totalGoldEarned: 0,
     
+    // PvP
+    revengeList: [],
+    attackLog: [],
+    
     // وضعیت
     alive: true,
     bossDefeatedToday: false,
@@ -102,7 +106,6 @@ function endDay(userId) {
   const player = getPlayer(userId);
   if (!player) return false;
 
-  // افزایش روز
   player.day += 1;
   player.actionsLeft = CONFIG.ACTIONS_PER_DAY;
   player.bossDefeatedToday = false;
@@ -111,7 +114,6 @@ function endDay(userId) {
   const foodNeeded = 1 + Math.floor(player.soldiers / 5);
   player.food -= foodNeeded;
 
-  // گرسنگی → کاهش سلامت
   if (player.food < 0) {
     player.health += player.food * 5;
     player.food = 0;
@@ -132,18 +134,15 @@ function endDay(userId) {
   const queenHeal = player.queens.includes("shirin") ? 3 : 0;
   player.health = Math.min(player.maxHealth, player.health + shelterHeal + queenHeal);
 
-  // دفاع ملکه آرتونیس
   if (player.queens.includes("artunis")) {
     player.health += 2;
   }
 
-  // چک مرگ
   if (player.health <= 0) {
     player.alive = false;
     player.health = 0;
   }
 
-  // اتمام بازی
   if (player.day > CONFIG.MAX_DAYS) {
     player.alive = false;
   }
@@ -157,7 +156,7 @@ function endDay(userId) {
  */
 function addExp(userId, amount) {
   const player = getPlayer(userId);
-  if (!player) return;
+  if (!player) return false;
 
   player.exp += amount;
   const newLevel = Math.floor(player.exp / 100) + 1;
@@ -166,11 +165,29 @@ function addExp(userId, amount) {
     player.level = newLevel;
     player.maxHealth += 5;
     player.health = Math.min(player.health + 10, player.maxHealth);
-    return true; // لول آپ شده
+    return true;
   }
   
   savePlayer(userId, player);
   return false;
+}
+
+/**
+ * گرفتن لیست انتقام
+ */
+function getRevengeList(userId) {
+  const player = getPlayer(userId);
+  if (!player || !player.revengeList) return [];
+  return player.revengeList;
+}
+
+/**
+ * گرفتن تاریخچه حملات
+ */
+function getAttackLog(userId) {
+  const player = getPlayer(userId);
+  if (!player || !player.attackLog) return [];
+  return player.attackLog.slice(-10).reverse();
 }
 
 module.exports = {
@@ -181,4 +198,7 @@ module.exports = {
   isAlive,
   endDay,
   addExp,
+  getRevengeList,
+  getAttackLog,
+  players,
 };
