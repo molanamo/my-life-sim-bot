@@ -1,0 +1,8 @@
+const { Bot } = require("grammy");
+const bot = new Bot(process.env.BOT_TOKEN);
+
+bot.command("start", async (ctx) => {
+  await ctx.reply("🏰 بقای فرمانروا روشنه!");
+});
+
+bot.start();
