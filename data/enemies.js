@@ -1,4 +1,4 @@
-// دشمنان و باس‌ها - بقای فرمانروا
+// دشمنان و باس‌ها - بقاای فرمانروا
 const { photos, gifs } = require("../assets");
 
 const enemies = {
