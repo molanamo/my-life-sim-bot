@@ -4,8 +4,6 @@ const bot = new Bot(process.env.BOT_TOKEN);
 
 // لیست همه عکس‌ها
 const allPhotos = [
-  // منوی اصلی
-  { name: "منوی اصلی - تخت جمشید", id: "AgACAgQAAxkBAAEqDTBqICOASxW5zGuBthI4MCjwOCL9mgAC3w5rG4APAVH5dNZ45D-UwwEAAwIAA3kAAzsE" },
   // پادشاهان
   { name: "کوروش بزرگ", id: "AgACAgQAAxkBAAEqCuxqH_gzDC0lhnhq5XY5trPLrtNiKAACiQ5rG4APAVESIQfjCtTuagEAAwIAA3kAAzsE" },
   { name: "داریوش بزرگ", id: "AgACAgQAAxkBAAEqCwxqH_vHXf_othfTA2jTsuAZqqbuSQACkg5rG4APAVFF2KiazmU2oQEAAwIAA3kAAzsE" },
@@ -108,9 +106,8 @@ const allPhotos = [
   { name: "بازار", id: "AgACAgQAAxkBAAEqGtxqIWVz1IB6e_bilpzNtktK9IEntgACYQ5rG9cu8VAVr24v9PDF5QEAAwIAA3gAAzsE" },
 ];
 
-// گیف‌ها جدا
+// گیف‌ها - بدون گیف آماده جنگ
 const allGifs = [
-  { name: "گیف آماده جنگ", id: "CgACAgQAAxkBAAEqETVqIGusPLj-Qq0nd73vMUkiRiwY0wACTwYAArMmNVBb8-ES6JPGHzsE" },
   { name: "گیف کوروش بزرگ", id: "CgACAgQAAxkBAAEqEUpqIG2RakeSSSNpKkC-3UfiGpoEYwACGQMAAt5HJVNbjZO7dqLofTsE" },
   { name: "گیف موشک (پیروزی)", id: "CgACAgQAAxkBAAEqDpBqIDYupm_2tWylUzv4N0qgCCCqLwACmSsAAts6AAFRSXGwyWxF4MU7BA" },
   { name: "گیف انفجار هسته‌ای", id: "CgACAgQAAxkBAAEqEo9qIIXeZFa4e4pPIR67chxvh9D2XwACbwMAAlhtBFOyrDZljZRTyjsE" },
@@ -118,101 +115,66 @@ const allGifs = [
   { name: "گیف گلادیاتور پیروزی", id: "CgACAgQAAxkBAAEqGVFqIV2gfrxazteWVHN08BObPyakpgACAwMAAsmSjFPUScicY8iOhzsE" },
 ];
 
-let photoIndex = 0;
-let gifIndex = 0;
+let index = 0;
 
-// تست عکس‌ها
-bot.command("test_photo", async (ctx) => {
-  photoIndex = 0;
-  await showPhoto(ctx);
+bot.command("start", async (ctx) => {
+  index = 0;
+  await showNext(ctx);
 });
 
-async function showPhoto(ctx) {
-  if (photoIndex >= allPhotos.length) {
-    await ctx.reply("✅ همه عکس‌ها تموم شد. حالا /test_gif رو بزن.");
+async function showNext(ctx) {
+  // اول همه عکس‌ها
+  if (index < allPhotos.length) {
+    const photo = allPhotos[index];
+    try {
+      await ctx.replyWithPhoto(photo.id, {
+        caption: `📸 ${index + 1}/${allPhotos.length + allGifs.length}\n${photo.name}`,
+        reply_markup: new InlineKeyboard()
+          .text("▶️ بعدی", "next")
+          .text("⏹ توقف", "stop")
+      });
+    } catch (e) {
+      await ctx.reply(`❌ خطا: ${photo.name}\n🆔: \`${photo.id}\``, { parse_mode: "Markdown" });
+    }
+    index++;
     return;
   }
-  const photo = allPhotos[photoIndex];
-  try {
-    await ctx.replyWithPhoto(photo.id, {
-      caption: `📸 عکس ${photoIndex + 1}/${allPhotos.length}\nنام: ${photo.name}`,
-      reply_markup: new InlineKeyboard()
-        .text("▶️ بعدی", "next_photo")
-        .text("⏮ ۱۰ تا عقب", "prev10_photo")
-        .text("⏭ ۱۰ تا جلو", "next10_photo")
-        .row()
-        .text("⏹ پایان", "stop_test")
-    });
-  } catch (e) {
-    await ctx.reply(`❌ خطا در عکس ${photoIndex + 1}: ${photo.name}\n🆔: ${photo.id}`);
-  }
-}
-
-// تست گیف‌ها
-bot.command("test_gif", async (ctx) => {
-  gifIndex = 0;
-  await showGif(ctx);
-});
-
-async function showGif(ctx) {
-  if (gifIndex >= allGifs.length) {
-    await ctx.reply("✅ همه گیف‌ها تموم شد.");
+  
+  // بعد گیف‌ها
+  const gifIndex = index - allPhotos.length;
+  if (gifIndex < allGifs.length) {
+    const gif = allGifs[gifIndex];
+    try {
+      await ctx.replyWithAnimation(gif.id, {
+        caption: `🎬 ${index + 1}/${allPhotos.length + allGifs.length}\n${gif.name}`,
+        reply_markup: new InlineKeyboard()
+          .text("▶️ بعدی", "next")
+          .text("⏹ توقف", "stop")
+      });
+    } catch (e) {
+      await ctx.reply(`❌ خطا گیف: ${gif.name}\n🆔: \`${gif.id}\``, { parse_mode: "Markdown" });
+    }
+    index++;
     return;
   }
-  const gif = allGifs[gifIndex];
-  try {
-    await ctx.replyWithAnimation(gif.id, {
-      caption: `🎬 گیف ${gifIndex + 1}/${allGifs.length}\nنام: ${gif.name}`,
-      reply_markup: new InlineKeyboard()
-        .text("▶️ بعدی", "next_gif")
-        .text("⏹ پایان", "stop_test")
-    });
-  } catch (e) {
-    await ctx.reply(`❌ خطا در گیف ${gifIndex + 1}: ${gif.name}\n🆔: ${gif.id}`);
-  }
+  
+  // تموم شد
+  await ctx.reply(`✅ تموم شد!\n\n📸 عکس سالم: ${allPhotos.length}\n🎬 گیف: ${allGifs.length}\n📦 مجموع: ${allPhotos.length + allGifs.length}`);
 }
 
 bot.on("callback_query:data", async (ctx) => {
   const data = ctx.callbackQuery.data;
   await ctx.answerCallbackQuery().catch(() => {});
   
-  if (data === "next_photo") {
-    photoIndex++;
-    await showPhoto(ctx);
+  if (data === "next") {
+    await showNext(ctx);
   }
-  if (data === "prev10_photo") {
-    photoIndex = Math.max(0, photoIndex - 10);
-    await showPhoto(ctx);
+  if (data === "stop") {
+    await ctx.reply(`⏹ تست متوقف شد. \nموقعیت: ${index}/${allPhotos.length + allGifs.length}\n\nبرای ادامه دوباره /start بزن.`);
   }
-  if (data === "next10_photo") {
-    photoIndex = Math.min(allPhotos.length - 1, photoIndex + 10);
-    await showPhoto(ctx);
-  }
-  if (data === "next_gif") {
-    gifIndex++;
-    await showGif(ctx);
-  }
-  if (data === "stop_test") {
-    await ctx.reply("⏹ تست متوقف شد.");
-  }
-});
-
-bot.command("start", async (ctx) => {
-  await ctx.reply(
-    "🔍 ربات تست عکس و گیف\n\n" +
-    "/test_photo - تست همه عکس‌ها\n" +
-    "/test_gif - تست همه گیف‌ها\n" +
-    `/total - تعداد کل\n\n` +
-    `📸 تعداد عکس: ${allPhotos.length}\n` +
-    `🎬 تعداد گیف: ${allGifs.length}`
-  );
-});
-
-bot.command("total", async (ctx) => {
-  await ctx.reply(`📊 آمار:\n\n📸 عکس: ${allPhotos.length} عدد\n🎬 گیف: ${allGifs.length} عدد\n📦 مجموع: ${allPhotos.length + allGifs.length} فایل`);
 });
 
 bot.catch((err) => console.error("Bot error:", err));
 
 bot.start();
-console.log("🚀 ربات تست عکس روشن شد");
+console.log("🚀 ربات تست عکس - همه پشت سر هم روشن شد");
