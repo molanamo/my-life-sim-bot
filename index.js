@@ -8,11 +8,11 @@ function getGlassBorder() { return "✨⚜️✨⚜️✨⚜️✨⚜️✨⚜�
 
 // ==================== نرخ تورم هر دوره ====================
 const inflationRates = {
-  ancient: 1,        // هخامنشیان - شکِل
-  islamic: 5,        // صفویان - تومان قدیم
-  modern: 10,        // پهلویان - ریال
-  khomeini: 50,      // امام خمینی - تومان جنگ
-  khamenei: 5000000  // خامنه‌ای - تومان تورمی
+  ancient: 1,
+  islamic: 5,
+  modern: 10,
+  khomeini: 50,
+  khamenei: 5000000
 };
 
 const currencyNames = {
@@ -27,11 +27,8 @@ function formatPrice(price, era) {
   const rate = inflationRates[era];
   const finalPrice = price * rate;
   const currency = currencyNames[era];
-  
   if (era === "khamenei") {
-    if (finalPrice >= 1000000000) {
-      return `${(finalPrice / 1000000000).toFixed(0)} میلیارد ${currency}`;
-    }
+    if (finalPrice >= 1000000000) return `${(finalPrice / 1000000000).toFixed(0)} میلیارد ${currency}`;
     return `${(finalPrice / 1000000).toFixed(0)} میلیون ${currency}`;
   }
   return `${finalPrice.toLocaleString()} ${currency}`;
@@ -40,15 +37,13 @@ function formatPrice(price, era) {
 function formatGold(gold, era) {
   const currency = currencyNames[era];
   if (era === "khamenei") {
-    if (gold >= 1000000000) {
-      return `${(gold / 1000000000).toFixed(0)} میلیارد ${currency}`;
-    }
+    if (gold >= 1000000000) return `${(gold / 1000000000).toFixed(0)} میلیارد ${currency}`;
     return `${(gold / 1000000).toFixed(0)} میلیون ${currency}`;
   }
   return `${gold.toLocaleString()} ${currency}`;
 }
 
-// ==================== سلاح‌ها با قیمت پایه ====================
+// ==================== سلاح‌ها ====================
 const baseWeapons = {
   ancient: [
     { id: "sword", name: "⚔️ شمشیر مفرغین", basePrice: 100, power: 5, desc: "خود مفرغین سپاه هخامنشی" },
@@ -136,6 +131,10 @@ function getGameMenu() {
     .text("🔙 منوی اصلی", "back_main");
 }
 
+function getBackToGameMenu() {
+  return new InlineKeyboard().text("🔙 بازگشت به بازی", "back_to_game");
+}
+
 // ==================== لیدربورد ====================
 async function showLeaderboard(ctx) {
   const users = Array.from(usersDB.entries())
@@ -144,7 +143,7 @@ async function showLeaderboard(ctx) {
     .slice(0, 10);
   
   if (users.length === 0) {
-    await ctx.reply("📭 هنوز هیچ سروری یافت نشد.\n\nبا /start شروع کن و اولین فرمانروا باش!", { reply_markup: new InlineKeyboard().text("🔙 منوی اصلی", "back_main") });
+    await ctx.reply("📭 هنوز هیچ سروری یافت نشد.\n\nبا /start شروع کن و اولین فرمانروا باش!", { reply_markup: getBackToGameMenu() });
     return;
   }
   
@@ -154,18 +153,21 @@ async function showLeaderboard(ctx) {
     return `${medal} **${d.realName || d.kingName}**\n   💰 ${goldDisplay} | ⚔️ ${d.military} توان`;
   }).join("\n\n");
   
-  await ctx.reply(`${getGlassBorder()}\n🏆 **نامه سروران**\n${getGlassBorder()}\n\n${text}`, { parse_mode: "Markdown", reply_markup: new InlineKeyboard().text("🔙 منوی اصلی", "back_main") });
+  await ctx.reply(`${getGlassBorder()}\n🏆 **نامه سروران**\n${getGlassBorder()}\n\n${text}`, { parse_mode: "Markdown", reply_markup: getBackToGameMenu() });
 }
 
 // ==================== وضعیت ====================
 async function showStatus(ctx) {
   const user = usersDB.get(ctx.from.id);
-  if (!user) return;
+  if (!user) {
+    await ctx.reply("❌ ابتدا یک پادشاه انتخاب کن!", { reply_markup: new InlineKeyboard().text("🔙 منوی اصلی", "back_main") });
+    return;
+  }
   const king = kings[user.king];
   const goldDisplay = formatGold(user.gold, user.era);
   await ctx.replyWithPhoto(king.image, {
     caption: `${getGlassBorder()}\n📊 **دفترچه ${user.kingName}**\n${getGlassBorder()}\n\n💰 تومان: ${goldDisplay}\n⚔️ توان رزمی: ${user.military}\n🗡️ خود: ${user.weapon?.name || "ندارد"}\n\n👸 حرمسرا: ${harams[user.king].queens.length} ملکه\n🎁 آیتم ویژه: ${harams[user.king].specialItem}`,
-    parse_mode: "Markdown", reply_markup: new InlineKeyboard().text("🔙 منوی اصلی", "back_main")
+    parse_mode: "Markdown", reply_markup: getBackToGameMenu()
   });
 }
 
@@ -245,12 +247,12 @@ bot.on("callback_query:data", async (ctx) => {
     if (!user) { await ctx.reply("❌ ابتدا یک پادشاه انتخاب کن!", { reply_markup: new InlineKeyboard().text("🔙 منوی اصلی", "back_main") }); return; }
     const haram = harams[user.king];
     if (!haram || haram.queens.length === 0) {
-      await ctx.reply(`👸 **حرمسرای ${user.kingName}**\n\n🎁 آیتم ویژه: ${haram?.specialItem || "ندارد"}\n\nهیچ ملکه‌ای یافت نشد.`, { parse_mode: "Markdown", reply_markup: new InlineKeyboard().text("🔙 منوی اصلی", "back_main") });
+      await ctx.reply(`👸 **حرمسرای ${user.kingName}**\n\n🎁 آیتم ویژه: ${haram?.specialItem || "ندارد"}\n\nهیچ ملکه‌ای یافت نشد.`, { parse_mode: "Markdown", reply_markup: getBackToGameMenu() });
       return;
     }
     const keyboard = new InlineKeyboard();
     haram.queens.forEach((q, idx) => { keyboard.text(q.name, `queen_${user.king}_${idx}`); });
-    keyboard.row().text("🔙 منوی اصلی", "back_main");
+    keyboard.row().text("🔙 بازگشت به بازی", "back_to_game");
     await ctx.reply(`👸 **حرمسرای ${user.kingName}**\n\n🎁 آیتم ویژه: ${haram.specialItem}\n\n👩 ملکه‌ها:\n${haram.queens.map(q => `• ${q.name}: ${q.desc}`).join("\n")}`, { parse_mode: "Markdown", reply_markup: keyboard });
   }
 
@@ -262,14 +264,14 @@ bot.on("callback_query:data", async (ctx) => {
     const queen = harams[kingId].queens[queenIdx];
     await ctx.replyWithPhoto(queen.image, {
       caption: `👸 **${queen.name}**\n\n📖 ${queen.desc}\n\n💝 وفادار به ${kings[kingId].name}\n\n🎁 آیتم ویژه: ${harams[kingId].specialItem}`,
-      parse_mode: "Markdown", reply_markup: new InlineKeyboard().text("🔙 منوی اصلی", "back_main")
+      parse_mode: "Markdown", reply_markup: getBackToGameMenu()
     });
   }
 
   // بازارچه
   else if (data === "shop") {
     const user = usersDB.get(userId);
-    if (!user) return;
+    if (!user) { await ctx.reply("❌ ابتدا یک پادشاه انتخاب کن!", { reply_markup: new InlineKeyboard().text("🔙 منوی اصلی", "back_main") }); return; }
     const weapons = baseWeapons[user.era];
     const goldDisplay = formatGold(user.gold, user.era);
     const keyboard = new InlineKeyboard();
@@ -277,7 +279,7 @@ bot.on("callback_query:data", async (ctx) => {
       const priceDisplay = formatPrice(w.basePrice, user.era);
       keyboard.text(`${w.name} - ${priceDisplay}`, `buy_${w.id}`);
     });
-    keyboard.row().text("🔙 منوی اصلی", "back_main");
+    keyboard.row().text("🔙 بازگشت به بازی", "back_to_game");
     
     await ctx.reply(`🪞 **بازارچه شیشه‌ای**\n\n💰 تومان: ${goldDisplay}\n⚔️ توان: ${user.military}\n\n${weapons.map(w => {
       const priceDisplay = formatPrice(w.basePrice, user.era);
@@ -301,11 +303,11 @@ bot.on("callback_query:data", async (ctx) => {
       user.military += weapon.power;
       usersDB.set(userId, user);
       const goldDisplay = formatGold(user.gold, user.era);
-      await ctx.reply(`✅ **${weapon.name}** خریداری شد!\n💰 تومان: ${goldDisplay}\n⚔️ توان: ${user.military}`);
+      await ctx.reply(`✅ **${weapon.name}** خریداری شد!\n💰 تومان: ${goldDisplay}\n⚔️ توان: ${user.military}`, { reply_markup: getBackToGameMenu() });
     } else {
       const need = finalPrice - user.gold;
       const needDisplay = formatPrice(need / inflationRates[user.era], user.era);
-      await ctx.reply(`❌ تومان کافی نیست! نیاز به ${needDisplay} بیشتر.`);
+      await ctx.reply(`❌ تومان کافی نیست! نیاز به ${needDisplay} بیشتر.`, { reply_markup: getBackToGameMenu() });
     }
   }
 
@@ -329,7 +331,7 @@ bot.on("callback_query:data", async (ctx) => {
     const goldDisplay = formatGold(user.gold, user.era);
     const rewardDisplay = formatGold(reward.gold, user.era);
     
-    await ctx.reply(`${isWin ? "🎉 پیروزی بزرگ!" : "💔 شکست ننگین!"}\n\n⚔️ نبرد با ${enemy}\n💰 +${rewardDisplay} تومان\n⭐ +${reward.exp} تجربه\n💰 تومان: ${goldDisplay}\n⚔️ توان: ${user.military}`, { reply_markup: new InlineKeyboard().text("🔙 منوی اصلی", "back_main") });
+    await ctx.reply(`${isWin ? "🎉 پیروزی بزرگ!" : "💔 شکست ننگین!"}\n\n⚔️ نبرد با ${enemy}\n💰 +${rewardDisplay} تومان\n⭐ +${reward.exp} تجربه\n💰 تومان: ${goldDisplay}\n⚔️ توان: ${user.military}`, { reply_markup: getBackToGameMenu() });
   }
 
   // وضعیت
@@ -342,7 +344,22 @@ bot.on("callback_query:data", async (ctx) => {
     await showLeaderboard(ctx);
   }
 
-  // بازگشت به منوی اصلی
+  // بازگشت به بازی (منوی پادشاه)
+  else if (data === "back_to_game") {
+    const user = usersDB.get(userId);
+    if (!user) {
+      await ctx.reply("❌ خطا! لطفاً /start رو بزن.", { reply_markup: new InlineKeyboard().text("🔙 منوی اصلی", "back_main") });
+      return;
+    }
+    const king = kings[user.king];
+    const goldDisplay = formatGold(user.gold, user.era);
+    await ctx.replyWithPhoto(king.image, {
+      caption: `${getGlassBorder()}\n✅ **${user.kingName}**\n${getGlassBorder()}\n\n💰 تومان: ${goldDisplay}\n⚔️ توان رزمی: ${user.military}`,
+      parse_mode: "Markdown", reply_markup: getGameMenu()
+    });
+  }
+
+  // بازگشت به منوی اصلی (اول بازی)
   else if (data === "back_main") {
     await ctx.reply(
       `${getGlassBorder()}\n🪞 ⭐ فروغ جاودان ⭐ 🪞\n${getGlassBorder()}\n\n📜 یک دسته از شاهان را برگزین:`,
@@ -358,4 +375,4 @@ if (process.env.RAILWAY_ENV === "true") {
   bot.start();
 }
 
-console.log("🎮 بازی بقای باستانی - نسخه نهایی کامل با تورم و خرید سلاح روشن شد...");
+console.log("🎮 بازی بقای باستانی - نسخه نهایی با سیستم بازگشت هوشمند روشن شد...");
